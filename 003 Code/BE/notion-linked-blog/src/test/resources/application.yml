@@ -5,6 +5,9 @@ server:
       force-response: true
 
 spring:
+  sql:
+    init:
+      mode: never #테스트때에는 data.sql(초기화) 실행 방지
   jpa:
     properties:
       hibernate:
