@@ -248,7 +248,7 @@ class UserApiControllerTests {
 							.session(mockHttpSession))
 					.andDo(print());
 				//then
-				resultActions.andExpect(status().isOk());
+				resultActions.andExpect(status().isNoContent());
 			}
 		}
 
@@ -293,7 +293,7 @@ class UserApiControllerTests {
 							.session(mockHttpSession))
 					.andDo(print());
 				//then
-				resultActions.andExpect(status().is4xxClientError());
+				resultActions.andExpect(status().isBadRequest());
 			}
 		}
 	}

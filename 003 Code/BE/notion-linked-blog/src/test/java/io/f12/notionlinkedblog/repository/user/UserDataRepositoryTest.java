@@ -41,21 +41,11 @@ class UserDataRepositoryTest {
 				.username("username1")
 				.email("email1")
 				.password("password1")
-				.profile("profile1")
-				.introduction("intro1")
-				.blogTitle("title1")
-				.githubLink("git1")
-				.instagramLink("insta1")
 				.build();
 			User user2 = User.builder()
 				.username("username2")
 				.email("email2")
 				.password("password2")
-				.profile("profile2")
-				.introduction("intro2")
-				.blogTitle("title2")
-				.githubLink("git2")
-				.instagramLink("insta2")
 				.build();
 			userDataRepository.save(user1);
 			userDataRepository.save(user2);
@@ -69,8 +59,13 @@ class UserDataRepositoryTest {
 			UserSearchDto findUserB = userB.orElseThrow(
 				() -> new IllegalArgumentException("Wrong MemberId: " + id2));
 			//then
-			assertThat(findUserA.hashCode()).isEqualTo(user1.hashCode());
-			assertThat(findUserB.hashCode()).isEqualTo(user2.hashCode());
+			assertThat(findUserA).extracting("id").isEqualTo(user1.getId());
+			assertThat(findUserA).extracting("username").isEqualTo(user1.getUsername());
+			assertThat(findUserA).extracting("email").isEqualTo(user1.getEmail());
+
+			assertThat(findUserB).extracting("id").isEqualTo(user2.getId());
+			assertThat(findUserB).extracting("username").isEqualTo(user2.getUsername());
+			assertThat(findUserB).extracting("email").isEqualTo(user2.getEmail());
 		}
 
 		@DisplayName("비정상 조회 - 없는 회원 조회시")

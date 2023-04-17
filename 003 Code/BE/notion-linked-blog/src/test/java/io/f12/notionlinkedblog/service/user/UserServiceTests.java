@@ -147,11 +147,13 @@ class UserServiceTests extends DummyObject {
 					UserSearchDto userInfoA = userService.getUserInfo(fakeIdForA);
 					UserSearchDto userInfoB = userService.getUserInfo(fakeIdForB);
 					//then
-					assertThat(userInfoA).extracting("email").isEqualTo(userA.getEmail());
+					assertThat(userInfoA).extracting("id").isEqualTo(userA.getId());
 					assertThat(userInfoA).extracting("username").isEqualTo(userA.getUsername());
-					assertThat(userInfoB).extracting("email").isEqualTo(userB.getEmail());
-					assertThat(userInfoB).extracting("username").isEqualTo(userB.getUsername());
+					assertThat(userInfoA).extracting("email").isEqualTo(userA.getEmail());
 
+					assertThat(userInfoB).extracting("id").isEqualTo(userB.getId());
+					assertThat(userInfoB).extracting("username").isEqualTo(userB.getUsername());
+					assertThat(userInfoB).extracting("email").isEqualTo(userB.getEmail());
 				}
 			}
 
