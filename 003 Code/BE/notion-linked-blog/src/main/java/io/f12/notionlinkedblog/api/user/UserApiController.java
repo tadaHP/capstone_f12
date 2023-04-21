@@ -9,7 +9,6 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -20,10 +19,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.f12.notionlinkedblog.domain.user.dto.info.UserEditDto;
 import io.f12.notionlinkedblog.domain.user.dto.info.UserSearchDto;
 import io.f12.notionlinkedblog.domain.user.dto.signup.UserSignupRequestDto;
 import io.f12.notionlinkedblog.domain.user.dto.signup.UserSignupResponseDto;
@@ -61,23 +60,15 @@ public class UserApiController {
 		return userService.getUserInfo(id);
 	}
 
-	@PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-	public ResponseEntity<?> editUserInfo(
-		HttpSession session,
-		@PathVariable Long id,
-		@RequestParam(value = "username", required = false) String username,
-		@RequestParam(value = "email", required = false) String email,
-		@RequestParam(value = "password", required = false) String password,
-		@RequestParam(value = "profile", required = false) String profile,
-		@RequestParam(value = "blogTitle", required = false) String blogTitle,
-		@RequestParam(value = "githubLink", required = false) String githubLink,
-		@RequestParam(value = "instagramLink", required = false) String instagramLink,
-		@RequestParam(value = "introduction", required = false) String introduction
-	) {
+	@PutMapping(value = "/{id}")
+	public ResponseEntity<?> editUserInfo(HttpSession session, @PathVariable Long id,
+		@RequestBody UserEditDto editInfo) {
 		Optional<UserSearchDto> sessionUser = getUserSession(session);
 		checkValidSession(sessionUser, id);
-		userService.editUserInfo(id, username, email, password, profile, blogTitle,
-			githubLink, instagramLink, introduction);
+
+		userService.editUserInfo(id, editInfo.getUsername(), editInfo.getEmail(), editInfo.getPassword(),
+			editInfo.getProfile(), editInfo.getIntroduction(), editInfo.getBlogTitle(), editInfo.getGithubLink(),
+			editInfo.getInstagramLink());
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setLocation(URI.create("/api/users/" + id));
 		return new ResponseEntity<>(httpHeaders, HttpStatus.FOUND);

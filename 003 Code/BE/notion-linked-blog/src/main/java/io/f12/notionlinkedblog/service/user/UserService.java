@@ -35,9 +35,9 @@ public class UserService {
 		return userDataRepository.findUserById(id).orElseThrow(() -> new IllegalArgumentException("회원ID가 존재하지 않습니다."));
 	}
 
-	public Long editUserInfo(Long id, String username, String email, String password,
-		String profile, String blogTitle, String githubLink,
-		String instagramLink, String introduction) {
+	public Long editUserInfo(Long id, String username, String email, String password, String profile,
+		String introduction, String blogTitle, String githubLink, String instagramLink) {
+
 		User findUser = userDataRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("회원ID가 존재하지 않습니다."));
 

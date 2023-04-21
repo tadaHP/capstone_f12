@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.f12.notionlinkedblog.domain.user.User;
+import io.f12.notionlinkedblog.domain.user.dto.info.UserEditDto;
 import io.f12.notionlinkedblog.domain.user.dto.info.UserSearchDto;
 import io.f12.notionlinkedblog.domain.user.dto.signup.UserSignupRequestDto;
 import io.f12.notionlinkedblog.service.user.UserService;
@@ -125,7 +126,7 @@ class UserApiControllerTests {
 					.username("user1")
 					.email("before@test.com")
 					.build();
-				UserSearchDto changedDto = UserSearchDto.builder()
+				UserEditDto changedDto = UserEditDto.builder()
 					.username("changed")
 					.email("changed@test.com")
 					.build();
@@ -140,7 +141,7 @@ class UserApiControllerTests {
 				//when
 				ResultActions resultActions = mockMvc.perform(
 						put(url)
-							.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+							.contentType(MediaType.APPLICATION_JSON)
 							.cookie(new Cookie("JSESSIONID", mockHttpSession.getId()))
 							.content(requestBody)
 							.session(mockHttpSession))
@@ -178,7 +179,7 @@ class UserApiControllerTests {
 				//when
 				ResultActions resultActions = mockMvc.perform(
 						put(url)
-							.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+							.contentType(MediaType.APPLICATION_JSON)
 							.cookie(new Cookie("JSESSIONID", mockHttpSession.getId()))
 							.content(requestBody))
 					.andDo(print());
@@ -209,7 +210,7 @@ class UserApiControllerTests {
 				//when
 				ResultActions resultActions = mockMvc.perform(
 						put(url)
-							.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+							.contentType(MediaType.APPLICATION_JSON)
 							.cookie(new Cookie("JSESSIONID", mockHttpSession.getId()))
 							.content(requestBody)
 							.session(mockHttpSession))
