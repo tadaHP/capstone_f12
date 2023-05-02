@@ -8,9 +8,8 @@ import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import org.springframework.util.StringUtils;
-
 import io.f12.notionlinkedblog.domain.BaseTimeEntity;
+import io.f12.notionlinkedblog.domain.user.dto.info.UserEditDto;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -57,33 +56,13 @@ public class User extends BaseTimeEntity {
 		this.instagramLink = instagramLink;
 	}
 
-	public void editProfile(String username, String email, String password, String profile, String blogTitle,
-		String githubLink, String instagramLink, String introduction) {
-
-		if (StringUtils.hasText(username)) {
-			this.username = username;
-		}
-		if (StringUtils.hasText(email)) {
-			this.email = email;
-		}
-		if (StringUtils.hasText(password)) {
-			this.password = password;
-		}
-		if (StringUtils.hasText(profile)) {
-			this.profile = profile;
-		}
-		if (StringUtils.hasText(blogTitle)) {
-			this.blogTitle = blogTitle;
-		}
-		if (StringUtils.hasText(githubLink)) {
-			this.githubLink = githubLink;
-		}
-		if (StringUtils.hasText(instagramLink)) {
-			this.instagramLink = instagramLink;
-		}
-		if (StringUtils.hasText(introduction)) {
-			this.introduction = introduction;
-		}
+	public void editProfile(UserEditDto editDto) {
+		this.username = editDto.getUsername();
+		this.profile = editDto.getProfile();
+		this.blogTitle = editDto.getBlogTitle();
+		this.githubLink = editDto.getGithubLink();
+		this.instagramLink = editDto.getInstagramLink();
+		this.introduction = editDto.getIntroduction();
 	}
 
 }

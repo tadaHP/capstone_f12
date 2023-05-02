@@ -3,11 +3,9 @@ package io.f12.notionlinkedblog.domain.user.dto.info;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
 @NoArgsConstructor
-@ToString
 public class UserSearchDto {
 	private Long id;
 	private String username;

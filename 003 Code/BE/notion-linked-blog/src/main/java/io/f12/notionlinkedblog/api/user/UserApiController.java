@@ -2,14 +2,12 @@ package io.f12.notionlinkedblog.api.user;
 
 import static io.f12.notionlinkedblog.api.EmailApiController.*;
 
-import java.net.URI;
-import java.util.Optional;
-
 import javax.servlet.http.HttpSession;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,15 +20,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.f12.notionlinkedblog.api.common.Endpoint;
 import io.f12.notionlinkedblog.domain.user.dto.info.UserEditDto;
 import io.f12.notionlinkedblog.domain.user.dto.info.UserSearchDto;
 import io.f12.notionlinkedblog.domain.user.dto.signup.UserSignupRequestDto;
 import io.f12.notionlinkedblog.domain.user.dto.signup.UserSignupResponseDto;
+import io.f12.notionlinkedblog.security.login.ajax.dto.LoginUser;
 import io.f12.notionlinkedblog.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@RequestMapping("/api/users")
+@RequestMapping(Endpoint.Api.USER)
 @RestController
 public class UserApiController {
 
@@ -61,37 +61,23 @@ public class UserApiController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<?> editUserInfo(HttpSession session, @PathVariable Long id,
-		@RequestBody UserEditDto editInfo) {
-		Optional<UserSearchDto> sessionUser = getUserSession(session);
-		checkValidSession(sessionUser, id);
-
-		userService.editUserInfo(id, editInfo.getUsername(), editInfo.getEmail(), editInfo.getPassword(),
-			editInfo.getProfile(), editInfo.getIntroduction(), editInfo.getBlogTitle(), editInfo.getGithubLink(),
-			editInfo.getInstagramLink());
-		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.setLocation(URI.create("/api/users/" + id));
-		return new ResponseEntity<>(httpHeaders, HttpStatus.FOUND);
+	public ResponseEntity<?> editUserInfo(@PathVariable Long id, @AuthenticationPrincipal LoginUser loginUser,
+		@RequestBody @Validated UserEditDto editDto) {
+		checkSameUser(id, loginUser);
+		userService.editUserInfo(id, editDto);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deleteUser(@PathVariable Long id, HttpSession session) {
-		Optional<UserSearchDto> sessionUser = getUserSession(session);
-		checkValidSession(sessionUser, id);
+	public void deleteUser(@PathVariable Long id, @AuthenticationPrincipal LoginUser loginUser) {
+		checkSameUser(id, loginUser);
 		userService.removeUser(id);
 	}
 
-	private Optional<UserSearchDto> getUserSession(HttpSession session) {
-		return Optional.ofNullable((UserSearchDto)session.getAttribute(session.getId()));
-	}
-
-	private void checkValidSession(Optional<UserSearchDto> sessionUser, Long id) {
-		if (sessionUser.isEmpty()) {
-			throw new IllegalStateException("로그인 되어있지 않습니다.");
-		}
-		if (!sessionUser.get().getId().equals(id)) {
-			throw new IllegalArgumentException("동일 회원이 아닙니다.");
+	private void checkSameUser(Long id, LoginUser loginUser) {
+		if (!id.equals(loginUser.getId())) {
+			throw new AccessDeniedException("데이터를 찾지 못했습니다");
 		}
 	}
 

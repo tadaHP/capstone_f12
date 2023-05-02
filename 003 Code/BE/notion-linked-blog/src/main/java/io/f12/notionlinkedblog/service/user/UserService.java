@@ -5,10 +5,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.f12.notionlinkedblog.domain.user.User;
+import io.f12.notionlinkedblog.domain.user.dto.info.UserEditDto;
 import io.f12.notionlinkedblog.domain.user.dto.info.UserSearchDto;
 import io.f12.notionlinkedblog.domain.user.dto.signup.UserSignupRequestDto;
 import io.f12.notionlinkedblog.repository.user.UserDataRepository;
-import io.f12.notionlinkedblog.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class UserService {
 
-	private final UserRepository userRepository;
 	private final UserDataRepository userDataRepository;
 	private final PasswordEncoder passwordEncoder;
 
@@ -25,7 +24,7 @@ public class UserService {
 
 		requestDto.setPassword(passwordEncoder.encode(requestDto.getPassword()));
 		User newUser = requestDto.toEntity();
-		User savedUser = userRepository.save(newUser);
+		User savedUser = userDataRepository.save(newUser);
 
 		return savedUser.getId();
 	}
@@ -35,14 +34,12 @@ public class UserService {
 		return userDataRepository.findUserById(id).orElseThrow(() -> new IllegalArgumentException("회원ID가 존재하지 않습니다."));
 	}
 
-	public Long editUserInfo(Long id, String username, String email, String password, String profile,
-		String introduction, String blogTitle, String githubLink, String instagramLink) {
+	public Long editUserInfo(Long id, UserEditDto editDto) {
 
 		User findUser = userDataRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("회원ID가 존재하지 않습니다."));
 
-		findUser.editProfile(username, email, password, profile,
-			blogTitle, githubLink, instagramLink, introduction);
+		findUser.editProfile(editDto);
 		return id;
 	}
 
@@ -53,7 +50,7 @@ public class UserService {
 	}
 
 	private void checkEmailIsDuplicated(final String email) {
-		boolean isPresent = userRepository.findByEmail(email).isPresent();
+		boolean isPresent = userDataRepository.findByEmail(email).isPresent();
 		if (isPresent) {
 			throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
 		}

@@ -1,7 +1,6 @@
 package io.f12.notionlinkedblog.api.user;
 
 import static io.f12.notionlinkedblog.api.EmailApiController.*;
-import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
@@ -9,6 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import javax.servlet.http.Cookie;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,28 +19,53 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.TestExecutionEvent;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.f12.notionlinkedblog.api.common.Endpoint;
 import io.f12.notionlinkedblog.domain.user.User;
 import io.f12.notionlinkedblog.domain.user.dto.info.UserEditDto;
 import io.f12.notionlinkedblog.domain.user.dto.info.UserSearchDto;
 import io.f12.notionlinkedblog.domain.user.dto.signup.UserSignupRequestDto;
+import io.f12.notionlinkedblog.repository.user.UserDataRepository;
 import io.f12.notionlinkedblog.service.user.UserService;
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 class UserApiControllerTests {
 
+	@MockBean
+	UserService userService;
 	@Autowired
 	private MockMvc mockMvc;
 	@Autowired
 	private ObjectMapper om;
-	@MockBean
-	UserService userService;
+	@Autowired
+	private UserDataRepository userDataRepository;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	private User testUser;
+
+	@BeforeEach
+	void setup() {
+		testUser = userDataRepository.save(User.builder()
+			.email("test@gmail.com")
+			.username("test")
+			.password(passwordEncoder.encode("1234"))
+			.build()
+		);
+	}
+
+	@AfterEach
+	void teardown() {
+		userDataRepository.deleteAll();
+	}
 
 	@DisplayName("이메일 기반 회원가입")
 	@Nested
@@ -51,7 +77,7 @@ class UserApiControllerTests {
 			@Test
 			void success() throws Exception {
 				//given
-				final String url = "/api/users/email/signup";
+				final String url = Endpoint.Api.USER + "/email/signup";
 				UserSignupRequestDto userSignupRequestDto = UserSignupRequestDto.builder()
 					.username("test")
 					.email("test@gmail.com")
@@ -81,30 +107,30 @@ class UserApiControllerTests {
 		@Nested
 		class SuccessCase {
 			@DisplayName("유저 정보 가져오기")
+			@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
 			@Test
 			void getUserInfoTest() throws Exception {
 				//given
 				UserSearchDto returnDto = UserSearchDto.builder()
-					.username("tester")
-					.email("test@test.com")
+					.id(testUser.getId())
+					.username("test")
+					.email("test@gmail.com")
 					.build();
-				Long fakeId = 1L;
-				ReflectionTestUtils.setField(returnDto, "id", fakeId);
-				//mock
-				given(userService.getUserInfo(fakeId))
-					.willReturn(returnDto);
+
+				//stub
+				given(userService.getUserInfo(any())).willReturn(returnDto);
+
 				//when
-				ResultActions resultActions = mockMvc.perform(get("/api/users/1"))
-					.andDo(print());
+				ResultActions resultActions = mockMvc.perform(get(Endpoint.Api.USER + "/1"));
+
 				//then
 				resultActions
 					.andExpectAll(
 						status().isOk(),
 						content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON),
-						jsonPath("$.id").value(fakeId),
+						jsonPath("$.id").exists(),
 						jsonPath("$.username").value(returnDto.getUsername()),
-						jsonPath("$.email").value(returnDto.getEmail())
-					);
+						jsonPath("$.email").value(returnDto.getEmail()));
 			}
 		}
 	}
@@ -117,107 +143,50 @@ class UserApiControllerTests {
 		@Nested
 		class SuccessCase {
 			@DisplayName("유저 정보 수정")
+			@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
 			@Test
 			void editUserInfoTest() throws Exception {
 				//given
-				final Long fakeUserId = 1L;
-				final String url = "/api/users/1";
-				UserSearchDto beforeUser = UserSearchDto.builder()
-					.username("user1")
-					.email("before@test.com")
-					.build();
-				UserEditDto changedDto = UserEditDto.builder()
-					.username("changed")
-					.email("changed@test.com")
-					.build();
-				ReflectionTestUtils.setField(beforeUser, "id", fakeUserId);
-				//mock
-				MockHttpSession mockHttpSession = new MockHttpSession();
-				mockHttpSession.setAttribute(mockHttpSession.getId(), beforeUser);
-				given(userService.editUserInfo(fakeUserId, changedDto.getUsername(), changedDto.getEmail(), null, null,
-					null, null, null, null))
-					.willReturn(fakeUserId);
-				String requestBody = om.writeValueAsString(changedDto);
+				final String url = Endpoint.Api.USER + "/" + testUser.getId();
+
+				UserEditDto editDto = UserEditDto.builder().username("test1").build();
+
+				//stub
+				String requestBody = om.writeValueAsString(editDto);
+				given(userService.editUserInfo(testUser.getId(), editDto)).willReturn(testUser.getId());
+
 				//when
 				ResultActions resultActions = mockMvc.perform(
-						put(url)
-							.contentType(MediaType.APPLICATION_JSON)
-							.cookie(new Cookie("JSESSIONID", mockHttpSession.getId()))
-							.content(requestBody)
-							.session(mockHttpSession))
-					.andDo(print());
+					put(url)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(requestBody));
+
 				//then
-				resultActions.andExpectAll(
-					status().isFound(),
-					redirectedUrl(url)
-				);
+				resultActions.andExpect(status().isOk());
 			}
 		}
 
 		@DisplayName("실패 케이스")
 		@Nested
 		class FailureCase {
-			@DisplayName("세션 미존재, 로그인 하지 않은 상태")
-			@Test
-			void editUserInfoWithoutSessionTest() throws Exception {
-				//given
-				final Long fakeUserId = 1L;
-				final String url = "/api/users/1";
-				User beforeUser = User.builder()
-					.username("user1")
-					.email("before@test.com")
-					.password("1234")
-					.build();
-				UserSearchDto changedDto = UserSearchDto.builder()
-					.username("changed")
-					.email("changed@test.com")
-					.build();
-				ReflectionTestUtils.setField(beforeUser, "id", fakeUserId);
-				//mock
-				String requestBody = om.writeValueAsString(changedDto);
-				MockHttpSession mockHttpSession = new MockHttpSession();
-				//when
-				ResultActions resultActions = mockMvc.perform(
-						put(url)
-							.contentType(MediaType.APPLICATION_JSON)
-							.cookie(new Cookie("JSESSIONID", mockHttpSession.getId()))
-							.content(requestBody))
-					.andDo(print());
-				//then
-				assertThat(resultActions.andReturn().getResponse().getContentAsString()).isEqualTo("로그인 되어있지 않습니다.");
-				resultActions.andExpect(status().isBadRequest());
-			}
-
 			@DisplayName("로그인 유저와 변경유저 불일치")
+			@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
 			@Test
 			void editUnMatchingUserInfoTest() throws Exception {
 				//given
-				final Long fakeUserId = 2L;
-				final String url = "/api/users/1";
-				UserSearchDto beforeUser = UserSearchDto.builder()
-					.username("user1")
-					.email("before@test.com")
-					.build();
-				UserSearchDto changedDto = UserSearchDto.builder()
-					.username("changed")
-					.email("changed@test.com")
-					.build();
-				ReflectionTestUtils.setField(beforeUser, "id", fakeUserId);
-				//mock
-				MockHttpSession mockHttpSession = new MockHttpSession();
-				mockHttpSession.setAttribute(mockHttpSession.getId(), beforeUser);
-				String requestBody = om.writeValueAsString(changedDto);
+				String anotherUserId = "0";
+				final String url = Endpoint.Api.USER + "/" + anotherUserId;
+				UserEditDto editDto = UserEditDto.builder().username("test1").build();
+				String requestBody = om.writeValueAsString(editDto);
+
 				//when
 				ResultActions resultActions = mockMvc.perform(
-						put(url)
-							.contentType(MediaType.APPLICATION_JSON)
-							.cookie(new Cookie("JSESSIONID", mockHttpSession.getId()))
-							.content(requestBody)
-							.session(mockHttpSession))
-					.andDo(print());
+					put(url)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(requestBody));
+
 				//then
-				assertThat(resultActions.andReturn().getResponse().getContentAsString()).isEqualTo("동일 회원이 아닙니다.");
-				resultActions.andExpect(status().isBadRequest());
+				resultActions.andExpect(status().isNotFound());
 			}
 		}
 	}
@@ -229,16 +198,15 @@ class UserApiControllerTests {
 		@Nested
 		class SuccessCase {
 			@DisplayName("유저 정보 삭제")
+			@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
 			@Test
 			void deleteUserTest() throws Exception {
 				//given
-				final Long fakeUserId = 1L;
-				final String url = "/api/users/1";
+				final String url = Endpoint.Api.USER + "/" + testUser.getId();
 				UserSearchDto beforeUser = UserSearchDto.builder()
 					.username("user1")
 					.email("before@test.com")
 					.build();
-				ReflectionTestUtils.setField(beforeUser, "id", fakeUserId);
 				//mock
 				MockHttpSession mockHttpSession = new MockHttpSession();
 				mockHttpSession.setAttribute(mockHttpSession.getId(), beforeUser);
@@ -256,47 +224,20 @@ class UserApiControllerTests {
 		@DisplayName("실패 케이스")
 		@Nested
 		class FailureCase {
-			@DisplayName("세션 미존재, 로그인 하지 않은 상태")
-			@Test
-			void deleteUserWithoutSessionTest() throws Exception {
-				//given
-				final String url = "/api/users/1";
-				//mock
-				MockHttpSession mockHttpSession = new MockHttpSession();
-				//when
-				ResultActions resultActions = mockMvc.perform(
-						delete(url)
-							.cookie(new Cookie("JSESSIONID", mockHttpSession.getId()))
-							.session(mockHttpSession))
-					.andDo(print());
-				//then
-				resultActions.andExpect(status().isBadRequest());
-			}
-
 			@DisplayName("로그인 유저와 변경유저 불일치")
+			@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
 			@Test
 			void deleteUnMatchingUserInfoTest() throws Exception {
 				//given
-				final Long fakeUserId = 2L;
-				final String url = "/api/users/1";
-				UserSearchDto beforeUser = UserSearchDto.builder()
-					.username("user1")
-					.email("before@test.com")
-					.build();
-				ReflectionTestUtils.setField(beforeUser, "id", fakeUserId);
-				//mock
-				MockHttpSession mockHttpSession = new MockHttpSession();
-				mockHttpSession.setAttribute(mockHttpSession.getId(), beforeUser);
+				String anotherUserId = "0";
+				final String url = Endpoint.Api.USER + "/" + anotherUserId;
+
 				//when
-				ResultActions resultActions = mockMvc.perform(
-						delete(url)
-							.cookie(new Cookie("JSESSIONID", mockHttpSession.getId()))
-							.session(mockHttpSession))
-					.andDo(print());
+				ResultActions resultActions = mockMvc.perform(delete(url));
+
 				//then
-				resultActions.andExpect(status().isBadRequest());
+				resultActions.andExpect(status().isNotFound());
 			}
 		}
 	}
-
 }

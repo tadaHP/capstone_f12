@@ -17,23 +17,18 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import io.f12.notionlinkedblog.domain.dummy.DummyObject;
 import io.f12.notionlinkedblog.domain.user.User;
+import io.f12.notionlinkedblog.domain.user.dto.info.UserEditDto;
 import io.f12.notionlinkedblog.domain.user.dto.info.UserSearchDto;
 import io.f12.notionlinkedblog.domain.user.dto.signup.UserSignupRequestDto;
 import io.f12.notionlinkedblog.repository.user.UserDataRepository;
-import io.f12.notionlinkedblog.repository.user.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTests extends DummyObject {
 
 	@InjectMocks
 	private UserService userService;
-
-	@Mock
-	private UserRepository userRepository;
-
 	@Mock
 	private UserDataRepository userDataRepository;
-
 	@Mock
 	private PasswordEncoder passwordEncoder;
 
@@ -56,10 +51,10 @@ class UserServiceTests extends DummyObject {
 				User mockUser = newMockUser(1L, "test", "test@gmail.com");
 
 				// stub 1
-				given(userRepository.findByEmail(any())).willReturn(Optional.empty());
+				given(userDataRepository.findByEmail(any())).willReturn(Optional.empty());
 
 				// stub 2
-				given(userRepository.save(any())).willReturn(mockUser);
+				given(userDataRepository.save(any())).willReturn(mockUser);
 
 				//when
 				Long id = userService.signupByEmail(newUserDto);
@@ -82,7 +77,7 @@ class UserServiceTests extends DummyObject {
 					.password("password")
 					.build();
 				User existUser = existUserDto.toEntity();
-				userRepository.save(existUser);
+				userDataRepository.save(existUser);
 
 				UserSignupRequestDto newUserDto = UserSignupRequestDto.builder()
 					.email("test@gmail.com")
@@ -90,7 +85,7 @@ class UserServiceTests extends DummyObject {
 					.password("password")
 					.build();
 				User newUser = newUserDto.toEntity();
-				given(userRepository.findByEmail(newUser.getEmail())).willReturn(Optional.of(existUser));
+				given(userDataRepository.findByEmail(newUser.getEmail())).willReturn(Optional.of(existUser));
 
 				//then
 				assertThatThrownBy(() -> userService.signupByEmail(newUserDto)).isInstanceOf(
@@ -190,25 +185,15 @@ class UserServiceTests extends DummyObject {
 						.username("username1")
 						.password("password1")
 						.build();
-					User editedUserInfo = User.builder()
-						.email("changed@gmail.com")
-						.username("changedUsername")
-						.password("changedPassword")
-						.build();
-					Long fakeIdForA = 1L;
-					ReflectionTestUtils.setField(userA, "id", fakeIdForA);
-					ReflectionTestUtils.setField(editedUserInfo, "id", fakeIdForA);
-					//mock
-					given(userDataRepository.findById(fakeIdForA))
+					UserEditDto editDto = UserEditDto.builder().username("changed").build();
+
+					//stub
+					given(userDataRepository.findById(any()))
 						.willReturn(Optional.of(userA));
 					//when
-					Long returnId = userService.editUserInfo(editedUserInfo.getId(), editedUserInfo.getUsername(),
-						editedUserInfo.getEmail(), editedUserInfo.getPassword(), editedUserInfo.getProfile(),
-						editedUserInfo.getBlogTitle(),
-						editedUserInfo.getGithubLink(), editedUserInfo.getInstagramLink(),
-						editedUserInfo.getIntroduction());
+					userService.editUserInfo(1L, editDto);
 					//then
-					assertThat(returnId).isSameAs(fakeIdForA);
+					assertThat(userA.getUsername()).isEqualTo(editDto.getUsername());
 				}
 			}
 
@@ -219,29 +204,17 @@ class UserServiceTests extends DummyObject {
 				@Test
 				void editUnUnifiedUserInfoTest() {
 					//given
-					User editedUser = User.builder()
-						.email("changed@gmail.com")
-						.username("changedUsername")
-						.password("changedPassword")
-						.build();
-					Long fakeIdForA = 1L;
-					ReflectionTestUtils.setField(editedUser, "id", fakeIdForA);
+					UserEditDto editedUser = UserEditDto.builder().username("changedUsername").build();
+
 					//mock
-					given(userDataRepository.findById(fakeIdForA))
+					given(userDataRepository.findById(any()))
 						.willReturn(Optional.empty());
 					//when, then
 					assertThatThrownBy(() -> userService
-						.editUserInfo(editedUser.getId(), editedUser.getUsername(),
-							editedUser.getEmail(), editedUser.getPassword(), editedUser.getProfile(),
-							editedUser.getBlogTitle(),
-							editedUser.getGithubLink(), editedUser.getInstagramLink(),
-							editedUser.getIntroduction()))
+						.editUserInfo(-1L, editedUser))
 						.isInstanceOf(IllegalArgumentException.class);
-
 				}
-
 			}
-
 		}
 
 		@DisplayName("유저 삭제 테스트")
