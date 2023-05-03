@@ -1,6 +1,6 @@
 # What is this PR?🔍
 
-- Trello Card:
+- Jira Issues:
 - 기타 참조 문서:
 
 ## Changes📝
