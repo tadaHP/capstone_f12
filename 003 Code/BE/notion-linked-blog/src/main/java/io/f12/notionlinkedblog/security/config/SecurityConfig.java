@@ -11,6 +11,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -41,6 +44,9 @@ public class SecurityConfig {
 			.csrf().disable();
 
 		http
+			.cors().configurationSource(corsConfigurationSource());
+
+		http
 			.httpBasic().disable()
 			.formLogin().disable();
 
@@ -53,6 +59,20 @@ public class SecurityConfig {
 			.apply(ajaxLoginConfigurer());
 
 		return http.build();
+	}
+
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration corsConfiguration = new CorsConfiguration();
+		corsConfiguration.addAllowedHeader("*");
+		corsConfiguration.addAllowedMethod("*");
+		corsConfiguration.addAllowedOriginPattern("*");
+		corsConfiguration.setAllowCredentials(true);
+		corsConfiguration.addExposedHeader("Authorization");
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", corsConfiguration);
+
+		return source;
 	}
 
 	@Bean
