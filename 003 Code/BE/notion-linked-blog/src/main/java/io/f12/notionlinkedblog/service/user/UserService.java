@@ -1,5 +1,7 @@
 package io.f12.notionlinkedblog.service.user;
 
+import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.UserExceptionsMessages.*;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,13 +33,13 @@ public class UserService {
 
 	@Transactional(readOnly = true)
 	public UserSearchDto getUserInfo(Long id) {
-		return userDataRepository.findUserById(id).orElseThrow(() -> new IllegalArgumentException("회원ID가 존재하지 않습니다."));
+		return userDataRepository.findUserById(id).orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
 	}
 
 	public Long editUserInfo(Long id, UserEditDto editDto) {
 
 		User findUser = userDataRepository.findById(id)
-			.orElseThrow(() -> new IllegalArgumentException("회원ID가 존재하지 않습니다."));
+			.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
 
 		findUser.editProfile(editDto);
 		return id;
@@ -45,14 +47,14 @@ public class UserService {
 
 	public void removeUser(Long id) {
 		userDataRepository.findById(id)
-			.orElseThrow(() -> new IllegalArgumentException("회원ID가 존재하지 않습니다."));
+			.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
 		userDataRepository.deleteById(id);
 	}
 
 	private void checkEmailIsDuplicated(final String email) {
 		boolean isPresent = userDataRepository.findByEmail(email).isPresent();
 		if (isPresent) {
-			throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+			throw new IllegalArgumentException(EMAIL_ALREADY_EXIST);
 		}
 	}
 }

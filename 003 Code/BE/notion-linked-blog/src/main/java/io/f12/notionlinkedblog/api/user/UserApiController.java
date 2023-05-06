@@ -80,17 +80,4 @@ public class UserApiController {
 			throw new AccessDeniedException("데이터를 찾지 못했습니다");
 		}
 	}
-
-	/**
-	 * 테스트용  api
-	 * @param id id에 해당하는 세션 가져오기
-	 */
-
-	@GetMapping("/getSession/{id}")
-	@ResponseStatus(HttpStatus.CREATED)
-	private void getSessionForTest(HttpSession session, @PathVariable Long id) {
-		UserSearchDto userInfo = userService.getUserInfo(id);
-		String sessionId = session.getId();
-		session.setAttribute(sessionId, userInfo);
-	}
 }

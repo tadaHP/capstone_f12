@@ -1,5 +1,6 @@
 package io.f12.notionlinkedblog.service.user;
 
+import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.UserExceptionsMessages.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
@@ -164,8 +165,9 @@ class UserServiceTests extends DummyObject {
 					given(userDataRepository.findUserById(fakeId))
 						.willReturn(Optional.empty());
 					//when, then
-					assertThatThrownBy(() -> userService.getUserInfo(fakeId)).isInstanceOf(
-						IllegalArgumentException.class);
+					assertThatThrownBy(() -> userService.getUserInfo(fakeId))
+						.isInstanceOf(IllegalArgumentException.class)
+						.hasMessageContaining(USER_NOT_EXIST);
 				}
 			}
 		}
@@ -212,7 +214,8 @@ class UserServiceTests extends DummyObject {
 					//when, then
 					assertThatThrownBy(() -> userService
 						.editUserInfo(-1L, editedUser))
-						.isInstanceOf(IllegalArgumentException.class);
+						.isInstanceOf(IllegalArgumentException.class)
+						.hasMessageContaining(USER_NOT_EXIST);
 				}
 			}
 		}
@@ -254,7 +257,8 @@ class UserServiceTests extends DummyObject {
 					Long removedUserId = 1L;
 					//when, then
 					assertThatThrownBy(() -> userService.removeUser(removedUserId)).isInstanceOf(
-						IllegalArgumentException.class);
+							IllegalArgumentException.class)
+						.hasMessageContaining(USER_NOT_EXIST);
 
 				}
 

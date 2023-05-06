@@ -1,5 +1,6 @@
 package io.f12.notionlinkedblog.repository.user;
 
+import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.UserExceptionsMessages.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Optional;
@@ -53,11 +54,11 @@ class UserDataRepositoryTest {
 			long id1 = 1L;
 			Optional<UserSearchDto> userA = userDataRepository.findUserById(id1);
 			UserSearchDto findUserA = userA.orElseThrow(
-				() -> new IllegalArgumentException("Wrong MemberId: " + id1));
+				() -> new IllegalArgumentException(USER_NOT_EXIST));
 			long id2 = 2L;
 			Optional<UserSearchDto> userB = userDataRepository.findUserById(id2);
 			UserSearchDto findUserB = userB.orElseThrow(
-				() -> new IllegalArgumentException("Wrong MemberId: " + id2));
+				() -> new IllegalArgumentException(USER_NOT_EXIST));
 			//then
 			assertThat(findUserA).extracting("id").isEqualTo(user1.getId());
 			assertThat(findUserA).extracting("username").isEqualTo(user1.getUsername());
@@ -84,14 +85,12 @@ class UserDataRepositoryTest {
 				.build();
 			userDataRepository.save(user1);
 			long id = 3L;
-			String errorMessage = "Wrong MemberId: ";
 			//when, then
 			Optional<UserSearchDto> userA = userDataRepository.findUserById(id);
 			assertThatThrownBy(() -> {
-				userA.orElseThrow(() -> new IllegalArgumentException(errorMessage + id));
+				userA.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
 			}).isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining(errorMessage)
-				.hasMessageContaining(String.valueOf(id));
+				.hasMessageContaining(USER_NOT_EXIST);
 
 		}
 
