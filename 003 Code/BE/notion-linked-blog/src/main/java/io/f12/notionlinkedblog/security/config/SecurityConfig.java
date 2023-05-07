@@ -51,6 +51,15 @@ public class SecurityConfig {
 			.formLogin().disable();
 
 		http
+			.logout()
+			.logoutUrl("/logout")
+			.clearAuthentication(true)
+			.invalidateHttpSession(true)
+			.deleteCookies("JSESSIONID")
+			.logoutSuccessHandler(
+				(request, response, authentication) -> response.setStatus(HttpStatus.NO_CONTENT.value()));
+
+		http
 			.exceptionHandling()
 			.authenticationEntryPoint(authenticationEntryPoint())
 			.accessDeniedHandler(accessDeniedHandler());
