@@ -16,8 +16,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import io.f12.notionlinkedblog.domain.user.User;
 import io.f12.notionlinkedblog.domain.verification.EmailVerificationToken;
 import io.f12.notionlinkedblog.repository.redis.EmailVerificationTokenRepository;
+import io.f12.notionlinkedblog.repository.user.UserDataRepository;
 import io.f12.notionlinkedblog.security.service.SecureRandomService;
 import io.f12.notionlinkedblog.service.EmailSignupService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,8 @@ class EmailApiControllerTests {
 	private MockMvc mockMvc;
 	@Autowired
 	private EmailVerificationTokenRepository emailVerificationTokenRepository;
+	@Autowired
+	private UserDataRepository userDataRepository;
 	@Autowired
 	private SecureRandomService secureRandomService;
 	@MockBean
@@ -147,6 +151,21 @@ class EmailApiControllerTests {
 		@Nested
 		@DisplayName("비정상 케이스")
 		class FailureCase {
+			@DisplayName("이메일이 중복되어 실패")
+			@Test
+			void duplicateEmail() throws Exception {
+				//given
+				final String alreadyExistingEmail = "hello@gmail.com";
+				userDataRepository.save(
+					User.builder().email(alreadyExistingEmail).password("1234").username("hello").build());
+
+				//when
+				ResultActions resultActions = mockMvc.perform(post("/api/email").content(alreadyExistingEmail));
+
+				//then
+				resultActions.andExpect(status().isBadRequest());
+			}
+
 			@DisplayName("이메일이 입력되지 않아 실패")
 			@Test
 			void isEmpty() throws Exception {

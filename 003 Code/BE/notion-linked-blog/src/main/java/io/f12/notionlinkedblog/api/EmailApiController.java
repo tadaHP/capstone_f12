@@ -1,5 +1,9 @@
 package io.f12.notionlinkedblog.api;
 
+import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.UserExceptionsMessages.*;
+
+import java.util.Optional;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.http.HttpHeaders;
@@ -11,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.f12.notionlinkedblog.domain.user.User;
+import io.f12.notionlinkedblog.repository.user.UserDataRepository;
 import io.f12.notionlinkedblog.service.EmailSignupService;
 import io.f12.notionlinkedblog.web.argumentresolver.email.Email;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +28,7 @@ public class EmailApiController {
 	public static final String redisCookieName = "x-redis-id";
 	public static final String emailVerifiedAttr = "emailVerified";
 	private final EmailSignupService emailSignupService;
+	private final UserDataRepository userDataRepository;
 
 	@PostMapping("/code")
 	public ResponseEntity<String> verifyCode(
@@ -44,11 +51,21 @@ public class EmailApiController {
 
 	@PostMapping
 	public ResponseEntity<String> sendRandomCode(@Email String email) {
+		checkDuplicateEmail(email);
+
 		String redisId = emailSignupService.sendMail(email);
 		ResponseCookie cookie = ResponseCookie.from(redisCookieName, redisId)
 			.httpOnly(true)
 			.maxAge(300L)
 			.build();
+
 		return ResponseEntity.noContent().header(HttpHeaders.SET_COOKIE, cookie.toString()).build();
+	}
+
+	private void checkDuplicateEmail(final String email) {
+		Optional<User> user = userDataRepository.findByEmail(email);
+		if (user.isPresent()) {
+			throw new IllegalArgumentException(EMAIL_ALREADY_EXIST);
+		}
 	}
 }
