@@ -23,7 +23,6 @@ public class EmailUserDetailsService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		User user = userDataRepository.findByEmail(email).orElseThrow(() -> new EmailNotFoundException(email));
-		return LoginUser.of(user.getId(), user.getEmail(), user.getPassword(),
-			Set.of(new SimpleGrantedAuthority("ROLE_USER")));
+		return LoginUser.of(user, Set.of(new SimpleGrantedAuthority("ROLE_USER")));
 	}
 }

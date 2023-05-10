@@ -43,7 +43,7 @@ public class AjaxEmailPasswordAuthenticationToken extends AbstractAuthentication
 
 	@Override
 	public String getName() {
-		return ((LoginUser)principal).getEmail();
+		return ((LoginUser)principal).getUser().getEmail();
 	}
 
 	@Override

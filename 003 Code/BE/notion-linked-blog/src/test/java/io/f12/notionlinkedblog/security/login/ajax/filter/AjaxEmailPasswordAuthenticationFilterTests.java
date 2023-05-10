@@ -73,7 +73,7 @@ class AjaxEmailPasswordAuthenticationFilterTests extends DummyObject {
 				//then
 				resultActions
 					.andExpect(status().isOk())
-					.andExpect(jsonPath("$.id").exists())
+					.andExpect(jsonPath("$.user").exists())
 					.andExpect(jsonPath("$.redirectUrl").exists());
 			}
 		}

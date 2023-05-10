@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.f12.notionlinkedblog.security.login.ajax.dto.AjaxLoginSuccessDto;
 import io.f12.notionlinkedblog.security.login.ajax.dto.LoginUser;
+import io.f12.notionlinkedblog.security.login.ajax.dto.UserWithoutPassword;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -45,7 +46,7 @@ public class AjaxAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
 
 	private AjaxLoginSuccessDto getAjaxLoginSuccessDto(Authentication authentication, String redirectUrl) {
 		LoginUser principal = (LoginUser)authentication.getPrincipal();
-		String id = Long.toString(principal.getId());
-		return AjaxLoginSuccessDto.of(id, redirectUrl);
+		UserWithoutPassword userWithoutPassword = UserWithoutPassword.of(principal.getUser());
+		return AjaxLoginSuccessDto.of(userWithoutPassword, redirectUrl);
 	}
 }

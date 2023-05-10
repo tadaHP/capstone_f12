@@ -76,7 +76,7 @@ public class UserApiController {
 	}
 
 	private void checkSameUser(Long id, LoginUser loginUser) {
-		if (!id.equals(loginUser.getId())) {
+		if (!id.equals(loginUser.getUser().getId())) {
 			throw new AccessDeniedException("데이터를 찾지 못했습니다");
 		}
 	}

@@ -35,7 +35,7 @@ public class PostApiController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public PostSearchDto createPost(@AuthenticationPrincipal LoginUser loginUser,
 		@RequestBody PostCreateDto postCreateDto) {
-		return postService.createPost(loginUser.getId(), postCreateDto);
+		return postService.createPost(loginUser.getUser().getId(), postCreateDto);
 	}
 
 	@GetMapping("/{id}")
@@ -57,13 +57,13 @@ public class PostApiController {
 	@ResponseStatus(HttpStatus.FOUND)
 	public String editPost(@PathVariable("id") Long postId, @AuthenticationPrincipal LoginUser loginUser,
 		@RequestBody PostEditDto editInfo) {
-		postService.editPost(postId, loginUser.getId(), editInfo);
+		postService.editPost(postId, loginUser.getUser().getId(), editInfo);
 		return Endpoint.Api.POST + "/" + postId;
 	}
 
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deletePost(@PathVariable("id") Long postId, @AuthenticationPrincipal LoginUser loginUser) {
-		postService.removePost(postId, loginUser.getId());
+		postService.removePost(postId, loginUser.getUser().getId());
 	}
 }

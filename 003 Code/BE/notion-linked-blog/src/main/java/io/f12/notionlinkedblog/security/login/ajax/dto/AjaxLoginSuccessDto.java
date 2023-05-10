@@ -8,15 +8,15 @@ import lombok.ToString;
 @EqualsAndHashCode
 @ToString
 public class AjaxLoginSuccessDto {
-	private final String id;
+	private final UserWithoutPassword user;
 	private final String redirectUrl;
 
-	private AjaxLoginSuccessDto(String id, String redirectUrl) {
-		this.id = id;
+	private AjaxLoginSuccessDto(UserWithoutPassword userWithoutPassword, String redirectUrl) {
+		this.user = userWithoutPassword;
 		this.redirectUrl = redirectUrl;
 	}
 
-	public static AjaxLoginSuccessDto of(String id, String redirectUrl) {
-		return new AjaxLoginSuccessDto(id, redirectUrl);
+	public static AjaxLoginSuccessDto of(UserWithoutPassword userWithoutPassword, String redirectUrl) {
+		return new AjaxLoginSuccessDto(userWithoutPassword, redirectUrl);
 	}
 }
