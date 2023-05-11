@@ -8,6 +8,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +32,7 @@ public class PostApiController {
 	private final PostService postService;
 
 	//TODO: 현재 Series 기능 미포함
-	@PutMapping
+	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public PostSearchDto createPost(@AuthenticationPrincipal LoginUser loginUser,
 		@RequestBody PostCreateDto postCreateDto) {

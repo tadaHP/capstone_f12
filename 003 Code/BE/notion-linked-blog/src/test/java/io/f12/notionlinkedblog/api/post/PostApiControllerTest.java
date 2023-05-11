@@ -94,7 +94,7 @@ class PostApiControllerTest {
 
 			//when
 			ResultActions resultActions = mockMvc.perform(
-				put(url)
+				post(url)
 					.contentType(MediaType.APPLICATION_JSON)
 					.session(mockHttpSession)
 					.content(requestBody)
