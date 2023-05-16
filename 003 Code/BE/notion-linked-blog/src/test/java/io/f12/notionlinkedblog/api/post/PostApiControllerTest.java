@@ -144,6 +144,7 @@ class PostApiControllerTest {
 					String url = Endpoint.Api.POST + "/title";
 					SearchRequestDto requestDto = SearchRequestDto.builder()
 						.param("content")
+						.pageNumber(0)
 						.build();
 					//when
 					ResultActions resultActions = mockMvc.perform(
@@ -183,6 +184,7 @@ class PostApiControllerTest {
 					String url = Endpoint.Api.POST + "/content";
 					SearchRequestDto requestDto = SearchRequestDto.builder()
 						.param("content")
+						.pageNumber(0)
 						.build();
 					//when
 					ResultActions resultActions = mockMvc.perform(
@@ -190,7 +192,6 @@ class PostApiControllerTest {
 							.content(objectMapper.writeValueAsString(requestDto))
 							.contentType(MediaType.APPLICATION_JSON)
 					);
-
 					//then
 					resultActions.andExpect(status().isOk());
 				}

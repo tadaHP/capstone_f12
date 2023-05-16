@@ -15,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -22,6 +24,8 @@ import io.f12.notionlinkedblog.domain.post.Post;
 import io.f12.notionlinkedblog.domain.post.dto.PostCreateDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostEditDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostSearchDto;
+import io.f12.notionlinkedblog.domain.post.dto.PostSearchResponseDto;
+import io.f12.notionlinkedblog.domain.post.dto.SearchRequestDto;
 import io.f12.notionlinkedblog.domain.user.User;
 import io.f12.notionlinkedblog.repository.post.PostDataRepository;
 import io.f12.notionlinkedblog.repository.user.UserDataRepository;
@@ -187,25 +191,38 @@ class PostServiceTest {
 					.password(passwordEncoder.encode("1234"))
 					.build();
 
-				Post post = Post.builder()
+				Post post1 = Post.builder()
 					.user(user)
 					.title(title)
 					.content(content)
 					.thumbnail(thumbnail)
-					.viewCount(10L)
+					.build();
+				Post post2 = Post.builder()
+					.user(user)
+					.title(title)
+					.content(content)
+					.build();
+				List<Post> postList = new ArrayList<>();
+				postList.add(post1);
+				postList.add(post2);
+
+				SliceImpl<Post> builtSlice = new SliceImpl<>(postList);
+
+				SearchRequestDto requestDto = SearchRequestDto.builder()
+					.param("test")
+					.pageNumber(0)
 					.build();
 
-				List<Post> list = new ArrayList<>();
-				list.add(post);
-
 				//Mock
-				given(postDataRepository.findByTitle(title))
-					.willReturn(list);
+				given(postDataRepository.findByTitle(requestDto.getParam(),
+					PageRequest.of(requestDto.getPageNumber(), 20)))
+					.willReturn(builtSlice);
+
 				//when
-				List<PostSearchDto> posts = postService.getPostsByTitle(title);
-				PostSearchDto postSearchDto = posts.get(0);
+				PostSearchResponseDto posts = postService.getPostsByTitle(requestDto);
+				PostSearchDto postSearchDto = posts.getPosts().get(0);
 				//then
-				assertThat(posts).size().isEqualTo(1);
+				assertThat(posts.getPosts()).size().isEqualTo(2);
 				assertThat(postSearchDto).extracting("title").isEqualTo(title);
 				assertThat(postSearchDto).extracting("username").isEqualTo(username);
 			}
@@ -230,25 +247,37 @@ class PostServiceTest {
 					.password(passwordEncoder.encode("1234"))
 					.build();
 
-				Post post = Post.builder()
+				SearchRequestDto requestDto = SearchRequestDto.builder()
+					.param("test")
+					.pageNumber(0)
+					.build();
+
+				Post post1 = Post.builder()
 					.user(user)
 					.title(title)
 					.content(content)
 					.thumbnail(thumbnail)
-					.viewCount(10L)
 					.build();
+				Post post2 = Post.builder()
+					.user(user)
+					.title(title)
+					.content(content)
+					.build();
+				List<Post> postList = new ArrayList<>();
+				postList.add(post1);
+				postList.add(post2);
 
-				List<Post> list = new ArrayList<>();
-				list.add(post);
+				SliceImpl<Post> builtSlice = new SliceImpl<>(postList);
 
 				//Mock
-				given(postDataRepository.findByContent(content))
-					.willReturn(list);
+				given(postDataRepository.findByContent(requestDto.getParam(),
+					PageRequest.of(requestDto.getPageNumber(), 20)))
+					.willReturn(builtSlice);
 				//when
-				List<PostSearchDto> posts = postService.getPostByContent(content);
-				PostSearchDto postSearchDto = posts.get(0);
+				PostSearchResponseDto posts = postService.getPostByContent(requestDto);
+				PostSearchDto postSearchDto = posts.getPosts().get(0);
 				//then
-				assertThat(posts).size().isEqualTo(1);
+				assertThat(posts.getPosts()).size().isEqualTo(2);
 				assertThat(postSearchDto).extracting("title").isEqualTo(title);
 				assertThat(postSearchDto).extracting("username").isEqualTo(username);
 
@@ -321,13 +350,20 @@ class PostServiceTest {
 			//given
 			Long fakeUserId = 1L;
 			Long fakePostId = 1L;
+			User user = User.builder()
+				.email("test@gmail.com")
+				.username("tester")
+				.password(passwordEncoder.encode("1234"))
+				.build();
 
 			Post returnPost = Post.builder()
 				.user(User.builder().username("tester").email("test@test.com").password("password").build())
 				.title("testTitle")
 				.content("testContent")
+				.user(user)
 				.build();
-
+			ReflectionTestUtils.setField(user, "id", fakeUserId);
+			ReflectionTestUtils.setField(returnPost, "id", fakePostId);
 			//Mock
 			given(postDataRepository.findById(fakePostId))
 				.willReturn(Optional.ofNullable(returnPost));

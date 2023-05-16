@@ -3,9 +3,10 @@ package io.f12.notionlinkedblog.service.post;
 import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.PostExceptionsMessages.*;
 import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.UserExceptionsMessages.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +14,8 @@ import io.f12.notionlinkedblog.domain.post.Post;
 import io.f12.notionlinkedblog.domain.post.dto.PostCreateDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostEditDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostSearchDto;
+import io.f12.notionlinkedblog.domain.post.dto.PostSearchResponseDto;
+import io.f12.notionlinkedblog.domain.post.dto.SearchRequestDto;
 import io.f12.notionlinkedblog.domain.user.User;
 import io.f12.notionlinkedblog.repository.post.PostDataRepository;
 import io.f12.notionlinkedblog.repository.user.UserDataRepository;
@@ -25,6 +28,7 @@ public class PostService {
 
 	private final PostDataRepository postDataRepository;
 	private final UserDataRepository userDataRepository;
+	private final int pageSize = 20;
 
 	public PostSearchDto createPost(Long userId, PostCreateDto postCreateDto) {
 
@@ -50,14 +54,30 @@ public class PostService {
 			.build();
 	}
 
-	public List<PostSearchDto> getPostsByTitle(String searchParam) {
-		List<Post> posts = postDataRepository.findByTitle(searchParam);
-		return postToPostDto(posts);
+	public PostSearchResponseDto getPostsByTitle(SearchRequestDto dto) {
+		PageRequest paging = PageRequest.of(dto.getPageNumber(), pageSize);
+		Slice<Post> posts = postDataRepository.findByTitle(dto.getParam(), paging);
+
+		List<PostSearchDto> postSearchDtos = convertPostToPostDto(posts);
+
+		return PostSearchResponseDto.builder()
+			.pageSize(posts.getSize())
+			.pageNow(posts.getNumber())
+			.posts(postSearchDtos)
+			.build();
 	}
 
-	public List<PostSearchDto> getPostByContent(String searchParam) {
-		List<Post> posts = postDataRepository.findByContent(searchParam);
-		return postToPostDto(posts);
+	public PostSearchResponseDto getPostByContent(SearchRequestDto dto) {
+		PageRequest paging = PageRequest.of(dto.getPageNumber(), pageSize);
+		Slice<Post> posts = postDataRepository.findByContent(dto.getParam(), paging);
+
+		List<PostSearchDto> postSearchDtos = convertPostToPostDto(posts);
+
+		return PostSearchResponseDto.builder()
+			.pageSize(posts.getSize())
+			.pageNow(posts.getNumber())
+			.posts(postSearchDtos)
+			.build();
 	}
 
 	public PostSearchDto getPostDtoById(Long id) {
@@ -73,34 +93,39 @@ public class PostService {
 	}
 
 	public void removePost(Long postId, Long userId) {
-		postDataRepository.findById(postId)
+		Post post = postDataRepository.findById(postId)
 			.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
-		postDataRepository.removeByIdAndUserId(postId, userId);
+		if (isSame(post.getUser().getId(), userId)) {
+			throw new IllegalStateException(WRITER_USER_NOT_MATCH);
+		}
+		postDataRepository.deleteById(postId);
+
 	}
 
 	public void editPost(Long postId, Long userId, PostEditDto postEditDto) {
 		Post changedPost = postDataRepository.findById(postId)
 			.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
-		if (!changedPost.isSameUser(userId)) {
+		if (isSame(changedPost.getUser().getId(), userId)) {
 			throw new IllegalStateException(WRITER_USER_NOT_MATCH);
 		}
 		changedPost.editPost(postEditDto.getTitle(), postEditDto.getContent(), postEditDto.getThumbnail());
 	}
-	//TODO: editSeries, 시리즈만 편집기능 필요
 
-	private List<PostSearchDto> postToPostDto(List<Post> posts) {
-		List<PostSearchDto> returnPosts = new ArrayList<>();
-		posts.stream().iterator().forEachRemaining(post -> {
-			PostSearchDto dto = PostSearchDto.builder()
-				.username(post.getUser().getUsername())
-				.title(post.getTitle())
-				.content(post.getContent())
-				.thumbnail(post.getThumbnail())
-				.viewCount(post.getViewCount())
+	private List<PostSearchDto> convertPostToPostDto(Slice<Post> posts) {
+		Slice<PostSearchDto> mappedPosts = posts.map(p -> {
+			return PostSearchDto.builder()
+				.username(p.getUser().getUsername())
+				.title(p.getTitle())
+				.content(p.getContent())
+				.thumbnail(p.getThumbnail())
+				.viewCount(p.getViewCount())
 				.build();
-			returnPosts.add(dto);
 		});
-		return returnPosts;
+		return mappedPosts.getContent();
+	}
+
+	private boolean isSame(Long idA, Long idB) {
+		return !idA.equals(idB);
 	}
 
 }

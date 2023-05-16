@@ -1,7 +1,5 @@
 package io.f12.notionlinkedblog.api.post;
 
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -19,11 +17,16 @@ import io.f12.notionlinkedblog.api.common.Endpoint;
 import io.f12.notionlinkedblog.domain.post.dto.PostCreateDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostEditDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostSearchDto;
+import io.f12.notionlinkedblog.domain.post.dto.PostSearchResponseDto;
 import io.f12.notionlinkedblog.domain.post.dto.SearchRequestDto;
 import io.f12.notionlinkedblog.security.login.ajax.dto.LoginUser;
 import io.f12.notionlinkedblog.service.post.PostService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "Post", description = "포스트 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(Endpoint.Api.POST)
@@ -34,37 +37,45 @@ public class PostApiController {
 	//TODO: 현재 Series 기능 미포함
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public PostSearchDto createPost(@AuthenticationPrincipal LoginUser loginUser,
-		@RequestBody PostCreateDto postCreateDto) {
+	@Operation(summary = "포스트 생성", description = "포스트를 생성합니다.")
+	public PostSearchDto createPost(@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser,
+		@RequestBody @Validated PostCreateDto postCreateDto) {
 		return postService.createPost(loginUser.getUser().getId(), postCreateDto);
 	}
 
 	@GetMapping("/{id}")
+	@Operation(summary = "포스트 id로 포스트 조회", description = "id에 해당하는 포스트를 하나 가져옵니다")
 	public PostSearchDto getPostsById(@PathVariable("id") Long id) {
 		return postService.getPostDtoById(id);
 	}
 
 	@GetMapping("/title")
-	public List<PostSearchDto> searchPostsByTitle(@RequestBody @Validated SearchRequestDto titleDto) {
-		return postService.getPostsByTitle(titleDto.getParam());
+	@Operation(summary = "title 로 포스트 조회", description = "title 이 포함되어있는 포스트들을 가져옴")
+	public PostSearchResponseDto searchPostsByTitle(@RequestBody @Validated SearchRequestDto titleDto) {
+		return postService.getPostsByTitle(titleDto);
 	}
 
 	@GetMapping("/content")
-	public List<PostSearchDto> searchPostsByContent(@RequestBody @Validated SearchRequestDto contentDto) {
-		return postService.getPostByContent(contentDto.getParam());
+	@Operation(summary = "content 로 포스트 조회", description = "content 가 포함되어 있는 포스들을 가져옴")
+	public PostSearchResponseDto searchPostsByContent(@RequestBody @Validated SearchRequestDto contentDto) {
+		return postService.getPostByContent(contentDto);
 	}
 
 	@PutMapping("/{id}")
 	@ResponseStatus(HttpStatus.FOUND)
-	public String editPost(@PathVariable("id") Long postId, @AuthenticationPrincipal LoginUser loginUser,
-		@RequestBody PostEditDto editInfo) {
+	@Operation(summary = "포스트 수정", description = "id 에 해당하는 포스트 수정")
+	public String editPost(@PathVariable("id") Long postId,
+		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser,
+		@RequestBody @Validated PostEditDto editInfo) {
 		postService.editPost(postId, loginUser.getUser().getId(), editInfo);
 		return Endpoint.Api.POST + "/" + postId;
 	}
 
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deletePost(@PathVariable("id") Long postId, @AuthenticationPrincipal LoginUser loginUser) {
+	@Operation(summary = "포스트 삭제", description = "id에 해당하는 포스트 삭제")
+	public void deletePost(@PathVariable("id") Long postId,
+		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser) {
 		postService.removePost(postId, loginUser.getUser().getId());
 	}
 }

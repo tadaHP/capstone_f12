@@ -1,6 +1,7 @@
 package io.f12.notionlinkedblog.domain.post.dto;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,4 +15,6 @@ import lombok.NoArgsConstructor;
 public class SearchRequestDto {
 	@NotEmpty
 	String param;
+	@NotNull
+	Integer pageNumber;
 }

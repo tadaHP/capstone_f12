@@ -162,7 +162,7 @@ class UserApiControllerTests {
 						.content(requestBody));
 
 				//then
-				resultActions.andExpect(status().isOk());
+				resultActions.andExpect(status().isCreated());
 			}
 		}
 
