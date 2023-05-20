@@ -42,19 +42,19 @@ class PostDataRepositoryTest {
 
 	@BeforeEach
 	void init() {
-		user = User.builder()
+		User savedUser = User.builder()
 			.username("tester")
 			.email("test@test.com")
 			.password("nope")
 			.build();
-		User savedUser = userDataRepository.save(user);
+		user = userDataRepository.save(savedUser);
 
-		post = Post.builder()
+		Post savedPost = Post.builder()
 			.title(title)
 			.content(content)
-			.user(savedUser)
+			.user(user)
 			.build();
-		postDataRepository.save(post);
+		post = postDataRepository.save(savedPost);
 	}
 
 	@AfterEach
@@ -292,6 +292,39 @@ class PostDataRepositoryTest {
 						assertThat(post2).extracting("content").isEqualTo(content + 2);
 
 					}
+				}
+			}
+
+		}
+
+		@DisplayName("포스트 정렬 조회 - 최신순")
+		@Nested
+		class SearchByDate {
+			@BeforeEach
+			void init() {
+				for (int i = 0; i < 10; i++) {
+					Post newPost = Post.builder()
+						.title(title + " " + i)
+						.content(content)
+						.user(user)
+						.build();
+					postDataRepository.save(newPost);
+				}
+			}
+
+			@DisplayName("성공 케이스")
+			@Nested
+			class successfulCase {
+				@DisplayName("조회 성공")
+				@Test
+				void successful() {
+					//given
+					PageRequest paging = PageRequest.of(0, 3);
+					//when
+					Slice<Post> posts = postDataRepository.findLatestByCreatedAtDesc(paging);
+					List<PostSearchDto> postSearchDtos = convertPostToPostDto(posts);
+					//then
+					assertThat(posts).size().isEqualTo(paging.getPageSize());
 				}
 			}
 

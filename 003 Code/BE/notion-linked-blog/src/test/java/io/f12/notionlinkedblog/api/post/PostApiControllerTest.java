@@ -216,6 +216,51 @@ class PostApiControllerTest {
 			}
 		}
 
+		@DisplayName("최신순으로 테스트 조회")
+		@Nested
+		class searchLatestPosts {
+			@DisplayName("성공 케이스")
+			@Test
+			void successCase() throws Exception {
+				//given
+				Integer pageNumber = 1;
+				String url = Endpoint.Api.POST + "/newest/" + pageNumber;
+
+				postDataRepository.save(Post.builder()
+					.user(testUser)
+					.title("testTitle 2")
+					.content("testContent").build());
+				//when
+				ResultActions resultActions = mockMvc.perform(
+					get(url)
+				);
+				//then
+				resultActions.andExpect(status().isOk());
+			}
+
+			@DisplayName("실패 케이스")
+			@Nested
+			class failureCase {
+				@DisplayName("pageNumber 미존재")
+				@Test
+				void successCase() throws Exception {
+					//given
+					String url = Endpoint.Api.POST;
+
+					postDataRepository.save(Post.builder()
+						.user(testUser)
+						.title("testTitle 2")
+						.content("testContent").build());
+					//when
+					ResultActions resultActions = mockMvc.perform(
+						get(url)
+					);
+					//then
+					resultActions.andExpect(status().isMethodNotAllowed());
+				}
+			}
+		}
+
 	}
 
 	@DisplayName("포스트 수정")

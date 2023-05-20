@@ -339,6 +339,57 @@ class PostServiceTest {
 					.hasMessageContaining(POST_NOT_EXIST);
 			}
 		}
+
+		@DisplayName("최신 포스트 조회")
+		@Nested
+		class findLatestPosts {
+			@DisplayName("성공케이스")
+			@Test
+			void successCase() {
+				//given
+				Long fakeUserId = 1L;
+				User user = User.builder()
+					.email("test@gmail.com")
+					.username("tester")
+					.password(passwordEncoder.encode("1234"))
+					.build();
+				ReflectionTestUtils.setField(user, "id", fakeUserId);
+
+				Long fakePostAId = 1L;
+				Long fakePostBId = 2L;
+				Post postA = Post.builder()
+					.user(user)
+					.title("testTitle")
+					.content("testContent")
+					.user(user)
+					.build();
+				Post postB = Post.builder()
+					.user(user)
+					.title("testTitle")
+					.content("testContent")
+					.user(user)
+					.build();
+				ReflectionTestUtils.setField(postA, "id", fakePostAId);
+				ReflectionTestUtils.setField(postB, "id", fakePostBId);
+
+				Integer requestPageNumber = 0;
+				PageRequest paging = PageRequest.of(requestPageNumber, 20);
+
+				List<Post> postList = new ArrayList<>();
+				postList.add(postA);
+				postList.add(postB);
+				SliceImpl<Post> postSlice = new SliceImpl<>(postList);
+				//Mock
+				given(postDataRepository.findLatestByCreatedAtDesc(paging))
+					.willReturn(postSlice);
+				//when
+				PostSearchResponseDto latestPosts = postService.getLatestPosts(requestPageNumber);
+				//then
+				assertThat(latestPosts).extracting(PostSearchResponseDto::getPageSize).isEqualTo(2);
+				assertThat(latestPosts).extracting(PostSearchResponseDto::getPageNow).isEqualTo(requestPageNumber);
+				assertThat(latestPosts.getPosts()).size().isEqualTo(2);
+			}
+		}
 	}
 
 	@DisplayName("포스트 삭제")

@@ -64,6 +64,7 @@ public class PostService {
 			.pageSize(posts.getSize())
 			.pageNow(posts.getNumber())
 			.posts(postSearchDtos)
+			.elementsSize(posts.getNumberOfElements())
 			.build();
 	}
 
@@ -77,6 +78,7 @@ public class PostService {
 			.pageSize(posts.getSize())
 			.pageNow(posts.getNumber())
 			.posts(postSearchDtos)
+			.elementsSize(posts.getNumberOfElements())
 			.build();
 	}
 
@@ -89,6 +91,19 @@ public class PostService {
 			.content(post.getContent())
 			.thumbnail(post.getThumbnail())
 			.viewCount(post.getViewCount())
+			.build();
+	}
+
+	public PostSearchResponseDto getLatestPosts(Integer pageNumber) {
+		PageRequest paging = PageRequest.of(pageNumber, pageSize);
+		Slice<Post> posts = postDataRepository.findLatestByCreatedAtDesc(paging);
+
+		List<PostSearchDto> postSearchDtos = convertPostToPostDto(posts);
+		return PostSearchResponseDto.builder()
+			.pageSize(posts.getSize())
+			.pageNow(posts.getNumber())
+			.posts(postSearchDtos)
+			.elementsSize(posts.getNumberOfElements())
 			.build();
 	}
 

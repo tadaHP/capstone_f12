@@ -61,6 +61,12 @@ public class PostApiController {
 		return postService.getPostByContent(contentDto);
 	}
 
+	@GetMapping("/newest/{pageNumber}")
+	@Operation(summary = "최신순으로 포스트 조회", description = "메인페이지에서 사용하는 API, 최신순으로 작성된 포스트들을 가져온다")
+	public PostSearchResponseDto searchLatestPosts(@PathVariable Integer pageNumber) {
+		return postService.getLatestPosts(pageNumber);
+	}
+
 	@PutMapping("/{id}")
 	@ResponseStatus(HttpStatus.FOUND)
 	@Operation(summary = "포스트 수정", description = "id 에 해당하는 포스트 수정")

@@ -14,5 +14,6 @@ import lombok.Setter;
 public class PostSearchResponseDto {
 	int pageSize;
 	int pageNow;
+	int elementsSize;
 	List<PostSearchDto> posts;
 }
