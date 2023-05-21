@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -25,10 +26,22 @@ class UserDataRepositoryTest {
 	@Autowired
 	private EntityManager entityManager;
 
+	private User userA;
+
 	@DisplayName("유저 조회 테스트")
 	@Nested
 	class UserCheckTest {
 		@BeforeEach
+		void init() {
+			User user1 = User.builder()
+				.username("username1")
+				.email("email1")
+				.password("password1")
+				.build();
+			userA = userDataRepository.save(user1);
+		}
+
+		@AfterEach
 		void clear() {
 			userDataRepository.deleteAll();
 			entityManager.createNativeQuery("ALTER SEQUENCE user_seq RESTART WITH 1").executeUpdate();
@@ -38,31 +51,23 @@ class UserDataRepositoryTest {
 		@Test
 		void checkSpecificUserDto() {
 			//given
-			User user1 = User.builder()
-				.username("username1")
-				.email("email1")
-				.password("password1")
-				.build();
+
 			User user2 = User.builder()
 				.username("username2")
 				.email("email2")
 				.password("password2")
 				.build();
-			userDataRepository.save(user1);
-			userDataRepository.save(user2);
+			User userB = userDataRepository.save(user2);
 			//when
-			long id1 = 1L;
-			Optional<UserSearchDto> userA = userDataRepository.findUserById(id1);
-			UserSearchDto findUserA = userA.orElseThrow(
+			UserSearchDto findUserA = userDataRepository.findUserById(userA.getId()).orElseThrow(
 				() -> new IllegalArgumentException(USER_NOT_EXIST));
-			long id2 = 2L;
-			Optional<UserSearchDto> userB = userDataRepository.findUserById(id2);
-			UserSearchDto findUserB = userB.orElseThrow(
+
+			UserSearchDto findUserB = userDataRepository.findUserById(userB.getId()).orElseThrow(
 				() -> new IllegalArgumentException(USER_NOT_EXIST));
 			//then
-			assertThat(findUserA).extracting("id").isEqualTo(user1.getId());
-			assertThat(findUserA).extracting("username").isEqualTo(user1.getUsername());
-			assertThat(findUserA).extracting("email").isEqualTo(user1.getEmail());
+			assertThat(findUserA).extracting("id").isEqualTo(userA.getId());
+			assertThat(findUserA).extracting("username").isEqualTo(userA.getUsername());
+			assertThat(findUserA).extracting("email").isEqualTo(userA.getEmail());
 
 			assertThat(findUserB).extracting("id").isEqualTo(user2.getId());
 			assertThat(findUserB).extracting("username").isEqualTo(user2.getUsername());
@@ -73,22 +78,11 @@ class UserDataRepositoryTest {
 		@Test
 		void checkUnUnifiedSpecificUserDto() {
 			//given
-			User user1 = User.builder()
-				.username("username1")
-				.email("email1")
-				.password("password1")
-				.profile("profile1")
-				.introduction("intro1")
-				.blogTitle("title1")
-				.githubLink("git1")
-				.instagramLink("insta1")
-				.build();
-			userDataRepository.save(user1);
-			long id = 3L;
+			Long wrongId = userA.getId() + 100;
 			//when, then
-			Optional<UserSearchDto> userA = userDataRepository.findUserById(id);
+			Optional<UserSearchDto> user = userDataRepository.findUserById(wrongId);
 			assertThatThrownBy(() -> {
-				userA.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
+				user.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
 			}).isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining(USER_NOT_EXIST);
 

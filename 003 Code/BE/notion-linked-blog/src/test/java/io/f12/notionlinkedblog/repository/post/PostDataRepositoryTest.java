@@ -134,7 +134,7 @@ class PostDataRepositoryTest {
 				void successfulCase() {
 					//given
 					//when
-					Post searchPostById = postDataRepository.findById(1L)
+					Post searchPostById = postDataRepository.findById(post.getId())
 						.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
 					//then
 					assertThat(searchPostById).extracting(Post::getTitle).isEqualTo(title);
@@ -207,7 +207,7 @@ class PostDataRepositoryTest {
 					@Test
 					void successfulCase_MultiData() {
 						//given
-						User savedUser = userDataRepository.findById(1L)
+						User savedUser = userDataRepository.findById(user.getId())
 							.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
 						PageRequest paging = PageRequest.of(0, 20);
 
@@ -270,7 +270,7 @@ class PostDataRepositoryTest {
 					@Test
 					void successfulCase_MultiData() {
 						//given
-						User savedUser = userDataRepository.findById(1L)
+						User savedUser = userDataRepository.findById(user.getId())
 							.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
 						PageRequest paging = PageRequest.of(0, 20);
 						Post post = Post.builder()
@@ -344,12 +344,12 @@ class PostDataRepositoryTest {
 				//given
 				String changedThumbnailDetail = "changedThumbnailURL";
 				//when
-				Post editPost = postDataRepository.findById(1L)
+				Post editPost = postDataRepository.findById(post.getId())
 					.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
 
 				editPost.editPost("", null, changedThumbnailDetail);
 
-				Post editedPost = postDataRepository.findById(1L)
+				Post editedPost = postDataRepository.findById(post.getId())
 					.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
 				//then
 				assertThat(editedPost).extracting("title").isEqualTo(title);
@@ -366,12 +366,12 @@ class PostDataRepositoryTest {
 				String changedTitle = "changedTitle";
 				String changedContent = "changedContent";
 				//when
-				Post editPost = postDataRepository.findById(1L)
+				Post editPost = postDataRepository.findById(post.getId())
 					.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
 
 				editPost.editPost(changedTitle, changedContent, changedThumbnailDetail);
 
-				Post editedPost = postDataRepository.findById(1L)
+				Post editedPost = postDataRepository.findById(post.getId())
 					.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
 				//then
 				assertThat(editedPost).extracting("title").isEqualTo(changedTitle);
