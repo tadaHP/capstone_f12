@@ -50,7 +50,7 @@ public class Post extends PostTimeEntity {
 	@NotNull
 	private User user;
 
-	@OneToMany(mappedBy = "id", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Comments> comments = new ArrayList<>();
 
 	@NotBlank

@@ -36,10 +36,10 @@ public class User extends BaseTimeEntity {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq_generator")
 	private Long id;
 
-	@OneToMany(mappedBy = "id")
+	@OneToMany(mappedBy = "user")
 	private List<Post> posts = new ArrayList<>();
 
-	@OneToMany(mappedBy = "id")
+	@OneToMany(mappedBy = "user")
 	private List<Comments> comments = new ArrayList<>();
 
 	@Column(nullable = false)
