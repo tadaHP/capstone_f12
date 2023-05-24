@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -20,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.f12.notionlinkedblog.api.common.Endpoint;
 import io.f12.notionlinkedblog.security.common.dto.AuthenticationFailureDto;
 import io.f12.notionlinkedblog.security.login.ajax.configure.AjaxLoginConfigurer;
+import io.f12.notionlinkedblog.security.login.check.filter.LoginStatusCheckingFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -66,6 +68,9 @@ public class SecurityConfig {
 
 		http
 			.apply(ajaxLoginConfigurer());
+
+		http
+			.addFilterBefore(new LoginStatusCheckingFilter(), LogoutFilter.class);
 
 		return http.build();
 	}
