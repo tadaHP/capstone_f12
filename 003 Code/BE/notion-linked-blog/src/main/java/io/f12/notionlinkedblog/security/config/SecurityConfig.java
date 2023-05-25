@@ -1,6 +1,9 @@
 package io.f12.notionlinkedblog.security.config;
 
+import static io.f12.notionlinkedblog.api.common.Endpoint.Api.*;
+
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -36,9 +39,15 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			.authorizeRequests()
+			.antMatchers(Endpoint.Api.EMAIL + "/**").permitAll()
 			.antMatchers(Endpoint.Api.USER + "/email/signup").permitAll()
+			.antMatchers(HttpMethod.GET, Endpoint.Api.USER + "/{id}").permitAll()
+			.antMatchers(HttpMethod.GET, Endpoint.Api.POST + "/**").permitAll()
 			.antMatchers(Endpoint.Api.USER + "/**").hasRole("USER")
-			.anyRequest().permitAll();
+			// swagger 문서 접근 허용
+			.antMatchers("/swagger-ui/**").permitAll()
+			.antMatchers("/v3/api-docs/**").permitAll()
+			.anyRequest().authenticated();
 
 		http
 			.headers().frameOptions().disable()
@@ -54,7 +63,7 @@ public class SecurityConfig {
 
 		http
 			.logout()
-			.logoutUrl("/api/logout")
+			.logoutUrl(LOGOUT)
 			.clearAuthentication(true)
 			.invalidateHttpSession(true)
 			.deleteCookies("JSESSIONID")
