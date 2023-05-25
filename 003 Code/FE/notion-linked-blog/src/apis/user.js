@@ -1,9 +1,16 @@
 import {apiClient} from "@/apis/apiClient";
 
+export const checkLoginStatus = async () => {
+	try {
+		return await apiClient.get("/users/login-status");
+	} catch (e) {
+		throw e;
+	}
+};
+
 export const loginByEmailAPI = async userDetails => {
 	try {
 		return await apiClient.post("/login/email", userDetails, {
-			withCredentials: true,
 			headers: {
 				"Content-Type": "application/json",
 			},
@@ -15,7 +22,7 @@ export const loginByEmailAPI = async userDetails => {
 
 export const logoutAPI = async () => {
 	try {
-		await apiClient.post("/logout", null, {withCredentials: true});
+		await apiClient.post("/logout");
 	} catch (e) {
 		throw e;
 	}

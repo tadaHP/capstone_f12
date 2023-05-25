@@ -2,6 +2,7 @@ import {Provider} from "react-redux";
 
 import store from "@/redux/store";
 import {createGlobalStyle} from "styled-components";
+import AppHeader from "@/components/common/AppHeader";
 
 const GlobalStyles = createGlobalStyle`
 	html,
@@ -21,6 +22,7 @@ export default function App({Component, pageProps}) {
 	return (
 		<Provider store={store}>
 			<GlobalStyles />
+			<AppHeader />
 			<Component {...pageProps} />
 		</Provider>
 	);
