@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -29,6 +30,10 @@ public class AjaxEmailPasswordAuthenticationFilter extends AbstractAuthenticatio
 	private static final String AJAX_PASSWORD_KEY = "password";
 	private static final AntPathRequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER =
 		new AntPathRequestMatcher(DEFAULT_URL, "POST");
+
+	private String emailParameter = AJAX_EMAIL_KEY;
+
+	private String passwordParameter = AJAX_PASSWORD_KEY;
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -83,5 +88,27 @@ public class AjaxEmailPasswordAuthenticationFilter extends AbstractAuthenticatio
 
 	private EmailLoginUserRequestDto getAjaxLoginUserDetails(HttpServletRequest request) throws IOException {
 		return objectMapper.readValue(request.getReader(), EmailLoginUserRequestDto.class);
+	}
+
+	public void setEmailParameter(String emailParameter) {
+		Assert.hasText(emailParameter, "Email parameter must not be empty or null");
+		this.emailParameter = emailParameter;
+	}
+
+	/**
+	 * Sets the parameter name which will be used to obtain the password from the login request..
+	 * @param passwordParameter the parameter name. Defaults to "password".
+	 */
+	public void setPasswordParameter(String passwordParameter) {
+		Assert.hasText(passwordParameter, "Password parameter must not be empty or null");
+		this.passwordParameter = passwordParameter;
+	}
+
+	public final String getEmailParameter() {
+		return this.emailParameter;
+	}
+
+	public final String getPasswordParameter() {
+		return this.passwordParameter;
 	}
 }
