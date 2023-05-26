@@ -4,14 +4,19 @@ import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.UserException
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,6 +36,7 @@ import io.f12.notionlinkedblog.domain.user.User;
 import io.f12.notionlinkedblog.domain.user.dto.info.UserSearchDto;
 import io.f12.notionlinkedblog.repository.post.PostDataRepository;
 import io.f12.notionlinkedblog.repository.user.UserDataRepository;
+import io.f12.notionlinkedblog.service.post.PostService;
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -43,9 +49,13 @@ class PostApiControllerTest {
 	@Autowired
 	private UserDataRepository userDataRepository;
 	@Autowired
-	private PostDataRepository postDataRepository;
+	private PostDataRepository postRepository;
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	@Mock
+	private PostDataRepository postDataRepository;
+	@MockBean
+	private PostService postService;
 
 	private User testUser;
 	private Post testPost;
@@ -58,7 +68,7 @@ class PostApiControllerTest {
 			.password(passwordEncoder.encode("1234"))
 			.build()
 		);
-		testPost = postDataRepository.save(Post.builder()
+		testPost = postRepository.save(Post.builder()
 			.user(testUser)
 			.title("testTitle")
 			.content("testContent").build());
@@ -66,7 +76,7 @@ class PostApiControllerTest {
 
 	@AfterEach
 	void clear() {
-		postDataRepository.deleteAll();
+		postRepository.deleteAll();
 		userDataRepository.deleteAll();
 	}
 
@@ -89,14 +99,11 @@ class PostApiControllerTest {
 				.build();
 			String requestBody = objectMapper.writeValueAsString(body);
 			//mock
-			MockHttpSession mockHttpSession = new MockHttpSession();
-			mockHttpSession.setAttribute(mockHttpSession.getId(), user);
 
 			//when
 			ResultActions resultActions = mockMvc.perform(
 				post(url)
 					.contentType(MediaType.APPLICATION_JSON)
-					.session(mockHttpSession)
 					.content(requestBody)
 			);
 			//then
@@ -120,6 +127,9 @@ class PostApiControllerTest {
 				void successCase() throws Exception {
 					//given
 					String url = Endpoint.Api.POST + "/" + testPost.getId();
+					//Mock
+					BDDMockito.given(postDataRepository.findById(testPost.getId()))
+						.willReturn(Optional.ofNullable(testPost));
 					//when
 					ResultActions resultActions = mockMvc.perform(
 						get(url)
@@ -226,7 +236,7 @@ class PostApiControllerTest {
 				Integer pageNumber = 1;
 				String url = Endpoint.Api.POST + "/newest/" + pageNumber;
 
-				postDataRepository.save(Post.builder()
+				postRepository.save(Post.builder()
 					.user(testUser)
 					.title("testTitle 2")
 					.content("testContent").build());
@@ -247,7 +257,7 @@ class PostApiControllerTest {
 					//given
 					String url = Endpoint.Api.POST;
 
-					postDataRepository.save(Post.builder()
+					postRepository.save(Post.builder()
 						.user(testUser)
 						.title("testTitle 2")
 						.content("testContent").build());
@@ -316,6 +326,25 @@ class PostApiControllerTest {
 			);
 			//then
 			resultActions.andExpect(status().isNoContent());
+		}
+	}
+
+	@DisplayName("포스트 좋아요")
+	@Nested
+	class likePost {
+		@DisplayName("성공 케이스")
+		@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+		@Test
+		void successCase() throws Exception {
+			//given
+			final String url = Endpoint.Api.POST + "/like/" + testPost.getId();
+			//when
+			ResultActions resultActions = mockMvc.perform(
+				post(url)
+			);
+			//then
+			resultActions.andExpect(status().isCreated());
+
 		}
 	}
 

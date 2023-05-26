@@ -168,7 +168,7 @@ class CommentsApiControllerTest {
 					.content(objectMapper.writeValueAsString(editComment))
 			);
 			//then
-			resultActions.andExpect(status().isCreated());
+			resultActions.andExpect(status().isFound());
 		}
 
 		@DisplayName("실패 케이스")

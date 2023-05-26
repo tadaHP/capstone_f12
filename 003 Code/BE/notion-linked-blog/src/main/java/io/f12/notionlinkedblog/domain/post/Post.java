@@ -22,6 +22,7 @@ import org.springframework.util.StringUtils;
 
 import io.f12.notionlinkedblog.domain.PostTimeEntity;
 import io.f12.notionlinkedblog.domain.comments.Comments;
+import io.f12.notionlinkedblog.domain.likes.Like;
 import io.f12.notionlinkedblog.domain.user.User;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -53,12 +54,16 @@ public class Post extends PostTimeEntity {
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Comments> comments = new ArrayList<>();
 
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Like> likes = new ArrayList<>();
+
 	@NotBlank
 	private String title;
 	@NotBlank
 	private String content;
 	private String thumbnail;
-	private Long viewCount;
+	private Long viewCount = 0L;
+	private Long popularity = 0L;
 
 	@Builder
 	public Post(User user, String title, String content, String thumbnail, Long viewCount) {
@@ -79,5 +84,9 @@ public class Post extends PostTimeEntity {
 		if (StringUtils.hasText(thumbnail)) {
 			this.thumbnail = thumbnail;
 		}
+	}
+
+	public void addViewCount() {
+		viewCount++;
 	}
 }

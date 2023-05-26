@@ -16,15 +16,18 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
 
+import io.f12.notionlinkedblog.config.TestQuerydslConfiguration;
 import io.f12.notionlinkedblog.domain.post.Post;
-import io.f12.notionlinkedblog.domain.post.dto.PostSearchDto;
 import io.f12.notionlinkedblog.domain.user.User;
 import io.f12.notionlinkedblog.repository.user.UserDataRepository;
+import lombok.extern.slf4j.Slf4j;
 
 @DataJpaTest
+@Import(TestQuerydslConfiguration.class)
+@Slf4j
 class PostDataRepositoryTest {
 
 	@Autowired
@@ -55,6 +58,7 @@ class PostDataRepositoryTest {
 			.user(user)
 			.build();
 		post = postDataRepository.save(savedPost);
+
 	}
 
 	@AfterEach
@@ -182,9 +186,11 @@ class PostDataRepositoryTest {
 						String example = "NoData";
 						PageRequest paging = PageRequest.of(0, 20);
 						//when
-						Slice<Post> postByTitle = postDataRepository.findByTitle(example, paging);
+						List<Long> ids = postDataRepository.findPostIdsByTitle(example, paging);
+						List<Post> posts = postDataRepository.findByIds(ids);
 						//then
-						assertThat(postByTitle).isEmpty();
+						assertThat(posts).isEmpty();
+
 					}
 
 					@DisplayName("정상 조회 - 데이터 1개")
@@ -193,41 +199,43 @@ class PostDataRepositoryTest {
 						//given
 						PageRequest paging = PageRequest.of(0, 20);
 						//when
-						Slice<Post> postByTitle = postDataRepository.findByTitle(title, paging);
-						List<PostSearchDto> postSearchDtos = convertPostToPostDto(postByTitle);
-						PostSearchDto post = postSearchDtos.get(0);
+						List<Long> ids = postDataRepository.findPostIdsByTitle(title, paging);
+						List<Post> posts = postDataRepository.findByIds(ids);
+						Post post = posts.get(0);
+
 						//then
-						assertThat(postByTitle).size().isEqualTo(1);
+						assertThat(posts).size().isEqualTo(1);
 						assertThat(post).extracting("title").isEqualTo(title);
 						assertThat(post).extracting("content").isEqualTo(content);
 
 					}
 
-					@DisplayName("정상 조회 - 데이터 2개 이상")
+					@DisplayName("정상 조회 - paging 갯수 이상")
 					@Test
 					void successfulCase_MultiData() {
 						//given
 						User savedUser = userDataRepository.findById(user.getId())
 							.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
-						PageRequest paging = PageRequest.of(0, 20);
+						for (int i = 0; i < 30; i++) {
+							Post savedPost = Post.builder()
+								.title(title + i)
+								.content(content)
+								.user(user)
+								.build();
+							postDataRepository.save(savedPost);
+						}
+						PageRequest paging1 = PageRequest.of(0, 20);
+						PageRequest paging2 = PageRequest.of(1, 20);
 
-						Post post = Post.builder()
-							.title(title + 2)
-							.content(content + 2)
-							.user(savedUser)
-							.build();
-						postDataRepository.save(post);
 						//when
-						Slice<Post> postByTitle = postDataRepository.findByTitle(title, paging);
-						List<PostSearchDto> postSearchDtos = convertPostToPostDto(postByTitle);
-						PostSearchDto post1 = postSearchDtos.get(0);
-						PostSearchDto post2 = postSearchDtos.get(1);
+						List<Long> ids1 = postDataRepository.findPostIdsByTitle(title, paging1);
+						List<Post> posts1 = postDataRepository.findByIds(ids1);
+
+						List<Long> ids2 = postDataRepository.findPostIdsByTitle(title, paging2);
+						List<Post> posts2 = postDataRepository.findByIds(ids2);
 						//then
-						assertThat(postByTitle).size().isEqualTo(2);
-						assertThat(post1).extracting("title").isEqualTo(title);
-						assertThat(post1).extracting("content").isEqualTo(content);
-						assertThat(post2).extracting("title").isEqualTo(title + 2);
-						assertThat(post2).extracting("content").isEqualTo(content + 2);
+						assertThat(posts1).size().isEqualTo(20);
+						assertThat(posts2).size().isEqualTo(11);
 
 					}
 				}
@@ -246,9 +254,11 @@ class PostDataRepositoryTest {
 						String example = "NoData";
 						PageRequest paging = PageRequest.of(0, 20);
 						//when
-						Slice<Post> postByContent = postDataRepository.findByContent(example, paging);
+						// Slice<Post> postByContent = postDataRepository.findByContent(example, paging);
+						List<Long> ids = postDataRepository.findPostIdsByContent(example, paging);
+						List<Post> posts = postDataRepository.findByIds(ids);
 						//then
-						assertThat(postByContent).isEmpty();
+						assertThat(posts).isEmpty();
 					}
 
 					@DisplayName("정상 조회 - 데이터 1개")
@@ -257,44 +267,51 @@ class PostDataRepositoryTest {
 						//given
 						PageRequest paging = PageRequest.of(0, 20);
 						//when
-						Slice<Post> postByContent = postDataRepository.findByContent(content, paging);
-						List<PostSearchDto> postSearchDtos = convertPostToPostDto(postByContent);
-						PostSearchDto post = postSearchDtos.get(0);
+						// Slice<Post> postByContent = postDataRepository.findByContent(content, paging);
+						// List<PostSearchDto> postSearchDtos = convertPostToPostDto(postByContent);
+						// PostSearchDto post = postSearchDtos.get(0);
+
+						List<Long> ids = postDataRepository.findPostIdsByContent(content, paging);
+						List<Post> posts = postDataRepository.findByIds(ids);
+						Post post = posts.get(0);
+
 						//then
-						assertThat(postByContent).size().isEqualTo(1);
+						assertThat(posts).size().isEqualTo(1);
 						assertThat(post).extracting("title").isEqualTo(title);
 						assertThat(post).extracting("content").isEqualTo(content);
 					}
 
-					@DisplayName("정상 조회 - 데이터 2개 이상")
+					@DisplayName("정상 조회 - paging 갯수 이상")
 					@Test
 					void successfulCase_MultiData() {
 						//given
 						User savedUser = userDataRepository.findById(user.getId())
 							.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
-						PageRequest paging = PageRequest.of(0, 20);
-						Post post = Post.builder()
-							.title(title + 2)
-							.content(content + 2)
-							.user(savedUser)
-							.build();
-						postDataRepository.save(post);
+
+						for (int i = 0; i < 30; i++) {
+							Post savedPost = Post.builder()
+								.title(title + i)
+								.content(content + i)
+								.user(user)
+								.build();
+							postDataRepository.save(savedPost);
+						}
+						PageRequest paging1 = PageRequest.of(0, 20);
+						PageRequest paging2 = PageRequest.of(1, 20);
 						//when
-						Slice<Post> postByContent = postDataRepository.findByContent(content, paging);
-						List<PostSearchDto> postSearchDtos = convertPostToPostDto(postByContent);
-						PostSearchDto post1 = postSearchDtos.get(0);
-						PostSearchDto post2 = postSearchDtos.get(1);
+						List<Long> ids1 = postDataRepository.findPostIdsByContent(content, paging1);
+						List<Post> posts1 = postDataRepository.findByIds(ids1);
+
+						List<Long> ids2 = postDataRepository.findPostIdsByContent(content, paging2);
+						List<Post> posts2 = postDataRepository.findByIds(ids2);
+
 						//then
-						assertThat(postByContent).size().isEqualTo(2);
-						assertThat(post1).extracting("title").isEqualTo(title);
-						assertThat(post1).extracting("content").isEqualTo(content);
-						assertThat(post2).extracting("title").isEqualTo(title + 2);
-						assertThat(post2).extracting("content").isEqualTo(content + 2);
+						assertThat(posts1).size().isEqualTo(20);
+						assertThat(posts2).size().isEqualTo(11);
 
 					}
 				}
 			}
-
 		}
 
 		@DisplayName("포스트 정렬 조회 - 최신순")
@@ -321,8 +338,8 @@ class PostDataRepositoryTest {
 					//given
 					PageRequest paging = PageRequest.of(0, 3);
 					//when
-					Slice<Post> posts = postDataRepository.findLatestByCreatedAtDesc(paging);
-					List<PostSearchDto> postSearchDtos = convertPostToPostDto(posts);
+					List<Long> ids = postDataRepository.findLatestPostIdsByCreatedAtDesc(paging);
+					List<Post> posts = postDataRepository.findByIds(ids);
 					//then
 					assertThat(posts).size().isEqualTo(paging.getPageSize());
 				}
@@ -381,19 +398,6 @@ class PostDataRepositoryTest {
 
 		}
 
-	}
-
-	private List<PostSearchDto> convertPostToPostDto(Slice<Post> posts) {
-		Slice<PostSearchDto> mappedPosts = posts.map(p -> {
-			return PostSearchDto.builder()
-				.username(p.getUser().getUsername())
-				.title(p.getTitle())
-				.content(p.getContent())
-				.thumbnail(p.getThumbnail())
-				.viewCount(p.getViewCount())
-				.build();
-		});
-		return mappedPosts.getContent();
 	}
 
 }

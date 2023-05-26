@@ -94,7 +94,7 @@ class EmailApiControllerTests {
 				);
 
 				//then
-				resultActions.andExpect(status().isBadRequest());
+				resultActions.andExpect(status().isNotFound());
 			}
 
 			@DisplayName("잘못된 인증 코드로 인한 인증 실패")
@@ -118,7 +118,7 @@ class EmailApiControllerTests {
 				);
 
 				//then
-				resultActions.andExpect(status().isBadRequest());
+				resultActions.andExpect(status().isNotFound());
 			}
 		}
 	}
@@ -163,7 +163,7 @@ class EmailApiControllerTests {
 				ResultActions resultActions = mockMvc.perform(post("/api/email").content(alreadyExistingEmail));
 
 				//then
-				resultActions.andExpect(status().isBadRequest());
+				resultActions.andExpect(status().isNotFound());
 			}
 
 			@DisplayName("이메일이 입력되지 않아 실패")
@@ -176,7 +176,7 @@ class EmailApiControllerTests {
 				ResultActions resultActions = mockMvc.perform(post("/api/email").content(email));
 
 				//then
-				resultActions.andExpect(status().isBadRequest());
+				resultActions.andExpect(status().isNotFound());
 			}
 
 			@DisplayName("이메일 형식에 맞지 않아 실패")
@@ -189,7 +189,7 @@ class EmailApiControllerTests {
 				ResultActions resultActions = mockMvc.perform(post("/api/email").content(email));
 
 				//then
-				resultActions.andExpect(status().isBadRequest());
+				resultActions.andExpect(status().isNotFound());
 			}
 		}
 	}

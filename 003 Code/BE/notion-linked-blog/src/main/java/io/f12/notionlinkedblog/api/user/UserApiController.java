@@ -25,10 +25,15 @@ import io.f12.notionlinkedblog.domain.user.dto.info.UserEditDto;
 import io.f12.notionlinkedblog.domain.user.dto.info.UserSearchDto;
 import io.f12.notionlinkedblog.domain.user.dto.signup.UserSignupRequestDto;
 import io.f12.notionlinkedblog.domain.user.dto.signup.UserSignupResponseDto;
+import io.f12.notionlinkedblog.security.common.dto.AuthenticationFailureDto;
 import io.f12.notionlinkedblog.security.login.ajax.dto.LoginUser;
 import io.f12.notionlinkedblog.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -65,10 +70,19 @@ public class UserApiController {
 	public UserSearchDto getUserInfo(@PathVariable Long id) {
 		return userService.getUserInfo(id);
 	}
+	// TODO: 현재 버그 존재 (로그인 하지 않아도 조회가 가능해야 함)
 
 	@PutMapping(value = "/{id}")
 	@ResponseStatus(HttpStatus.CREATED)
 	@Operation(summary = "회원 정보 변경", description = "id에 해당하는 사용자의 정보를 변경합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "201", description = "회원 정보변경 성공",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = UserSearchDto.class))),
+		@ApiResponse(responseCode = "401", description = "회원 미 로그인",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = AuthenticationFailureDto.class))),
+		@ApiResponse(responseCode = "404", description = "존재하지 않는 리소스(유저) 접근")})
 	public void editUserInfo(@PathVariable Long id,
 		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser,
 		@RequestBody @Validated UserEditDto editDto) {
@@ -79,6 +93,14 @@ public class UserApiController {
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@Operation(summary = "회원 정보 삭제", description = "id에 해당하는 사용자의 정보를 삭제합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "201", description = "회원 삭제 성공",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = UserSearchDto.class))),
+		@ApiResponse(responseCode = "401", description = "회원 미 로그인",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = AuthenticationFailureDto.class))),
+		@ApiResponse(responseCode = "404", description = "존재하지 않는 리소스(유저) 접근")})
 	public void deleteUser(@PathVariable Long id,
 		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser) {
 		checkSameUser(id, loginUser);

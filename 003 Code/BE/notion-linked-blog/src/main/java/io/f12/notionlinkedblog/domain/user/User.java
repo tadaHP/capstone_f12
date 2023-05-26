@@ -14,6 +14,7 @@ import javax.persistence.Table;
 
 import io.f12.notionlinkedblog.domain.BaseTimeEntity;
 import io.f12.notionlinkedblog.domain.comments.Comments;
+import io.f12.notionlinkedblog.domain.likes.Like;
 import io.f12.notionlinkedblog.domain.post.Post;
 import io.f12.notionlinkedblog.domain.user.dto.info.UserEditDto;
 import lombok.AccessLevel;
@@ -41,6 +42,9 @@ public class User extends BaseTimeEntity {
 
 	@OneToMany(mappedBy = "user")
 	private List<Comments> comments = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user")
+	private List<Like> likes = new ArrayList<>();
 
 	@Column(nullable = false)
 	private String username;

@@ -48,8 +48,7 @@ public class CommentsService {
 		Comments parentComment = null;
 		if (isChild(commentDto)) {
 			parentComment = commentsDataRepository.findById(commentDto.getParentCommentId())
-				.orElseThrow(() -> new IllegalArgumentException(
-					COMMENT_NOT_EXIST));
+				.orElseThrow(() -> new IllegalArgumentException(COMMENT_NOT_EXIST));
 		}
 
 		Comments builtComments = Comments.builder()
