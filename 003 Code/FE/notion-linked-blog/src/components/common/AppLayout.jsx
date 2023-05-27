@@ -2,8 +2,6 @@ import {Layout} from "antd";
 
 import styled from "styled-components";
 
-import AppHeader from "./AppHeader";
-
 const {Content} = Layout;
 
 const StyledLayout = styled(Layout)`

@@ -15,7 +15,6 @@ const {Header} = Layout;
 const {Text} = Typography;
 
 const StyledText = styled(Text)`
-  color: #FFF;
 `;
 
 const StyledSpace = styled(Space)`
@@ -36,14 +35,46 @@ const StyledHeader = styled(Header)`
   display: flex;
   justify-content: center;
   padding: 0;
+	background-color: #F5F5F5;
 `;
 
 const StyledHeaderRow = styled(Row)`
   display: flex;
-  width: 100%;
   max-width: 1728px;
   justify-content: space-between;
-	margin: 0 32px;
+	width: 100%;
+
+	@media screen and (max-width: 1872px) {
+		width: calc(352px * 4 - 32px);
+	}
+
+	@media screen and (max-width: 1520px) {
+		width: calc(352px * 3 - 32px);
+	}
+
+	@media screen and (max-width: 1168px) {
+		width: calc(352px * 2 - 32px);
+	}
+
+	@media screen and (max-width: 816px) {
+		width: calc(352px * 1 - 32px);
+	}
+`;
+
+const StyledCol = styled(Col)`
+	display: flex;
+	align-items: center;
+`;
+
+const StyledLink = styled(Link)`
+	display: flex;
+	justify-content: space-between;
+  align-items: center;
+	width: 70px;
+`;
+
+const StyledImg = styled.img`
+	width: 32px;
 `;
 
 function AppHeader() {
@@ -95,11 +126,14 @@ function AppHeader() {
 	return (
 		<StyledHeader>
 			<StyledHeaderRow>
-				<Col>
-					<StyledText>
-						<Link href="/">Logo</Link>
-					</StyledText>
-				</Col>
+				<StyledCol>
+					<StyledLink href="/">
+						<StyledImg src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" alt="Logo" />
+						<StyledText>
+							NLB
+						</StyledText>
+					</StyledLink>
+				</StyledCol>
 				<Col>
 					{!user ?
 						(<Button type="primary" onClick={showModal}>로그인</Button>) :
