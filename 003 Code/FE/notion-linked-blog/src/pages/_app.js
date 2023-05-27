@@ -1,8 +1,8 @@
-import {Provider} from "react-redux";
-
-import store from "@/redux/store";
+import {useState, useEffect} from "react";
+import wrapper from "@/redux/store";
 import {createGlobalStyle} from "styled-components";
 import AppHeader from "@/components/common/AppHeader";
+import {Provider} from "react-redux";
 
 const GlobalStyles = createGlobalStyle`
 	html,
@@ -18,12 +18,25 @@ const GlobalStyles = createGlobalStyle`
 	}
 `;
 
-export default function App({Component, pageProps}) {
+function App({Component, ...rest}) {
+	const {store, props} = wrapper.useWrappedStore(rest);
+	const [hydrate, setHydrate] = useState(false);
+
+	useEffect(() => {
+		setHydrate(true);
+	}, []);
+
+	if (!hydrate) {
+		return null;
+	}
+
 	return (
 		<Provider store={store}>
 			<GlobalStyles />
 			<AppHeader />
-			<Component {...pageProps} />
+			<Component {...props.pageProps} />
 		</Provider>
 	);
 }
+
+export default App;
