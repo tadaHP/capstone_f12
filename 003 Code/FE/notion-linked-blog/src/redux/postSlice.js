@@ -25,6 +25,7 @@ const postSlice = createSlice({
 	reducers: {
 		/* TODO: 포스트 관련 액션 처리 */
 		addPost: (state, action) => {
+			state.mainPosts.push(action.payload);
 		},
 		removePost: (state, action) => {
 		},

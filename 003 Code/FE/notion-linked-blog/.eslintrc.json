@@ -18,6 +18,8 @@
           ".jsx"
         ]
       }
-    ]
+    ],
+    "array-bracket-newline": ["error", {"multiline" : true}],
+    "array-element-newline": ["error", {"ArrayPattern": { "multiline": true }}]
   }
 }

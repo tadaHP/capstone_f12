@@ -118,8 +118,11 @@ function AppHeader() {
 			label: <Text>설정</Text>,
 			key: "1",
 		}, {
-			label: <Text onClick={handleLogout}>로그아웃</Text>,
+			label: <Link href="/write"><Text>글쓰기</Text></Link>,
 			key: "2",
+		}, {
+			label: <Text onClick={handleLogout}>로그아웃</Text>,
+			key: "3",
 		},
 	];
 

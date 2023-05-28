@@ -15,8 +15,8 @@ const StyledFormItem = styled(Form.Item)`
 `;
 
 export default function LoginForm({switchForm, setIsModalOpen}) {
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
+	const [email, onChangeEmail] = handleInput("");
+	const [password, onChangePassword] = handleInput("");
 	const [loading, setLoading] = useState(false);
 	const dispatch = useAppDispatch();
 
@@ -44,14 +44,14 @@ export default function LoginForm({switchForm, setIsModalOpen}) {
 					name="email"
 					rules={[{required: true, pattern: /\S/g, message: "이메일은 필수 입력사항입니다"}]}
 				>
-					<Input onChange={e => handleInput(e, setEmail)} placeholder="이메일을 입력하세요" value={email}/>
+					<Input onChange={onChangeEmail} placeholder="이메일을 입력하세요" value={email}/>
 				</Form.Item>
 				<Form.Item
 					label="비밀번호"
 					name="password"
 					rules={[{required: true, pattern: /\S/g, message: "비밀번호는 필수 입력사항입니다"}]}
 				>
-					<Input.Password onChange={e => handleInput(e, setPassword)} placeholder="비밀번호를 입력하세요" value={password}/>
+					<Input.Password onChange={onChangePassword} placeholder="비밀번호를 입력하세요" value={password}/>
 				</Form.Item>
 				<StyledFormItem>
 					<Button type="primary" htmlType="submit" onClick={handleSubmit} loading={loading}>로그인</Button>
