@@ -1,5 +1,6 @@
 package io.f12.notionlinkedblog.repository.post;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +18,6 @@ public interface PostDataRepository extends JpaRepository<Post, Long>, PostRepos
 		+ "WHERE p.id = :id")
 	Optional<Post> findById(@Param("id") Long id);
 
+	@Query("SELECT DISTINCT p FROM Post p left join fetch p.likes")
+	List<Post> findByPostIdForTrend();
 }

@@ -62,11 +62,13 @@ public class PostDataRepositoryImpl implements PostRepositoryCustom {
 	@Override
 	public List<Post> findByIds(List<Long> ids) {
 		return queryFactory.selectFrom(post)
+			.orderBy(post.popularity.desc())
 			.leftJoin(post.user, user)
 			.fetchJoin()
 			.leftJoin(post.likes, like)
 			.fetchJoin()
 			.where(post.id.in(ids))
+			.distinct()
 			.fetch();
 	}
 

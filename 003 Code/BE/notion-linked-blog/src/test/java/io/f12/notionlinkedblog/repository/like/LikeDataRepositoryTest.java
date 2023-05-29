@@ -1,8 +1,11 @@
 package io.f12.notionlinkedblog.repository.like;
 
+import static org.assertj.core.api.Assertions.*;
+
+import java.util.List;
+
 import javax.persistence.EntityManager;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -81,7 +84,7 @@ class LikeDataRepositoryTest {
 		Post getPost = postDataRepository.findById(post.getId())
 			.orElseThrow(() -> new IllegalArgumentException(ExceptionMessages.PostExceptionsMessages.POST_NOT_EXIST));
 		// //then
-		Assertions.assertThat(getPost.getLikes().size()).isEqualTo(count);
+		assertThat(getPost.getLikes().size()).isEqualTo(count);
 	}
 
 	@DisplayName("Like 미존재시 Post 데이터 조회")
@@ -95,7 +98,41 @@ class LikeDataRepositoryTest {
 		Post getPost = postDataRepository.findById(post.getId())
 			.orElseThrow(() -> new IllegalArgumentException(ExceptionMessages.PostExceptionsMessages.POST_NOT_EXIST));
 		//then
-		Assertions.assertThat(getPost.getLikes()).size().isEqualTo(count);
+		assertThat(getPost.getLikes()).size().isEqualTo(count);
+	}
+
+	@DisplayName("Trend 관련 쿼리")
+	@Test
+	void trend() {
+		//given
+		int count = 50;
+		for (int i = 0; i < count; i++) {
+			Like save = likeDataRepository.save(Like.builder()
+				.post(post)
+				.user(user)
+				.build()
+			);
+		}
+
+		Post savedPost = Post.builder()
+			.title(title)
+			.content(content)
+			.user(user)
+			.build();
+		postDataRepository.save(savedPost);
+
+		entityManager.flush();
+		entityManager.clear();
+
+		// when
+		List<Post> posts = postDataRepository.findByPostIdForTrend();
+		Post postA = posts.get(0);
+		Post postB = posts.get(1);
+
+		//then
+		assertThat(posts).size().isEqualTo(2);
+		assertThat(postA.getLikes()).size().isEqualTo(50);
+
 	}
 
 }

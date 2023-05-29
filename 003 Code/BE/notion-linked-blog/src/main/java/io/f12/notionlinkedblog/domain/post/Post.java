@@ -63,7 +63,7 @@ public class Post extends PostTimeEntity {
 	private String content;
 	private String thumbnail;
 	private Long viewCount = 0L;
-	private Long popularity = 0L;
+	private Double popularity = 0.0;
 
 	@Builder
 	public Post(User user, String title, String content, String thumbnail, Long viewCount) {
@@ -72,6 +72,10 @@ public class Post extends PostTimeEntity {
 		this.content = content;
 		this.thumbnail = thumbnail;
 		this.viewCount = viewCount;
+	}
+
+	public void setPopularity(Double popularity) {
+		this.popularity = popularity;
 	}
 
 	public void editPost(String title, String content, String thumbnail) { // 비어있는 데이터는 예외처리

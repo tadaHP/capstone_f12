@@ -255,7 +255,7 @@ class PostApiControllerTest {
 				@Test
 				void successCase() throws Exception {
 					//given
-					String url = Endpoint.Api.POST;
+					String url = Endpoint.Api.POST + "/newest/";
 
 					postRepository.save(Post.builder()
 						.user(testUser)
@@ -266,7 +266,52 @@ class PostApiControllerTest {
 						get(url)
 					);
 					//then
-					resultActions.andExpect(status().isMethodNotAllowed());
+					resultActions.andExpect(status().isNotFound());
+				}
+			}
+		}
+
+		@DisplayName("인기순으로 테스트 조회")
+		@Nested
+		class searchPopularPosts {
+			@DisplayName("성공 케이스")
+			@Test
+			void successCase() throws Exception {
+				//given
+				Integer pageNumber = 1;
+				String url = Endpoint.Api.POST + "/trend/" + pageNumber;
+
+				postRepository.save(Post.builder()
+					.user(testUser)
+					.title("testTitle 2")
+					.content("testContent").build());
+				//when
+				ResultActions resultActions = mockMvc.perform(
+					get(url)
+				);
+				//then
+				resultActions.andExpect(status().isOk());
+			}
+
+			@DisplayName("실패 케이스")
+			@Nested
+			class failureCase {
+				@DisplayName("pageNumber 미존재")
+				@Test
+				void successCase() throws Exception {
+					//given
+					String url = Endpoint.Api.POST + "/trend/";
+
+					postRepository.save(Post.builder()
+						.user(testUser)
+						.title("testTitle 2")
+						.content("testContent").build());
+					//when
+					ResultActions resultActions = mockMvc.perform(
+						get(url)
+					);
+					//then
+					resultActions.andExpect(status().isNotFound());
 				}
 			}
 		}

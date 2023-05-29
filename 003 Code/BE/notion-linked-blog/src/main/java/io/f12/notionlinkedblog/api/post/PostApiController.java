@@ -102,6 +102,17 @@ public class PostApiController {
 		return postService.getLatestPosts(pageNumber);
 	}
 
+	@GetMapping("/trend/{pageNumber}")
+	@Operation(summary = "인기순으로 포스트 조회", description = "메인페이지에서 사용하는 API, 인기순으로 작성된 포스트들을 가져온다")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "포스트 조회 성공",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = PostSearchResponseDto.class)))
+	})
+	public PostSearchResponseDto searchPopularPosts(@PathVariable Integer pageNumber) {
+		return postService.getPopularityPosts(pageNumber);
+	}
+
 	@PutMapping("/{id}")
 	@ResponseStatus(HttpStatus.FOUND)
 	@Operation(summary = "포스트 수정", description = "id 에 해당하는 포스트 수정")
