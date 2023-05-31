@@ -22,12 +22,10 @@ const StyledSpace = styled(Space)`
 `;
 
 const StyledUserOutlined = styled(UserOutlined)`
-  color: #FFF;
   cursor: pointer;
 `;
 
 const StyledDownOutlined = styled(DownOutlined)`
-  color: #FFF;
   cursor: pointer;
 `;
 
@@ -35,7 +33,7 @@ const StyledHeader = styled(Header)`
   display: flex;
   justify-content: center;
   padding: 0;
-	background-color: #F5F5F5;
+	background-color: inherit;
 `;
 
 const StyledHeaderRow = styled(Row)`

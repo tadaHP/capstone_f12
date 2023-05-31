@@ -5,14 +5,15 @@ import styled from "styled-components";
 const {Content} = Layout;
 
 const StyledLayout = styled(Layout)`
-  display: flex;
-  justify-content: center;
-  width: 100%;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	width: 100%;
 `;
 
 const StyledContent = styled(Content)`
-  display: flex;
-  justify-content: center;
+	display: flex;
+	justify-content: center;
 	margin: 0 64px;
 `;
 

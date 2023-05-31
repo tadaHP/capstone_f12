@@ -1,7 +1,6 @@
 import {combineReducers, configureStore} from "@reduxjs/toolkit";
 import {HYDRATE, createWrapper} from "next-redux-wrapper";
 import userReducer from "@/redux/userSlice";
-import postReducer from "@/redux/postSlice";
 
 const rootReducer = (state, action) => {
 	switch (action.type) {
@@ -10,7 +9,6 @@ const rootReducer = (state, action) => {
 		default: {
 			const combineReducer = combineReducers({
 				user: userReducer,
-				post: postReducer,
 			});
 
 			return combineReducer(state, action);

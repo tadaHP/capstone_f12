@@ -1,25 +1,38 @@
 {
-  "parser": "@babel/eslint-parser",
-  "parserOptions": {
-    "requireConfigFile": "false"
-  },
-  "extends": [
-    "naver",
-    "plugin:react/recommended"
-  ],
-  "rules": {
-    "react/prop-types": "off",
-    "react/react-in-jsx-scope": "off",
-    "react/jsx-filename-extension": [
-      1,
-      {
-        "extensions": [
-          ".js",
-          ".jsx"
-        ]
-      }
-    ],
-    "array-bracket-newline": ["error", {"multiline" : true}],
-    "array-element-newline": ["error", {"ArrayPattern": { "multiline": true }}]
-  }
+	"parser": "@babel/eslint-parser",
+	"parserOptions": {
+		"requireConfigFile": "false"
+	},
+	"extends": [
+		"naver",
+		"plugin:react/recommended"
+	],
+	"rules": {
+		"consistent-return": "off",
+		"react/prop-types": "off",
+		"react/react-in-jsx-scope": "off",
+		"react/jsx-filename-extension": [
+			1,
+			{
+				"extensions": [
+					".js",
+					".jsx"
+				]
+			}
+		],
+		"array-bracket-newline": [
+			"error",
+			{
+				"multiline": true
+			}
+		],
+		"array-element-newline": [
+			"error",
+			{
+				"ArrayPattern": {
+					"multiline": true
+				}
+			}
+		]
+	}
 }

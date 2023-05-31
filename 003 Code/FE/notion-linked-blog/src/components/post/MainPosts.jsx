@@ -1,22 +1,74 @@
-import {Col, Row} from "antd";
-import PostCard from "@/components/post/PostCard";
-import {useAppSelector} from "@/hooks/hooks";
+import {useState, useEffect, useRef} from "react";
+import {Col, Row, Space, Spin, Typography} from "antd";
+import {CloseOutlined} from "@ant-design/icons";
 import styled from "styled-components";
+
+import PostCard from "@/components/post/PostCard";
+import {loadPostAPI} from "@/apis/post";
+import useInfiniteScroll from "@/hooks/useInfiniteScroll";
 
 const StyledContentRow = styled(Row)`
 	max-width: 1760px;
 `;
 
+const StyledSpin = styled(Spin)`
+	margin: 64px 0;
+`;
+
+const StyledCloseOutlined = styled(CloseOutlined)`
+	font-size: 3rem;
+`;
+
+const StyledText = styled(Typography.Text)`
+	font-size: 2rem;
+`;
+
 export default function MainPosts() {
-	const {mainPosts} = useAppSelector(state => state.post);
+	const [mainPosts, setMainPosts] = useState([]);
+	const [isLoading, setIsLoading] = useState(false);
+	const [errorMsg, setErrorMsg] = useState("");
+	const target = useRef(null);
+
+	const {count} = useInfiniteScroll({
+		target,
+		targetArray: mainPosts,
+		threshold: 0.2,
+		endPoint: 3,
+	});
+
+	const fetchPosts = async () => {
+		setIsLoading(true);
+		try {
+			const posts = await loadPostAPI(count);
+
+			setMainPosts([...mainPosts, ...posts]);
+		} catch (e) {
+			setErrorMsg(e.message);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		fetchPosts();
+	}, [count]);
 
 	return (
-		<StyledContentRow gutter={[32, 32]} justify="center">
-			{mainPosts.map(post => (
-				<Col key={post.id}>
-					<PostCard key={post.id} post={post} />
-				</Col>
-			))}
-		</StyledContentRow>
+		<Space align="center" direction="vertical">
+			<StyledContentRow gutter={[32, 32]} justify="center" ref={target}>
+				{mainPosts.map(post => (
+					<Col key={post.id}>
+						<PostCard key={post.id} post={post} />
+					</Col>
+				))}
+			</StyledContentRow>
+			{isLoading && <StyledSpin size="large" tip="Loading" />}
+			{errorMsg &&
+				<Space align="center" direction="vertical">
+					<StyledCloseOutlined />
+					<StyledText>{errorMsg}</StyledText>
+				</Space>
+			}
+		</Space>
 	);
 }
