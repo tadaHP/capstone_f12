@@ -16,7 +16,7 @@ const PostWriteSetting = props => {
 		preview_URL: "",
 	});
 	const [description, onChangeDescription] = handleInput("");
-	const [isPublic, setIsPublic] = useState(1);
+	const [isPublic, setIsPublic] = useState(0);
 	const [loading, setLoading] = useState(false);
 	const title = props.title;
 	const content = props.content;
@@ -37,8 +37,8 @@ const PostWriteSetting = props => {
 		formData.append("title", title);
 		formData.append("content", content);
 		formData.append("thumbnail", thumbnail);
-		formData.append("description", description.toString());
-		formData.append("isPublic", isPublic.toString());
+		// formData.append("description", description.toString());
+		// formData.append("isPublic", isPublic.toString());
 
 		try {
 			await requestSubmitPostAPI(formData);
@@ -78,8 +78,8 @@ const PostWriteSetting = props => {
 							<p>공개설정</p>
 							<Space style={{width: "100%"}}>
 								<Radio.Group onChange={setPublicRange} value={isPublic} style={{margin: "10px"}}>
-									<Radio.Button icon={<GlobalOutlined/>} value={1}>전체 공개</Radio.Button>
-									<Radio.Button icon={<LockOutlined/>} value={2}>비공개</Radio.Button>
+									<Radio.Button icon={<GlobalOutlined/>} value={0}>전체 공개</Radio.Button>
+									<Radio.Button icon={<LockOutlined/>} value={1}>비공개</Radio.Button>
 								</Radio.Group>
 							</Space>
 						</Space>
