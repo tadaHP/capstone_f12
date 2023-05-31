@@ -1,6 +1,7 @@
 package io.f12.notionlinkedblog.api.user;
 
 import static io.f12.notionlinkedblog.api.EmailApiController.*;
+import static org.springframework.http.MediaType.*;
 
 import javax.servlet.http.HttpSession;
 
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.f12.notionlinkedblog.api.common.Endpoint;
+import io.f12.notionlinkedblog.domain.common.CommonErrorResponse;
 import io.f12.notionlinkedblog.domain.user.dto.info.UserEditDto;
 import io.f12.notionlinkedblog.domain.user.dto.info.UserSearchDto;
 import io.f12.notionlinkedblog.domain.user.dto.signup.UserSignupRequestDto;
@@ -67,22 +69,27 @@ public class UserApiController {
 
 	@GetMapping(value = "/{id}")
 	@Operation(summary = "회원 정보 조회", description = "id에 해당하는 사용자의 정보를 조회합니다.")
+	@ApiResponse(responseCode = "200", description = "유저 정보 조회 성공",
+		content = @Content(mediaType = APPLICATION_JSON_VALUE,
+			schema = @Schema(implementation = UserSearchDto.class)))
 	public UserSearchDto getUserInfo(@PathVariable Long id) {
 		return userService.getUserInfo(id);
 	}
-	// TODO: 현재 버그 존재 (로그인 하지 않아도 조회가 가능해야 함)
 
 	@PutMapping(value = "/{id}")
 	@ResponseStatus(HttpStatus.CREATED)
 	@Operation(summary = "회원 정보 변경", description = "id에 해당하는 사용자의 정보를 변경합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "201", description = "회원 정보변경 성공",
-			content = @Content(mediaType = "application/json",
+			content = @Content(mediaType = APPLICATION_JSON_VALUE,
 				schema = @Schema(implementation = UserSearchDto.class))),
 		@ApiResponse(responseCode = "401", description = "회원 미 로그인",
-			content = @Content(mediaType = "application/json",
+			content = @Content(mediaType = APPLICATION_JSON_VALUE,
 				schema = @Schema(implementation = AuthenticationFailureDto.class))),
-		@ApiResponse(responseCode = "404", description = "존재하지 않는 리소스(유저) 접근")})
+		@ApiResponse(responseCode = "404", description = "존재하지 않는 리소스(유저) 접근",
+			content = @Content(mediaType = APPLICATION_JSON_VALUE,
+				schema = @Schema(implementation = CommonErrorResponse.class)))
+	})
 	public void editUserInfo(@PathVariable Long id,
 		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser,
 		@RequestBody @Validated UserEditDto editDto) {
@@ -94,13 +101,15 @@ public class UserApiController {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@Operation(summary = "회원 정보 삭제", description = "id에 해당하는 사용자의 정보를 삭제합니다.")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "201", description = "회원 삭제 성공",
-			content = @Content(mediaType = "application/json",
-				schema = @Schema(implementation = UserSearchDto.class))),
+		@ApiResponse(responseCode = "204", description = "회원 삭제 성공",
+			content = @Content(mediaType = APPLICATION_JSON_VALUE)),
 		@ApiResponse(responseCode = "401", description = "회원 미 로그인",
-			content = @Content(mediaType = "application/json",
+			content = @Content(mediaType = APPLICATION_JSON_VALUE,
 				schema = @Schema(implementation = AuthenticationFailureDto.class))),
-		@ApiResponse(responseCode = "404", description = "존재하지 않는 리소스(유저) 접근")})
+		@ApiResponse(responseCode = "404", description = "존재하지 않는 리소스(유저) 접근",
+			content = @Content(mediaType = APPLICATION_JSON_VALUE,
+				schema = @Schema(implementation = CommonErrorResponse.class)))
+	})
 	public void deleteUser(@PathVariable Long id,
 		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser) {
 		checkSameUser(id, loginUser);

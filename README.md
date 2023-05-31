@@ -66,7 +66,7 @@
 - ### 2023 년 OO학술대회
 
 ## ERD
-
+updatedAt 2023.05.31
 ![erd](./img/F12-ERD.png)
 
 ## Class Diagram

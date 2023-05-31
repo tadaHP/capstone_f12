@@ -3,18 +3,30 @@ package io.f12.notionlinkedblog.service.post;
 import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.PostExceptionsMessages.*;
 import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.UserExceptionsMessages.*;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URLConnection;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import io.f12.notionlinkedblog.api.common.Endpoint;
 import io.f12.notionlinkedblog.domain.likes.Like;
 import io.f12.notionlinkedblog.domain.likes.dto.LikeSearchDto;
 import io.f12.notionlinkedblog.domain.post.Post;
-import io.f12.notionlinkedblog.domain.post.dto.PostCreateDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostEditDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostSearchDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostSearchResponseDto;
@@ -35,16 +47,30 @@ public class PostService {
 	private final LikeDataRepository likeDataRepository;
 	private final int pageSize = 20;
 
-	public PostSearchDto createPost(Long userId, PostCreateDto postCreateDto) {
-
+	public PostSearchDto createPost(Long userId, String title, String content, MultipartFile multipartFile)
+		throws IOException {
 		User findUser = userDataRepository.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
 
+		String systemPath = System.getProperty("user.dir");
+
+		String fileName = makeFileName();
+		String fullPath = null;
+		String newName = null;
+		String requestThumbnailLink = null;
+
+		if (multipartFile != null) {
+			fullPath = getSavedDirectory(multipartFile, systemPath, fileName);
+			multipartFile.transferTo(new File(fullPath));
+			newName = fileName + StringUtils.getFilenameExtension(multipartFile.getOriginalFilename());
+			requestThumbnailLink = Endpoint.Api.REQUEST_IMAGE + newName;
+		}
 		Post post = Post.builder()
 			.user(findUser)
-			.title(postCreateDto.getTitle())
-			.content(postCreateDto.getContent())
-			.thumbnail(postCreateDto.getContent())
+			.title(title)
+			.content(content)
+			.storedThumbnailPath(fullPath)
+			.thumbnailName(newName)
 			.viewCount(0L)
 			.build();
 
@@ -54,7 +80,7 @@ public class PostService {
 			.username(savedPost.getUser().getUsername())
 			.title(savedPost.getTitle())
 			.content(savedPost.getContent())
-			.thumbnail(savedPost.getThumbnail())
+			.requestThumbnailLink(requestThumbnailLink)
 			.viewCount(savedPost.getViewCount())
 			.build();
 	}
@@ -86,12 +112,18 @@ public class PostService {
 			.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
 		post.addViewCount();
 
+		String thumbnailLink = null;
+
+		if (post.getThumbnailName() != null) {
+			thumbnailLink = Endpoint.Api.REQUEST_IMAGE + post.getThumbnailName();
+		}
+
 		return PostSearchDto.builder()
 			.postId(post.getId())
 			.username(post.getUser().getUsername())
 			.title(post.getTitle())
 			.content(post.getContent())
-			.thumbnail(post.getThumbnail())
+			.requestThumbnailLink(thumbnailLink)
 			.viewCount(post.getViewCount())
 			.likes(post.getLikes().size())
 			.build();
@@ -125,13 +157,14 @@ public class PostService {
 
 	}
 
-	public void editPost(Long postId, Long userId, PostEditDto postEditDto) {
+	//TODO: 추후 EditThumbnail 을 따로 만들어야 함
+	public void editPostContent(Long postId, Long userId, PostEditDto postEditDto) {
 		Post changedPost = postDataRepository.findById(postId)
 			.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
 		if (isSame(changedPost.getUser().getId(), userId)) {
 			throw new IllegalStateException(WRITER_USER_NOT_MATCH);
 		}
-		changedPost.editPost(postEditDto.getTitle(), postEditDto.getContent(), postEditDto.getThumbnail());
+		changedPost.editPost(postEditDto.getTitle(), postEditDto.getContent());
 	}
 
 	public void likeStatusChange(Long postId, Long userId) {
@@ -152,14 +185,31 @@ public class PostService {
 		}
 	}
 
+	public ResponseEntity<Resource> readImageFile(String imageName) throws MalformedURLException {
+		String thumbnailPathWithName = postDataRepository.findThumbnailPathWithName(imageName);
+		if (thumbnailPathWithName == null) {
+			throw new IllegalArgumentException(IMAGE_NOT_EXIST);
+		}
+		String mediaType = URLConnection.guessContentTypeFromName(thumbnailPathWithName);
+		UrlResource urlResource = new UrlResource("file:" + thumbnailPathWithName);
+		return ResponseEntity.ok()
+			.contentType(MediaType.parseMediaType(mediaType))
+			.body(urlResource);
+	}
+
+	// 내부 사용 매서드
 	private List<PostSearchDto> convertPostToPostDto(List<Post> posts) {
 		return posts.stream().map(p -> {
+			String thumbnailLink = null;
+			if (p.getThumbnailName() != null) {
+				thumbnailLink = Endpoint.Api.REQUEST_IMAGE + p.getThumbnailName();
+			}
 			return PostSearchDto.builder()
 				.postId(p.getId())
 				.username(p.getUser().getUsername())
 				.title(p.getTitle())
 				.content(p.getContent())
-				.thumbnail(p.getThumbnail())
+				.requestThumbnailLink(thumbnailLink)
 				.viewCount(p.getViewCount())
 				.likes(p.getLikes().size())
 				.build();
@@ -179,4 +229,14 @@ public class PostService {
 		return !idA.equals(idB);
 	}
 
+	private String makeFileName() {
+		Date now = new Date();
+		SimpleDateFormat savedDataFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SS");
+		return savedDataFormat.format(now);
+	}
+
+	private String getSavedDirectory(MultipartFile multipartFile, String systemPath, String fileName) {
+		return
+			systemPath + "/" + fileName + "." + StringUtils.getFilenameExtension(multipartFile.getOriginalFilename());
+	}
 }

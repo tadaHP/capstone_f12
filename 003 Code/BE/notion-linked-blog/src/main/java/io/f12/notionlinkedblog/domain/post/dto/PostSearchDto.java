@@ -11,19 +11,19 @@ public class PostSearchDto {
 	private String username;
 	private String title;
 	private String content;
-	private String thumbnail;
 	private Long viewCount;
 	private Integer likes;
+	private String requestThumbnailLink;
 
 	@Builder
-	public PostSearchDto(Long postId, String username, String title, String content, String thumbnail, Long viewCount,
-		Integer likes) {
+	public PostSearchDto(Long postId, String username, String title, String content, Long viewCount, Integer likes,
+		String requestThumbnailLink) {
 		this.postId = postId;
 		this.username = username;
 		this.title = title;
 		this.content = content;
-		this.thumbnail = thumbnail;
 		this.viewCount = viewCount;
 		this.likes = likes;
+		this.requestThumbnailLink = requestThumbnailLink;
 	}
 }

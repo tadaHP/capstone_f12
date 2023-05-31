@@ -20,4 +20,7 @@ public interface PostDataRepository extends JpaRepository<Post, Long>, PostRepos
 
 	@Query("SELECT DISTINCT p FROM Post p left join fetch p.likes")
 	List<Post> findByPostIdForTrend();
+
+	@Query("SELECT DISTINCT p.storedThumbnailPath FROM Post p WHERE p.thumbnailName  = :thumbnailName")
+	String findThumbnailPathWithName(@Param("thumbnailName") String name);
 }

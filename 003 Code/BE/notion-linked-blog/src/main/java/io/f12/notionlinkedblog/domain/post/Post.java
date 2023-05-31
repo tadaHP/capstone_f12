@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -61,16 +62,20 @@ public class Post extends PostTimeEntity {
 	private String title;
 	@NotBlank
 	private String content;
-	private String thumbnail;
+	@Column(unique = true)
+	private String thumbnailName;
+	private String storedThumbnailPath;
 	private Long viewCount = 0L;
 	private Double popularity = 0.0;
 
 	@Builder
-	public Post(User user, String title, String content, String thumbnail, Long viewCount) {
+	public Post(User user, String title, String content, String thumbnailName, String storedThumbnailPath,
+		Long viewCount) {
 		this.user = user;
 		this.title = title;
 		this.content = content;
-		this.thumbnail = thumbnail;
+		this.thumbnailName = thumbnailName;
+		this.storedThumbnailPath = storedThumbnailPath;
 		this.viewCount = viewCount;
 	}
 
@@ -78,15 +83,12 @@ public class Post extends PostTimeEntity {
 		this.popularity = popularity;
 	}
 
-	public void editPost(String title, String content, String thumbnail) { // 비어있는 데이터는 예외처리
+	public void editPost(String title, String content) { // 비어있는 데이터는 예외처리
 		if (StringUtils.hasText(title)) {
 			this.title = title;
 		}
 		if (StringUtils.hasText(content)) {
 			this.content = content;
-		}
-		if (StringUtils.hasText(thumbnail)) {
-			this.thumbnail = thumbnail;
 		}
 	}
 

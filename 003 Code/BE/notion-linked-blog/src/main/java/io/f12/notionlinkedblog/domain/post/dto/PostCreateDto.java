@@ -16,5 +16,4 @@ public class PostCreateDto {
 	private String title;
 	@NotEmpty
 	private String content;
-	private String thumbnail;
 }

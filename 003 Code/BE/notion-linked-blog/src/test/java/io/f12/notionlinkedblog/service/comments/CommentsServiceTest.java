@@ -60,7 +60,6 @@ class CommentsServiceTest {
 					.user(user)
 					.title("testTitle")
 					.content("testContent")
-					.thumbnail("testThumbnail")
 					.build();
 				String content1 = "testComment1";
 				String content2 = "testComment2";
@@ -131,7 +130,6 @@ class CommentsServiceTest {
 				.user(user)
 				.title("testTitle")
 				.content("testContent")
-				.thumbnail("testThumbnail")
 				.build();
 			String content = "testComment1";
 			Comments comments = Comments.builder()
@@ -178,7 +176,6 @@ class CommentsServiceTest {
 				.user(user)
 				.title("testTitle")
 				.content("testContent")
-				.thumbnail("testThumbnail")
 				.build();
 			String content = "testComment1";
 			String editContent = "editComment";
@@ -218,7 +215,6 @@ class CommentsServiceTest {
 				.user(user)
 				.title("testTitle")
 				.content("testContent")
-				.thumbnail("testThumbnail")
 				.build();
 			String content = "testComment1";
 			Comments comments = Comments.builder()

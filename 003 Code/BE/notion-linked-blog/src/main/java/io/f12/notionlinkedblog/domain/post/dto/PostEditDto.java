@@ -16,6 +16,5 @@ public class PostEditDto {
 	private String title;
 	@NotEmpty
 	private String content;
-	private String thumbnail;
 
 }

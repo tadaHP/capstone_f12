@@ -42,6 +42,8 @@ class PostDataRepositoryTest {
 
 	String title = "testTitle";
 	String content = "testContent";
+	String thumbnail = "testThumbnail";
+	String path = "path";
 
 	@BeforeEach
 	void init() {
@@ -56,6 +58,8 @@ class PostDataRepositoryTest {
 			.title(title)
 			.content(content)
 			.user(user)
+			.thumbnailName(thumbnail)
+			.storedThumbnailPath(path)
 			.build();
 		post = postDataRepository.save(savedPost);
 
@@ -355,23 +359,21 @@ class PostDataRepositoryTest {
 		@DisplayName("성공 케이스")
 		@Nested
 		class successfulCase {
-			@DisplayName("부분 변경")
+			@DisplayName("미 변경")
 			@Test
 			void partialChange() {
 				//given
-				String changedThumbnailDetail = "changedThumbnailURL";
 				//when
 				Post editPost = postDataRepository.findById(post.getId())
 					.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
 
-				editPost.editPost("", null, changedThumbnailDetail);
+				editPost.editPost("", null);
 
 				Post editedPost = postDataRepository.findById(post.getId())
 					.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
 				//then
 				assertThat(editedPost).extracting("title").isEqualTo(title);
 				assertThat(editedPost).extracting("content").isEqualTo(content);
-				assertThat(editedPost).extracting("thumbnail").isEqualTo(changedThumbnailDetail);
 
 			}
 
@@ -379,25 +381,43 @@ class PostDataRepositoryTest {
 			@Test
 			void fullChange() {
 				//given
-				String changedThumbnailDetail = "changedThumbnailURL";
 				String changedTitle = "changedTitle";
 				String changedContent = "changedContent";
 				//when
 				Post editPost = postDataRepository.findById(post.getId())
 					.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
 
-				editPost.editPost(changedTitle, changedContent, changedThumbnailDetail);
+				editPost.editPost(changedTitle, changedContent);
 
 				Post editedPost = postDataRepository.findById(post.getId())
 					.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
 				//then
 				assertThat(editedPost).extracting("title").isEqualTo(changedTitle);
 				assertThat(editedPost).extracting("content").isEqualTo(changedContent);
-				assertThat(editedPost).extracting("thumbnail").isEqualTo(changedThumbnailDetail);
 			}
 
 		}
 
+	}
+
+	@DisplayName("썸네일 조회")
+	@Nested
+	class getThumbnailImage {
+		@DisplayName("ID로 PostDto 조회")
+		@Nested
+		class findThumbnailPathByThumbnailName {
+			@DisplayName("정상 조회")
+			@Test
+			void successCase() {
+				//given
+
+				//when
+				String thumbnailPathWithName = postDataRepository.findThumbnailPathWithName(thumbnail);
+				//then
+				assertThat(thumbnailPathWithName).isEqualTo(path);
+
+			}
+		}
 	}
 
 }
