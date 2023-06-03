@@ -53,6 +53,7 @@ class LikeDataRepositoryTest {
 			.title(title)
 			.content(content)
 			.user(user)
+			.isPublic(true)
 			.build();
 		post = postDataRepository.save(savedPost);
 	}
@@ -118,6 +119,7 @@ class LikeDataRepositoryTest {
 			.title(title)
 			.content(content)
 			.user(user)
+			.isPublic(true)
 			.build();
 		postDataRepository.save(savedPost);
 

@@ -62,6 +62,7 @@ class CommentsApiControllerTest {
 		testPost = postDataRepository.save(Post.builder()
 			.user(testUser)
 			.title("testTitle")
+			.isPublic(true)
 			.content("testContent").build());
 		testComment = commentsDataRepository.save(Comments.builder()
 			.user(testUser)
@@ -85,7 +86,7 @@ class CommentsApiControllerTest {
 
 	@DisplayName("댓글 조회")
 	@Nested
-	class getComments {
+	class CommentsLookup {
 		@DisplayName("성공케이스")
 		@Test
 		void successfulCase() throws Exception {
@@ -103,11 +104,11 @@ class CommentsApiControllerTest {
 
 	@DisplayName("댓글 생성")
 	@Nested
-	class createComment {
+	class CommentCreate {
 		@DisplayName("성공케이스")
 		@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
 		@Test
-		void successfulCase() throws Exception {
+		void successCase() throws Exception {
 			//given
 			CreateCommentDto createDto = CreateCommentDto.builder()
 				.comment("testComment")
@@ -128,7 +129,7 @@ class CommentsApiControllerTest {
 
 		@DisplayName("실패 케이스")
 		@Nested
-		class failureCase {
+		class FailCase {
 			@DisplayName("생성 데이터 없음")
 			@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
 			@Test
@@ -149,7 +150,7 @@ class CommentsApiControllerTest {
 
 	@DisplayName("댓글 수정")
 	@Nested
-	class editComment {
+	class CommentEdit {
 		@DisplayName("성공케이스")
 		@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
 		@Test
@@ -173,7 +174,7 @@ class CommentsApiControllerTest {
 
 		@DisplayName("실패 케이스")
 		@Nested
-		class failureCase {
+		class FailCase {
 			@DisplayName("생성 데이터 없음")
 			@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
 			@Test
@@ -208,7 +209,7 @@ class CommentsApiControllerTest {
 
 	@DisplayName("댓글 삭제")
 	@Nested
-	class removeComment {
+	class RemoveComment {
 		@DisplayName("성공케이스")
 		@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
 		@Test
@@ -228,7 +229,7 @@ class CommentsApiControllerTest {
 
 	@DisplayName("실패 케이스")
 	@Nested
-	class failureCase {
+	class FailCase {
 		@DisplayName("작성자 변경자 불일치")
 		@WithUserDetails(value = "test2@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
 		@Test

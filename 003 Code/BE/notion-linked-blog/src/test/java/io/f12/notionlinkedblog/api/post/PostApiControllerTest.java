@@ -1,6 +1,7 @@
 package io.f12.notionlinkedblog.api.post;
 
 import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.UserExceptionsMessages.*;
+import static org.mockito.BDDMockito.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -14,13 +15,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartFile;
@@ -36,6 +37,7 @@ import io.f12.notionlinkedblog.api.common.Endpoint;
 import io.f12.notionlinkedblog.domain.post.Post;
 import io.f12.notionlinkedblog.domain.post.dto.PostEditDto;
 import io.f12.notionlinkedblog.domain.post.dto.SearchRequestDto;
+import io.f12.notionlinkedblog.domain.post.dto.ThumbnailReturnDto;
 import io.f12.notionlinkedblog.domain.user.User;
 import io.f12.notionlinkedblog.domain.user.dto.info.UserSearchDto;
 import io.f12.notionlinkedblog.repository.post.PostDataRepository;
@@ -77,6 +79,7 @@ class PostApiControllerTest {
 		testPost = postRepository.save(Post.builder()
 			.user(testUser)
 			.title("testTitle")
+			.isPublic(true)
 			.content("testContent").build());
 	}
 
@@ -88,10 +91,10 @@ class PostApiControllerTest {
 
 	@DisplayName("포스트 생성")
 	@Nested
-	class createPost {
+	class CreatePost {
 		@DisplayName("성공케이스")
 		@Nested
-		class successCase {
+		class SuccessCase {
 			@DisplayName("썸네일 미존재 케이스")
 			@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
 			@Test
@@ -103,13 +106,20 @@ class PostApiControllerTest {
 				//mock
 				MockMultipartFile titleData = new MockMultipartFile("title",
 					"testTitle".getBytes());
+				log.info("titleData.getContentType(): {}", titleData.getContentType());
 				MockMultipartFile contentData = new MockMultipartFile("content",
 					"testContent".getBytes());
+				MockMultipartFile descriptionData = new MockMultipartFile("description",
+					"description".getBytes());
+				MockMultipartFile isPublicData = new MockMultipartFile("isPublic",
+					"0".getBytes());
 				//when
 				ResultActions resultActions = mockMvc.perform(
 					multipart(url)
 						.file(titleData)
 						.file(contentData)
+						.file(descriptionData)
+						.file(isPublicData)
 				);
 				//then
 				resultActions.andExpect(status().isCreated());
@@ -131,13 +141,20 @@ class PostApiControllerTest {
 					"testTitle".getBytes());
 				MockMultipartFile contentData = new MockMultipartFile("content",
 					"testContent".getBytes());
+				MockMultipartFile descriptionData = new MockMultipartFile("description",
+					"description".getBytes());
+				MockMultipartFile isPublicData = new MockMultipartFile("isPublic",
+					"0".getBytes());
 
 				//when
 				ResultActions resultActions = mockMvc.perform(
 					multipart(url)
 						.file(fileInfo)
 						.file(titleData)
-						.file(contentData));
+						.file(contentData)
+						.file(descriptionData)
+						.file(isPublicData)
+				);
 				//then
 				resultActions.andExpect(status().isCreated());
 			}
@@ -148,11 +165,11 @@ class PostApiControllerTest {
 
 	@DisplayName("포스트 조회")
 	@Nested
-	class getPost {
+	class PostLookup {
 
 		@DisplayName("단건 조회")
 		@Nested
-		class singleLookup {
+		class SingleLookup {
 			@DisplayName("포스트 ID로 조회")
 			@Nested
 			class getPostById {
@@ -162,7 +179,7 @@ class PostApiControllerTest {
 					//given
 					String url = Endpoint.Api.POST + "/" + testPost.getId();
 					//Mock
-					BDDMockito.given(postDataRepository.findById(testPost.getId()))
+					given(postDataRepository.findById(testPost.getId()))
 						.willReturn(Optional.ofNullable(testPost));
 					//when
 					ResultActions resultActions = mockMvc.perform(
@@ -177,7 +194,7 @@ class PostApiControllerTest {
 
 		@DisplayName("다건 조회")
 		@Nested
-		class multiLookup {
+		class MultiLookup {
 			@DisplayName("포스트 title 로 조회")
 			@Nested
 			class getPostsByTitle {
@@ -262,7 +279,7 @@ class PostApiControllerTest {
 
 		@DisplayName("최신순으로 테스트 조회")
 		@Nested
-		class searchLatestPosts {
+		class SearchLatestPosts {
 			@DisplayName("성공 케이스")
 			@Test
 			void successCase() throws Exception {
@@ -273,6 +290,7 @@ class PostApiControllerTest {
 				postRepository.save(Post.builder()
 					.user(testUser)
 					.title("testTitle 2")
+					.isPublic(true)
 					.content("testContent").build());
 				//when
 				ResultActions resultActions = mockMvc.perform(
@@ -284,7 +302,7 @@ class PostApiControllerTest {
 
 			@DisplayName("실패 케이스")
 			@Nested
-			class failureCase {
+			class FailCase {
 				@DisplayName("pageNumber 미존재")
 				@Test
 				void successCase() throws Exception {
@@ -294,6 +312,7 @@ class PostApiControllerTest {
 					postRepository.save(Post.builder()
 						.user(testUser)
 						.title("testTitle 2")
+						.isPublic(true)
 						.content("testContent").build());
 					//when
 					ResultActions resultActions = mockMvc.perform(
@@ -307,7 +326,7 @@ class PostApiControllerTest {
 
 		@DisplayName("인기순으로 테스트 조회")
 		@Nested
-		class searchPopularPosts {
+		class SearchPopularPosts {
 			@DisplayName("성공 케이스")
 			@Test
 			void successCase() throws Exception {
@@ -318,6 +337,7 @@ class PostApiControllerTest {
 				postRepository.save(Post.builder()
 					.user(testUser)
 					.title("testTitle 2")
+					.isPublic(true)
 					.content("testContent").build());
 				//when
 				ResultActions resultActions = mockMvc.perform(
@@ -329,7 +349,7 @@ class PostApiControllerTest {
 
 			@DisplayName("실패 케이스")
 			@Nested
-			class failureCase {
+			class FailCase {
 				@DisplayName("pageNumber 미존재")
 				@Test
 				void successCase() throws Exception {
@@ -339,6 +359,7 @@ class PostApiControllerTest {
 					postRepository.save(Post.builder()
 						.user(testUser)
 						.title("testTitle 2")
+						.isPublic(true)
 						.content("testContent").build());
 					//when
 					ResultActions resultActions = mockMvc.perform(
@@ -354,7 +375,7 @@ class PostApiControllerTest {
 
 	@DisplayName("포스트 수정")
 	@Nested
-	class editPost {
+	class EditPost {
 		@DisplayName("성공 케이스")
 		@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
 		@Test
@@ -385,7 +406,7 @@ class PostApiControllerTest {
 
 	@DisplayName("포스트 삭제")
 	@Nested
-	class removePost {
+	class RemovePost {
 		@DisplayName("성공 케이스")
 		@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
 		@Test
@@ -409,7 +430,7 @@ class PostApiControllerTest {
 
 	@DisplayName("포스트 좋아요")
 	@Nested
-	class likePost {
+	class LikePost {
 		@DisplayName("성공 케이스")
 		@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
 		@Test
@@ -433,7 +454,16 @@ class PostApiControllerTest {
 		@Test
 		void successCase() throws Exception {
 			//given
+			File file = new ClassPathResource("static/images/test.jpg").getFile();
+			UrlResource urlResource = new UrlResource("file:" + file.getPath());
 			final String url = Endpoint.Api.REQUEST_IMAGE + "testImage";
+			ThumbnailReturnDto dto = ThumbnailReturnDto.builder()
+				.thumbnailPath("path.jpg")
+				.image(urlResource)
+				.build();
+			//mock
+			given(postService.readImageFile("testImage"))
+				.willReturn(dto);
 			//when
 			ResultActions resultActions = mockMvc.perform(
 				get(url)

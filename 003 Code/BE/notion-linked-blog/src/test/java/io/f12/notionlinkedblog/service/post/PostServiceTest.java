@@ -21,11 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -33,11 +29,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.f12.notionlinkedblog.domain.likes.dto.LikeSearchDto;
 import io.f12.notionlinkedblog.domain.post.Post;
-import io.f12.notionlinkedblog.domain.post.dto.PostCreateDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostEditDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostSearchDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostSearchResponseDto;
 import io.f12.notionlinkedblog.domain.post.dto.SearchRequestDto;
+import io.f12.notionlinkedblog.domain.post.dto.ThumbnailReturnDto;
 import io.f12.notionlinkedblog.domain.user.User;
 import io.f12.notionlinkedblog.repository.like.LikeDataRepository;
 import io.f12.notionlinkedblog.repository.post.PostDataRepository;
@@ -62,11 +58,11 @@ class PostServiceTest {
 
 	@DisplayName("포스트 생성")
 	@Nested
-	class createPost {
+	class CreatePost {
 
 		@DisplayName("성공케이스")
 		@Nested
-		class successCase {
+		class SuccessCase {
 			@DisplayName("모든 데이터 존재")
 			@Test
 			void haveEveryData() throws IOException {
@@ -82,11 +78,8 @@ class PostServiceTest {
 				String content = "testContent";
 				String thumbnail = "testThumbnail";
 				String path = "path";
-
-				PostCreateDto postDto = PostCreateDto.builder()
-					.title(title)
-					.content(content)
-					.build();
+				String description = "description";
+				Boolean isPublic = true;
 
 				Post returnPost = Post.builder()
 					.user(user)
@@ -108,7 +101,7 @@ class PostServiceTest {
 					.willReturn(returnPost);
 
 				//when
-				PostSearchDto createdPost = postService.createPost(fakeId, postDto.getTitle(), postDto.getContent(),
+				PostSearchDto createdPost = postService.createPost(fakeId, title, content, description, isPublic,
 					mockMultipartFile);
 
 				//then
@@ -129,10 +122,8 @@ class PostServiceTest {
 
 				String title = "testTitle";
 				String content = "testContent";
-				PostCreateDto postDto = PostCreateDto.builder()
-					.title(title)
-					.content(content)
-					.build();
+				String description = "description";
+				Boolean isPublic = true;
 
 				Post returnPost = Post.builder()
 					.user(user)
@@ -148,7 +139,7 @@ class PostServiceTest {
 					.willReturn(returnPost);
 
 				//when
-				PostSearchDto createdPost = postService.createPost(fakeId, postDto.getTitle(), postDto.getContent(),
+				PostSearchDto createdPost = postService.createPost(fakeId, title, content, description, isPublic,
 					null);
 				//then
 				assertThat(createdPost).extracting("title").isEqualTo(title);
@@ -160,18 +151,15 @@ class PostServiceTest {
 
 		@DisplayName("실패 케이스")
 		@Nested
-		class failureCase {
+		class FailCase {
 			@DisplayName("USER 미존재")
 			@Test
 			void undefinedUser() {
 				//given
 				String title = "testTitle";
 				String content = "testContent";
-				String thumbnail = "testThumbnail";
-				PostCreateDto postDto = PostCreateDto.builder()
-					.title(title)
-					.content(content)
-					.build();
+				String description = "description";
+				Boolean isPublic = true;
 				Long fakeId = 1L;
 
 				//Mock
@@ -181,7 +169,7 @@ class PostServiceTest {
 				//when
 				//then
 				assertThatThrownBy(() -> {
-					postService.createPost(fakeId, postDto.getTitle(), postDto.getContent(), null);
+					postService.createPost(fakeId, title, content, description, isPublic, null);
 				}).isInstanceOf(NullPointerException.class);
 
 			}
@@ -192,11 +180,11 @@ class PostServiceTest {
 
 	@DisplayName("포스트 조회")
 	@Nested
-	class findPost {
+	class LookupPost {
 
 		@DisplayName("title 로 조회")
 		@Nested
-		class findPostByTitle {
+		class LookupPostByTitle {
 			@DisplayName("성공케이스")
 			@Test
 			void successCase() {
@@ -255,13 +243,13 @@ class PostServiceTest {
 				assertThat(posts).extracting(PostSearchResponseDto::getElementsSize).isEqualTo(2);
 				assertThat(posts.getPosts()).size().isEqualTo(2);
 				assertThat(postSearchDto).extracting("title").isEqualTo(title);
-				assertThat(postSearchDto).extracting("username").isEqualTo(username);
+				assertThat(postSearchDto).extracting("author").isEqualTo(username);
 			}
 		}
 
 		@DisplayName("content 로 조회")
 		@Nested
-		class findPostByContent {
+		class LookupPostByContent {
 			@DisplayName("성공케이스")
 			@Test
 			void successCase() {
@@ -324,14 +312,14 @@ class PostServiceTest {
 				assertThat(posts).extracting(PostSearchResponseDto::getElementsSize).isEqualTo(2);
 				assertThat(posts.getPosts()).size().isEqualTo(2);
 				assertThat(postSearchDto).extracting("title").isEqualTo(title);
-				assertThat(postSearchDto).extracting("username").isEqualTo(username);
+				assertThat(postSearchDto).extracting("author").isEqualTo(username);
 
 			}
 		}
 
 		@DisplayName("postId 로 조회")
 		@Nested
-		class findPostByPostId {
+		class LookupPostByPostId {
 			@DisplayName("성공케이스")
 			@Test
 			void successCase() {
@@ -365,7 +353,7 @@ class PostServiceTest {
 
 				//then
 				assertThat(postDto).extracting("title").isEqualTo(title);
-				assertThat(postDto).extracting("username").isEqualTo(username);
+				assertThat(postDto).extracting("author").isEqualTo(username);
 
 			}
 
@@ -389,7 +377,7 @@ class PostServiceTest {
 
 		@DisplayName("최신 포스트 조회")
 		@Nested
-		class findLatestPosts {
+		class LookupLatestPosts {
 			@DisplayName("성공케이스")
 			@Test
 			void successCase() {
@@ -449,7 +437,7 @@ class PostServiceTest {
 
 		@DisplayName("인기 포스트 조회")
 		@Nested
-		class findTrendPosts {
+		class LookupTrendPosts {
 			@DisplayName("성공케이스")
 			@Test
 			void successCase() {
@@ -508,7 +496,7 @@ class PostServiceTest {
 
 	@DisplayName("포스트 삭제")
 	@Nested
-	class removePost {
+	class RemovePost {
 		@DisplayName("성공 케이스")
 		@Test
 		void successfulCase() {
@@ -559,11 +547,11 @@ class PostServiceTest {
 
 	@DisplayName("포스트 수정")
 	@Nested
-	class editPost {
+	class EditPost {
 
 		@DisplayName("성공케이스")
 		@Nested
-		class successfulCase {
+		class SuccessCase {
 			@DisplayName("데이터 수정")
 			@Test
 			void editEveryData() {
@@ -601,7 +589,7 @@ class PostServiceTest {
 
 		@DisplayName("실패케이스")
 		@Nested
-		class failureCase {
+		class FailCase {
 
 			@DisplayName("포스트 미존재")
 			@Test
@@ -673,10 +661,10 @@ class PostServiceTest {
 
 	@DisplayName("포스트 좋아요")
 	@Nested
-	class likePost {
+	class LikePost {
 		@DisplayName("성공 케이스")
 		@Nested
-		class successCase {
+		class SuccessCase {
 			@DisplayName("좋아요")
 			@Test
 			void likeTest() {
@@ -745,7 +733,7 @@ class PostServiceTest {
 
 		@DisplayName("실패 케이스")
 		@Nested
-		class failureCase {
+		class FailCase {
 			@DisplayName("회원 미존재")
 			@Test
 			void noExistUser() {
@@ -826,22 +814,14 @@ class PostServiceTest {
 					.email("test@gmail.com")
 					.password("1234")
 					.build();
-				Post post = Post.builder()
-					.user(user)
-					.title("testTitle")
-					.content("testContent")
-					.thumbnailName(imageName)
-					.storedThumbnailPath("path.png")
-					.build();
 				//mock
 				given(postDataRepository.findThumbnailPathWithName(imageName))
 					.willReturn("path.png");
 				//when
-				ResponseEntity<Resource> resourceResponseEntity = postService.readImageFile(imageName);
+				ThumbnailReturnDto thumbnailReturnDto = postService.readImageFile(imageName);
 
 				//then
-				assertThat(resourceResponseEntity).extracting("statusCode").isEqualTo(HttpStatus.OK);
-				assertThat(resourceResponseEntity.getHeaders().getContentType()).isEqualTo(MediaType.IMAGE_PNG);
+				assertThat(thumbnailReturnDto).extracting("thumbnailPath").isEqualTo("path.png");
 			}
 		}
 
@@ -866,7 +846,7 @@ class PostServiceTest {
 				//when
 				//then
 				assertThatThrownBy(() -> {
-					ResponseEntity<Resource> resourceResponseEntity = postService.readImageFile(imageName);
+					postService.readImageFile(imageName);
 				}).isInstanceOf(IllegalArgumentException.class);
 			}
 		}

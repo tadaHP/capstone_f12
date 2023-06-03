@@ -41,7 +41,7 @@ class CommentsServiceTest {
 
 	@DisplayName("댓글 조회")
 	@Nested
-	class getComments {
+	class LookupComments {
 		@DisplayName("성공 케이스")
 		@Nested
 		class SuccessCase {
@@ -114,7 +114,7 @@ class CommentsServiceTest {
 
 	@DisplayName("댓글 생성")
 	@Nested
-	class createComments {
+	class CreateComments {
 		@DisplayName("성공 케이스")
 		@Test
 		void successCase() {
@@ -160,7 +160,7 @@ class CommentsServiceTest {
 
 	@DisplayName("댓글 수정")
 	@Nested
-	class editComments {
+	class EditComments {
 		@DisplayName("성공 케이스")
 		@Test
 		void successCase() {
@@ -198,7 +198,7 @@ class CommentsServiceTest {
 
 	@DisplayName("댓글 삭제")
 	@Nested
-	class removeComments {
+	class RemoveComments {
 		@DisplayName("성공 케이스")
 		@Test
 		void successCase() {

@@ -32,6 +32,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @AllArgsConstructor
 @Entity
 @Getter
@@ -67,17 +68,9 @@ public class Post extends PostTimeEntity {
 	private String storedThumbnailPath;
 	private Long viewCount = 0L;
 	private Double popularity = 0.0;
-
-	@Builder
-	public Post(User user, String title, String content, String thumbnailName, String storedThumbnailPath,
-		Long viewCount) {
-		this.user = user;
-		this.title = title;
-		this.content = content;
-		this.thumbnailName = thumbnailName;
-		this.storedThumbnailPath = storedThumbnailPath;
-		this.viewCount = viewCount;
-	}
+	private String description;
+	@NotNull
+	private Boolean isPublic = false;
 
 	public void setPopularity(Double popularity) {
 		this.popularity = popularity;

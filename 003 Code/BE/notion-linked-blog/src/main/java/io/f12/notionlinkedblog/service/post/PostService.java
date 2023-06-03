@@ -6,18 +6,14 @@ import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.UserException
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -31,15 +27,18 @@ import io.f12.notionlinkedblog.domain.post.dto.PostEditDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostSearchDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostSearchResponseDto;
 import io.f12.notionlinkedblog.domain.post.dto.SearchRequestDto;
+import io.f12.notionlinkedblog.domain.post.dto.ThumbnailReturnDto;
 import io.f12.notionlinkedblog.domain.user.User;
 import io.f12.notionlinkedblog.repository.like.LikeDataRepository;
 import io.f12.notionlinkedblog.repository.post.PostDataRepository;
 import io.f12.notionlinkedblog.repository.user.UserDataRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Transactional
 @Service
+@Slf4j
 public class PostService {
 
 	private final PostDataRepository postDataRepository;
@@ -47,11 +46,11 @@ public class PostService {
 	private final LikeDataRepository likeDataRepository;
 	private final int pageSize = 20;
 
-	public PostSearchDto createPost(Long userId, String title, String content, MultipartFile multipartFile)
-		throws IOException {
+	public PostSearchDto createPost(Long userId, String title, String content, String description,
+		Boolean isPublic, MultipartFile multipartFile) throws IOException {
 		User findUser = userDataRepository.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
-
+		
 		String systemPath = System.getProperty("user.dir");
 
 		String fileName = makeFileName();
@@ -62,9 +61,10 @@ public class PostService {
 		if (multipartFile != null) {
 			fullPath = getSavedDirectory(multipartFile, systemPath, fileName);
 			multipartFile.transferTo(new File(fullPath));
-			newName = fileName + StringUtils.getFilenameExtension(multipartFile.getOriginalFilename());
+			newName = fileName + "." + StringUtils.getFilenameExtension(multipartFile.getOriginalFilename());
 			requestThumbnailLink = Endpoint.Api.REQUEST_IMAGE + newName;
 		}
+
 		Post post = Post.builder()
 			.user(findUser)
 			.title(title)
@@ -72,16 +72,22 @@ public class PostService {
 			.storedThumbnailPath(fullPath)
 			.thumbnailName(newName)
 			.viewCount(0L)
+			.description(description)
+			.isPublic(isPublic)
 			.build();
 
 		Post savedPost = postDataRepository.save(post);
 
 		return PostSearchDto.builder()
-			.username(savedPost.getUser().getUsername())
+			.postId(savedPost.getId())
 			.title(savedPost.getTitle())
 			.content(savedPost.getContent())
-			.requestThumbnailLink(requestThumbnailLink)
 			.viewCount(savedPost.getViewCount())
+			.likes(0)
+			.requestThumbnailLink(requestThumbnailLink)
+			.description(savedPost.getDescription())
+			.createdAt(savedPost.getCreatedAt())
+			.author(savedPost.getUser().getUsername())
 			.build();
 	}
 
@@ -113,19 +119,30 @@ public class PostService {
 		post.addViewCount();
 
 		String thumbnailLink = null;
+		Integer likeSize = null;
+		Integer commentsSize = null;
 
 		if (post.getThumbnailName() != null) {
 			thumbnailLink = Endpoint.Api.REQUEST_IMAGE + post.getThumbnailName();
 		}
+		if (post.getLikes() != null) {
+			likeSize = post.getLikes().size();
+		}
+		if (post.getComments() != null) {
+			commentsSize = post.getComments().size();
+		}
 
 		return PostSearchDto.builder()
 			.postId(post.getId())
-			.username(post.getUser().getUsername())
 			.title(post.getTitle())
 			.content(post.getContent())
-			.requestThumbnailLink(thumbnailLink)
 			.viewCount(post.getViewCount())
-			.likes(post.getLikes().size())
+			.requestThumbnailLink(thumbnailLink)
+			.description(post.getDescription())
+			.createdAt(post.getCreatedAt())
+			.countOfComments(commentsSize)
+			.author(post.getUser().getUsername())
+			.likes(likeSize)
 			.build();
 	}
 
@@ -185,16 +202,16 @@ public class PostService {
 		}
 	}
 
-	public ResponseEntity<Resource> readImageFile(String imageName) throws MalformedURLException {
+	public ThumbnailReturnDto readImageFile(String imageName) throws MalformedURLException {
 		String thumbnailPathWithName = postDataRepository.findThumbnailPathWithName(imageName);
 		if (thumbnailPathWithName == null) {
 			throw new IllegalArgumentException(IMAGE_NOT_EXIST);
 		}
-		String mediaType = URLConnection.guessContentTypeFromName(thumbnailPathWithName);
 		UrlResource urlResource = new UrlResource("file:" + thumbnailPathWithName);
-		return ResponseEntity.ok()
-			.contentType(MediaType.parseMediaType(mediaType))
-			.body(urlResource);
+		return ThumbnailReturnDto.builder()
+			.thumbnailPath(thumbnailPathWithName)
+			.image(urlResource)
+			.build();
 	}
 
 	// 내부 사용 매서드
@@ -204,14 +221,25 @@ public class PostService {
 			if (p.getThumbnailName() != null) {
 				thumbnailLink = Endpoint.Api.REQUEST_IMAGE + p.getThumbnailName();
 			}
+			Integer likeSize = null;
+			if (p.getLikes() != null) {
+				likeSize = p.getLikes().size();
+			}
+			Integer commentsSize = null;
+			if (p.getComments() != null) {
+				commentsSize = p.getComments().size();
+			}
 			return PostSearchDto.builder()
 				.postId(p.getId())
-				.username(p.getUser().getUsername())
 				.title(p.getTitle())
 				.content(p.getContent())
-				.requestThumbnailLink(thumbnailLink)
 				.viewCount(p.getViewCount())
-				.likes(p.getLikes().size())
+				.likes(likeSize)
+				.requestThumbnailLink(thumbnailLink)
+				.description(p.getDescription())
+				.createdAt(p.getCreatedAt())
+				.countOfComments(commentsSize)
+				.author(p.getUser().getUsername())
 				.build();
 		}).collect(Collectors.toList());
 	}

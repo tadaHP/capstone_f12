@@ -48,6 +48,7 @@ class CommentsDataRepositoryTest {
 			.user(savedUser)
 			.title("testTitle")
 			.content("testContent")
+			.isPublic(true)
 			.build();
 		savedPost = postDataRepository.save(post);
 		Comments comments = Comments.builder()

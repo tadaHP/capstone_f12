@@ -23,7 +23,7 @@ public class PostDataRepositoryImpl implements PostRepositoryCustom {
 	public List<Long> findPostIdsByTitle(String title, Pageable pageable) {
 		return queryFactory.select(post.id)
 			.from(post)
-			.where(post.title.contains(title))
+			.where(post.title.contains(title).and(post.isPublic.isTrue()))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
@@ -33,7 +33,7 @@ public class PostDataRepositoryImpl implements PostRepositoryCustom {
 	public List<Long> findPostIdsByContent(String content, Pageable pageable) {
 		return queryFactory.select(post.id)
 			.from(post)
-			.where(post.content.contains(content))
+			.where(post.content.contains(content).and(post.isPublic.isTrue()))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
@@ -43,6 +43,7 @@ public class PostDataRepositoryImpl implements PostRepositoryCustom {
 	public List<Long> findLatestPostIdsByCreatedAtDesc(Pageable pageable) {
 		return queryFactory.select(post.id)
 			.from(post)
+			.where(post.isPublic.isTrue())
 			.orderBy(post.createdAt.desc())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
@@ -53,6 +54,7 @@ public class PostDataRepositoryImpl implements PostRepositoryCustom {
 	public List<Long> findPopularityPostIdsByViewCountAtDesc(Pageable pageable) {
 		return queryFactory.select(post.id)
 			.from(post)
+			.where(post.isPublic.isTrue())
 			.orderBy(post.popularity.desc())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())

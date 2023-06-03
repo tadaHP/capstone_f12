@@ -4,9 +4,11 @@ import static org.springframework.http.MediaType.*;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URLConnection;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -28,6 +30,7 @@ import io.f12.notionlinkedblog.domain.post.dto.PostEditDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostSearchDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostSearchResponseDto;
 import io.f12.notionlinkedblog.domain.post.dto.SearchRequestDto;
+import io.f12.notionlinkedblog.domain.post.dto.ThumbnailReturnDto;
 import io.f12.notionlinkedblog.security.common.dto.AuthenticationFailureDto;
 import io.f12.notionlinkedblog.security.login.ajax.dto.LoginUser;
 import io.f12.notionlinkedblog.service.post.PostService;
@@ -62,13 +65,20 @@ public class PostApiController {
 				schema = @Schema(implementation = AuthenticationFailureDto.class))),
 		@ApiResponse(responseCode = "404", description = "회원 데이터 미존재",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE,
+				schema = @Schema(implementation = CommonErrorResponse.class))),
+		@ApiResponse(responseCode = "404", description = "isPublic 값이 0, 1 이 아닌경우",
+			content = @Content(mediaType = APPLICATION_JSON_VALUE,
 				schema = @Schema(implementation = CommonErrorResponse.class)))
 	})
 	public PostSearchDto createPost(@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser,
-		@RequestPart(value = "file", required = false) MultipartFile file,
+		@RequestPart(value = "thumbnail", required = false) MultipartFile file,
 		@RequestPart(value = "title") String title,
-		@RequestPart(value = "content") String content) throws IOException {
-		return postService.createPost(loginUser.getUser().getId(), title, content, file);
+		@RequestPart(value = "content") String content,
+		@RequestPart(value = "description", required = false) String description,
+		@RequestPart(value = "isPublic") String stringIsPublic) throws IOException {
+		validateIsPublic(stringIsPublic);
+		return postService.createPost(loginUser.getUser().getId(), title, content, description,
+			isPublic(stringIsPublic), file);
 	}
 
 	@GetMapping("/{id}")
@@ -82,6 +92,9 @@ public class PostApiController {
 			content = @Content(mediaType = APPLICATION_JSON_VALUE,
 				schema = @Schema(implementation = CommonErrorResponse.class))),
 		@ApiResponse(responseCode = "404", description = "Post 데이터 미존재",
+			content = @Content(mediaType = APPLICATION_JSON_VALUE,
+				schema = @Schema(implementation = CommonErrorResponse.class))),
+		@ApiResponse(responseCode = "415", description = "필수 데이터 미존재",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE,
 				schema = @Schema(implementation = CommonErrorResponse.class)))
 	})
@@ -219,7 +232,21 @@ public class PostApiController {
 				schema = @Schema(implementation = CommonErrorResponse.class)))
 	})
 	public ResponseEntity<Resource> getThumbnail(@PathVariable String imageName) throws MalformedURLException {
-		return postService.readImageFile(imageName);
+		ThumbnailReturnDto thumbnailInfo = postService.readImageFile(imageName);
+		String mediaType = URLConnection.guessContentTypeFromName(thumbnailInfo.getThumbnailPath());
+		return ResponseEntity.ok()
+			.contentType(MediaType.parseMediaType(mediaType))
+			.body(thumbnailInfo.getImage());
+
 	}
 
+	private void validateIsPublic(String isPublic) {
+		if (!(isPublic.equals("0") || isPublic.equals("1"))) {
+			throw new IllegalArgumentException("isPublic must be 0 or 1");
+		}
+	}
+
+	private boolean isPublic(String isPublic) {
+		return isPublic.equals("0");
+	}
 }
