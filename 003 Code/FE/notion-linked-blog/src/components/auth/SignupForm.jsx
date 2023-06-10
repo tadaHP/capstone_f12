@@ -109,20 +109,13 @@ export default function SignupForm({switchForm}) {
 				>
 					<Input onChange={onChangeEmail} value={email} placeholder="인증 코드를 받을 이메일을 입력하세요" disabled={requestCode}/>
 				</Form.Item>
-				{!isVerified && requestCode && (isCorrectVerificationCode ?
+				{!isVerified && requestCode && (
 					<Form.Item
 						label="인증 코드"
 						name="verificationCode"
 						rules={[{required: true, pattern: /\S/g, message: "인증 코드를 입력해 주세요"}]}
-					>
-						<Input onChange={onChangeVerificationCode} value={verificationCode} placeholder="전송된 인증 코드를 입력해 주세요"/>
-					</Form.Item> :
-					<Form.Item
-						label="인증 코드"
-						name="verificationCode"
-						rules={[{required: true, pattern: /\S/g, message: "인증 코드를 입력해 주세요"}]}
-						validateStatus="error"
-						help="올바른 인증코드를 입력해주세요"
+						validateStatus={!isCorrectVerificationCode ? "error" : null}
+						help={!isCorrectVerificationCode ? "올바른 인증코드를 입력해주세요" : null}
 					>
 						<Input onChange={onChangeVerificationCode} value={verificationCode} placeholder="전송된 인증 코드를 입력해 주세요"/>
 					</Form.Item>

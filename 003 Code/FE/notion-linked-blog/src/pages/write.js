@@ -8,7 +8,6 @@ import {Button, Input} from "antd";
 import Link from "next/link";
 import {
 	ButtonSpace,
-	SpaceDiv,
 	TempButton,
 	WriteDiv,
 } from "@/components/post/Post";
@@ -28,7 +27,7 @@ const Write = () => {
 		setIsDoneWrite(prev => !prev);
 	};
 
-	const editContent = contents => {
+	const editContent = content => {
 		setContent(content);
 	};
 

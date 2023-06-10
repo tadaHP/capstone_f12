@@ -4,7 +4,6 @@ import {Input, Space, Divider, Button, Radio} from "antd";
 import Link from "next/link";
 import {FolderAddOutlined, GlobalOutlined, LockOutlined} from "@ant-design/icons";
 import {requestSubmitPostAPI} from "@/apis/post";
-// import styled from "styled-components";
 import Uploader from "@/components/post/Uploader";
 import {CoverDiv, UploaderDiv} from "@/components/post/Post";
 
@@ -37,8 +36,8 @@ const PostWriteSetting = props => {
 		formData.append("title", title);
 		formData.append("content", content);
 		formData.append("thumbnail", thumbnail);
-		// formData.append("description", description.toString());
-		// formData.append("isPublic", isPublic.toString());
+		formData.append("description", description.toString());
+		formData.append("isPublic", isPublic.toString());
 
 		try {
 			await requestSubmitPostAPI(formData);
