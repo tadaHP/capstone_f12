@@ -107,7 +107,7 @@ export default function SignupForm({switchForm}) {
 					name="email"
 					rules={[{required: true, pattern: /^[A-Za-z0-9]([-_.]?[A-Za-z0-9])*@[A-Za-z0-9]([-_.]?[A-Za-z0-9])*\.[A-Za-z]{2,3}$/i, message: "이메일 형식에 맞지 않는 메일 주소입니다. 다시 입력해 주세요."}]}
 				>
-					<Input onChange={onChangeEmail} value={email} placeholder="인증 코드를 받을 이메일을 입력하세요" disabled={requestCode}/>
+					<Input onChange={onChangeEmail} value={email} placeholder="인증 코드를 받을 이메일을 입력하세요" disabled={requestCode} />
 				</Form.Item>
 				{!isVerified && requestCode && (
 					<Form.Item
@@ -117,7 +117,7 @@ export default function SignupForm({switchForm}) {
 						validateStatus={!isCorrectVerificationCode ? "error" : null}
 						help={!isCorrectVerificationCode ? "올바른 인증코드를 입력해주세요" : null}
 					>
-						<Input onChange={onChangeVerificationCode} value={verificationCode} placeholder="전송된 인증 코드를 입력해 주세요"/>
+						<Input onChange={onChangeVerificationCode} value={verificationCode} placeholder="전송된 인증 코드를 입력해 주세요" />
 					</Form.Item>
 				)}
 				{isVerified && (
@@ -127,14 +127,14 @@ export default function SignupForm({switchForm}) {
 							name="username"
 							rules={[{required: true, pattern: /\S/g, message: "이름은 필수 입력사항입니다"}]}
 						>
-							<Input onChange={onChangeUsername} value={username}/>
+							<Input onChange={onChangeUsername} value={username} />
 						</Form.Item>
 						<Form.Item
 							label="비밀번호"
 							name="password"
 							rules={[{required: true, pattern: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/, message: "비밀번호는 8자로 영문 대 소문자, 숫자, 특수기호를 조합해서 사용하세요."}]}
 						>
-							<Input.Password onChange={onChangePassword} value={password}/>
+							<Input.Password onChange={onChangePassword} value={password} />
 						</Form.Item>
 						<Form.Item
 							label="비밀번호확인"
@@ -151,7 +151,7 @@ export default function SignupForm({switchForm}) {
 								}),
 							]}
 						>
-							<Input.Password/>
+							<Input.Password />
 						</Form.Item>
 						{isSignup && (
 							<Row justify="center">
@@ -170,7 +170,7 @@ export default function SignupForm({switchForm}) {
 						<Form.Item>
 							<Row justify="end" align="middle">
 								<Col>
-									{startCountDown && <Countdown valueStyle={{fontSize: "1rem"}} value={deadline} format="mm:ss"/>}
+									{startCountDown && <Countdown valueStyle={{fontSize: "1rem"}} value={deadline} format="mm:ss" />}
 								</Col>
 								<Col>
 									<StyledButton type="primary" htmlType="submit" onClick={handleSubmit} loading={submitting}>

@@ -1,8 +1,10 @@
 export default function convertKRTimeStyle(time) {
 	let result = "";
 
-	result += `${time.getFullYear()}년 `;
-	result += `${time.getMonth() + 1}월 `;
-	result += `${time.getDate()}일`;
+	const date = new Date(time);
+
+	result += `${date.getFullYear()}년 `;
+	result += `${date.getMonth() + 1}월 `;
+	result += `${date.getDate()}일`;
 	return result;
 }

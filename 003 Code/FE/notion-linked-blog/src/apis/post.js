@@ -1,28 +1,30 @@
-import {faker} from "@faker-js/faker";
-import convertKRTimeStyle from "@/utils/time";
-
 import {apiClient} from "./apiClient";
 
-let id = 1;
+export async function getThumbnail(url) {
+	try {
+		const resp = await apiClient.get(url);
+
+		console.log(resp.data);
+
+		return resp;
+	} catch (e) {
+	}
+}
+
+export async function getPostByIdAPI(postId) {
+	try {
+		const resp = await apiClient.get(`/posts/${postId}`);
+
+		return resp.data;
+	} catch (e) {
+	}
+}
 
 export async function loadPostAPI(pageNumber) {
 	try {
 		const resp = await apiClient.get(`/posts/newest/${pageNumber}`);
-		const posts = Array(20).fill(null)
-			.map(() => ({
-				"id": id++,
-				"thumbnail": faker.image.url(),
-				"title": faker.word.verb(10),
-				"content": faker.lorem.paragraph(),
-				"createdAt": convertKRTimeStyle(faker.date.anytime()),
-				"countOfComments": faker.number.int(50),
-				"author": faker.person.firstName(),
-				"likes": faker.number.int(1000),
-				"avatar": faker.image.avatar(),
-			}));
 
-		id += 20;
-		return posts;
+		return resp.data.posts;
 	} catch (e) {
 		let errorMsg;
 

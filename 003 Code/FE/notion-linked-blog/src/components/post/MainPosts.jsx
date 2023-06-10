@@ -6,6 +6,7 @@ import styled from "styled-components";
 import PostCard from "@/components/post/PostCard";
 import {loadPostAPI} from "@/apis/post";
 import useInfiniteScroll from "@/hooks/useInfiniteScroll";
+import Link from "next/link";
 
 const StyledContentRow = styled(Row)`
 	max-width: 1760px;
@@ -57,9 +58,11 @@ export default function MainPosts() {
 		<Space align="center" direction="vertical">
 			<StyledContentRow gutter={[32, 32]} justify="center" ref={target}>
 				{mainPosts.map(post => (
-					<Col key={post.id}>
-						<PostCard key={post.id} post={post} />
-					</Col>
+					<Link key={post.postId} href={`/${post.author}/${post.postId}`}>
+						<Col key={post.postId}>
+							<PostCard key={post.postId} post={post} />
+						</Col>
+					</Link>
 				))}
 			</StyledContentRow>
 			{isLoading && <StyledSpin size="large" tip="Loading" />}

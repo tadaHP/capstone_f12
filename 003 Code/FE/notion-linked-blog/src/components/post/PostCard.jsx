@@ -1,6 +1,9 @@
 import {Card, Typography} from "antd";
 import {HeartFilled} from "@ant-design/icons";
 import {styled} from "styled-components";
+import {useEffect, useState} from "react";
+import {getThumbnail} from "@/apis/post";
+import convertKRTimeStyle from "@/utils/time";
 
 const {Meta} = Card;
 
@@ -39,7 +42,7 @@ export default function PostCard({post}) {
 		<StyledCard
 			hoverable
 			bordered={false}
-			cover={<StyledCover src={post.thumbnail} />}
+			cover={<StyledCover />}
 			actions={
 				[
 					<StyledDiv key="left">
@@ -59,8 +62,8 @@ export default function PostCard({post}) {
 				description={(
 					<>
 						<StyledParagraph
-							ellipsis={{rows: 3}}>{post.content}</StyledParagraph>
-						<Typography.Text>{post.createdAt}</Typography.Text>
+							ellipsis={{rows: 3}}>{post.description}</StyledParagraph>
+						<Typography.Text>{convertKRTimeStyle(post.createdAt)}</Typography.Text>
 						<Typography.Text> · </Typography.Text>
 						<Typography.Text>{post.countOfComments}개의 댓글</Typography.Text>
 					</>

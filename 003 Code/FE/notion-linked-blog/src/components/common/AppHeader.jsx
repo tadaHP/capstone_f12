@@ -50,12 +50,9 @@ const StyledHeaderRow = styled(Row)`
 		width: calc(352px * 3 - 32px);
 	}
 
-	@media screen and (max-width: 1168px) {
-		width: calc(352px * 2 - 32px);
-	}
-
-	@media screen and (max-width: 816px) {
-		width: calc(352px * 1 - 32px);
+	@media screen and (max-width: 1058px) {
+		width: 100vw;
+		padding: 0 16px;
 	}
 `;
 
