@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import {Button, Space} from "antd";
+import {Button, Input, Space} from "antd";
 
 export const CoverDiv = styled.div`
   display: flex;
@@ -29,3 +29,7 @@ export const ButtonSpace = styled(Space)`
 	justify-content: space-between;
   width: 50%;
 `;
+
+export const StyledInput = styled(Input)`
+    font-size: 3rem;
+	`;

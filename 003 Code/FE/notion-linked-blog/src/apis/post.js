@@ -57,3 +57,36 @@ export const requestSubmitPostAPI = async post => {
 		throw e;
 	}
 };
+
+export const requestDeletePostAPI = async postId => {
+	try {
+		await apiClient.delete(`/posts/${postId}`);
+	} catch (e) {
+		// 400 : Bad Request
+		// 401 : 작성자와 삭제시도자 불일치
+		// 404 : 포스트 데이터 미존재
+		// 415 : Unsupported Media Type
+		throw e;
+	}
+};
+
+export const requestUpdatePostAPI = async post => {
+	const data = {
+		"title": post.title,
+		"content": post.content,
+	};
+
+	try {
+		await apiClient.put(`/posts/${post.postId}`, data, {
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
+	} catch (e) {
+		// 400 : Bad Request
+		// 401 : 회원 미로그인
+		// 404 : 포스트 데이터 미존재
+		// 415 : Unsupported Media Type
+		throw e;
+	}
+};

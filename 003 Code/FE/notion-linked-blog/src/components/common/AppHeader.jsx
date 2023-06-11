@@ -9,6 +9,7 @@ import {login, logout} from "@/redux/userSlice";
 
 import styled from "styled-components";
 import Link from "next/link";
+import {useRouter} from "next/router";
 
 const {Header} = Layout;
 
@@ -77,6 +78,7 @@ function AppHeader() {
 	const [existAccount, setExistAccount] = useState(true);
 	const {user} = useAppSelector(state => state.user);
 	const dispatch = useAppDispatch();
+	const router = useRouter();
 
 	useEffect(() => {
 		(async () => {
@@ -103,6 +105,7 @@ function AppHeader() {
 	const handleLogout = useCallback(async () => {
 		await logoutAPI();
 		dispatch(logout());
+		await router.replace("/");
 	}, []);
 
 	const items = [

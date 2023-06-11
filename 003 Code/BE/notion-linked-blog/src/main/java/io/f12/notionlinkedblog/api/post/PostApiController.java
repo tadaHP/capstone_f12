@@ -147,7 +147,7 @@ public class PostApiController {
 	}
 
 	@PutMapping("/{id}")
-	@ResponseStatus(HttpStatus.FOUND)
+	@ResponseStatus(HttpStatus.OK)
 	@Operation(summary = "포스트 수정", description = "id 에 해당하는 포스트 수정")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "302", description = "포스트 수정 성공")

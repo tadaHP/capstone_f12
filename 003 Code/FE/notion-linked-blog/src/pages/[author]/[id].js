@@ -21,7 +21,7 @@ export default function Page() {
 				setPost(receivedPost);
 			})();
 		}
-	}, [router.isReady, post]);
+	}, [router.isReady]);
 
 	return (
 		<AppLayout>
