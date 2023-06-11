@@ -399,7 +399,7 @@ class PostApiControllerTest {
 					.contentType(MediaType.APPLICATION_JSON)
 			);
 			//then
-			resultActions.andExpect(status().isFound());
+			resultActions.andExpect(status().isOk());
 		}
 
 	}
