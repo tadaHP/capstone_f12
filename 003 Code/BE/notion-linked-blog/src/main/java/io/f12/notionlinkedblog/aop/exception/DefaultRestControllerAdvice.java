@@ -10,7 +10,9 @@ import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import io.f12.notionlinkedblog.domain.common.CommonErrorResponse;
+import io.swagger.v3.oas.annotations.Hidden;
 
+@Hidden
 @RestControllerAdvice
 public class DefaultRestControllerAdvice {
 

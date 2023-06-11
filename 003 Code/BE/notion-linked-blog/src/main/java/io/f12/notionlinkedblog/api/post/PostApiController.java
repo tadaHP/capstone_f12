@@ -31,7 +31,6 @@ import io.f12.notionlinkedblog.domain.post.dto.PostSearchDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostSearchResponseDto;
 import io.f12.notionlinkedblog.domain.post.dto.SearchRequestDto;
 import io.f12.notionlinkedblog.domain.post.dto.ThumbnailReturnDto;
-import io.f12.notionlinkedblog.security.common.dto.AuthenticationFailureDto;
 import io.f12.notionlinkedblog.security.login.ajax.dto.LoginUser;
 import io.f12.notionlinkedblog.service.post.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -60,13 +59,7 @@ public class PostApiController {
 			content = @Content(mediaType = APPLICATION_JSON_VALUE,
 				schema = @Schema(implementation = PostSearchDto.class,
 					description = "requestThumbnailLink 은 해당 API 로 이미지를 다시 요청해야 합니다"))),
-		@ApiResponse(responseCode = "401", description = "회원 미 로그인",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = AuthenticationFailureDto.class))),
-		@ApiResponse(responseCode = "404", description = "회원 데이터 미존재",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = CommonErrorResponse.class))),
-		@ApiResponse(responseCode = "404", description = "isPublic 값이 0, 1 이 아닌경우",
+		@ApiResponse(responseCode = "400", description = "isPublic 값이 0, 1 이 아닌경우",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE,
 				schema = @Schema(implementation = CommonErrorResponse.class)))
 	})
@@ -89,9 +82,6 @@ public class PostApiController {
 				schema = @Schema(implementation = PostSearchDto.class,
 					description = "requestThumbnailLink 은 해당 API 로 이미지를 다시 요청해야 합니다"))),
 		@ApiResponse(responseCode = "400", description = "RequestDto 미존재",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = CommonErrorResponse.class))),
-		@ApiResponse(responseCode = "404", description = "Post 데이터 미존재",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE,
 				schema = @Schema(implementation = CommonErrorResponse.class))),
 		@ApiResponse(responseCode = "415", description = "필수 데이터 미존재",
@@ -160,16 +150,7 @@ public class PostApiController {
 	@ResponseStatus(HttpStatus.FOUND)
 	@Operation(summary = "포스트 수정", description = "id 에 해당하는 포스트 수정")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "302", description = "포스트 수정 성공"),
-		@ApiResponse(responseCode = "401", description = "회원 미 로그인",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = AuthenticationFailureDto.class))),
-		@ApiResponse(responseCode = "404", description = "포스트 데이터 미존재",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = CommonErrorResponse.class))),
-		@ApiResponse(responseCode = "401", description = "작성자와 수정시도자 불일치",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = CommonErrorResponse.class)))
+		@ApiResponse(responseCode = "302", description = "포스트 수정 성공")
 	})
 	//TODO: 추후 JSON 으로 리턴타입 변경 필요
 	public String editPost(@PathVariable("id") Long postId,
@@ -183,16 +164,7 @@ public class PostApiController {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@Operation(summary = "포스트 삭제", description = "id에 해당하는 포스트 삭제")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "204", description = "포스트 삭제 성공"),
-		@ApiResponse(responseCode = "401", description = "회원 미 로그인",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = AuthenticationFailureDto.class))),
-		@ApiResponse(responseCode = "404", description = "포스트 데이터 미존재",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = CommonErrorResponse.class))),
-		@ApiResponse(responseCode = "401", description = "작성자와 삭제시도자 불일치",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = CommonErrorResponse.class)))
+		@ApiResponse(responseCode = "204", description = "포스트 삭제 성공")
 	})
 	public void deletePost(@PathVariable("id") Long postId,
 		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser) {
@@ -204,15 +176,6 @@ public class PostApiController {
 	@Operation(summary = "해당하는 Post 에 Like 를 추가/삭제 합니다")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "201", description = "Like 상태 변경 성공"),
-		@ApiResponse(responseCode = "401", description = "회원 미 로그인",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = AuthenticationFailureDto.class))),
-		@ApiResponse(responseCode = "404", description = "포스트 데이터 미존재",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = CommonErrorResponse.class))),
-		@ApiResponse(responseCode = "404", description = "유저 데이터 미존재(DB에 미존재)",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = CommonErrorResponse.class)))
 	})
 	public void addLikeToPost(@PathVariable Long postId,
 		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser) {
@@ -224,9 +187,6 @@ public class PostApiController {
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "이미지 가져오기 성공",
 			content = @Content(mediaType = "image/*")),
-		@ApiResponse(responseCode = "404", description = "이미지 미존재",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = CommonErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = "DB에 이미지 이름 저장 오류, 문의 요망",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE,
 				schema = @Schema(implementation = CommonErrorResponse.class)))

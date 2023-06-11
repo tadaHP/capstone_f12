@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CommonErrorResponse {
-	String errorMassage;
-	int errorCode;
+	private String errorMassage;
+	private int errorCode;
 }

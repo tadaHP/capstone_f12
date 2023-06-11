@@ -7,18 +7,21 @@ import java.util.Optional;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.f12.notionlinkedblog.domain.user.User;
 import io.f12.notionlinkedblog.repository.user.UserDataRepository;
 import io.f12.notionlinkedblog.service.EmailSignupService;
 import io.f12.notionlinkedblog.web.argumentresolver.email.Email;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -31,6 +34,8 @@ public class EmailApiController {
 	private final UserDataRepository userDataRepository;
 
 	@PostMapping("/code")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@Operation(summary = "인증 코드 검증", description = "유저가 전송한 인증 코드에 대한 유효성을 검증합니다.")
 	public ResponseEntity<String> verifyCode(
 		HttpSession session, @CookieValue(redisCookieName) String redisId, @RequestBody String code) {
 		verifyCodeElseThrowIllegalArgumentException(redisId, code);
@@ -50,6 +55,7 @@ public class EmailApiController {
 	}
 
 	@PostMapping
+	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public ResponseEntity<String> sendRandomCode(@Email String email) {
 		checkDuplicateEmail(email);
 

@@ -47,6 +47,7 @@ public class SecurityConfig {
 			// swagger 문서 접근 허용
 			.antMatchers("/swagger-ui/**").permitAll()
 			.antMatchers("/v3/api-docs/**").permitAll()
+			.antMatchers("/h2-console/**").permitAll()
 			.anyRequest().authenticated();
 
 		http

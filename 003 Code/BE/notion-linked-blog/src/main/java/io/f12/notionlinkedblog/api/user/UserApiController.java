@@ -22,12 +22,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.f12.notionlinkedblog.api.common.Endpoint;
-import io.f12.notionlinkedblog.domain.common.CommonErrorResponse;
 import io.f12.notionlinkedblog.domain.user.dto.info.UserEditDto;
 import io.f12.notionlinkedblog.domain.user.dto.info.UserSearchDto;
 import io.f12.notionlinkedblog.domain.user.dto.signup.UserSignupRequestDto;
 import io.f12.notionlinkedblog.domain.user.dto.signup.UserSignupResponseDto;
-import io.f12.notionlinkedblog.security.common.dto.AuthenticationFailureDto;
 import io.f12.notionlinkedblog.security.login.ajax.dto.LoginUser;
 import io.f12.notionlinkedblog.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -82,13 +80,7 @@ public class UserApiController {
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "201", description = "회원 정보변경 성공",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = UserSearchDto.class))),
-		@ApiResponse(responseCode = "401", description = "회원 미 로그인",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = AuthenticationFailureDto.class))),
-		@ApiResponse(responseCode = "404", description = "존재하지 않는 리소스(유저) 접근",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = CommonErrorResponse.class)))
+				schema = @Schema(implementation = UserSearchDto.class)))
 	})
 	public void editUserInfo(@PathVariable Long id,
 		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser,
@@ -102,13 +94,7 @@ public class UserApiController {
 	@Operation(summary = "회원 정보 삭제", description = "id에 해당하는 사용자의 정보를 삭제합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "204", description = "회원 삭제 성공",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE)),
-		@ApiResponse(responseCode = "401", description = "회원 미 로그인",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = AuthenticationFailureDto.class))),
-		@ApiResponse(responseCode = "404", description = "존재하지 않는 리소스(유저) 접근",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = CommonErrorResponse.class)))
+			content = @Content(mediaType = APPLICATION_JSON_VALUE))
 	})
 	public void deleteUser(@PathVariable Long id,
 		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser) {

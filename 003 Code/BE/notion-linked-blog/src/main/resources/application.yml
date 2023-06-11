@@ -5,6 +5,9 @@ server:
       force-response: true
 
 spring:
+  h2:
+    console:
+      enabled: true
   sql:
     init:
       mode: embedded #data.sql(초기화) 실행(memory, embedded 모드에서만)
