@@ -7,7 +7,6 @@ import {Button, Modal} from "antd";
 import {useState} from "react";
 import {requestDeletePostAPI} from "@/apis/post";
 import {useRouter} from "next/router";
-import {useAppSelector} from "@/hooks/hooks";
 import {useSelector} from "react-redux";
 import Link from "next/link";
 

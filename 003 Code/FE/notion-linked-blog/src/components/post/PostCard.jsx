@@ -1,8 +1,6 @@
 import {Card, Typography} from "antd";
 import {HeartFilled} from "@ant-design/icons";
 import {styled} from "styled-components";
-import {useEffect, useState} from "react";
-import {getThumbnail} from "@/apis/post";
 import convertKRTimeStyle from "@/utils/time";
 
 const {Meta} = Card;
@@ -42,7 +40,7 @@ export default function PostCard({post}) {
 		<StyledCard
 			hoverable
 			bordered={false}
-			cover={<StyledCover />}
+			cover={<StyledCover src={post.thumbnail} />}
 			actions={
 				[
 					<StyledDiv key="left">

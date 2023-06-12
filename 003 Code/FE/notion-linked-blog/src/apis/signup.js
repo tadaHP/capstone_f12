@@ -1,4 +1,4 @@
-import {apiClient} from "@/apis/apiClient";
+import apiClient from "@/apis/apiClient";
 
 export const requestVerificationCodeAPI = async email => {
 	try {

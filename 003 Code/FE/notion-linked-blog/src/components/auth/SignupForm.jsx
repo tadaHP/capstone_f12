@@ -3,7 +3,7 @@ import {Button, Col, Form, Input, Row, Statistic, Typography} from "antd";
 import {requestSignupAPI, requestVerificationCodeAPI, requestVerifyCodeAPI} from "@/apis/signup";
 import {StyledDiv, StyledSpace, StyledText} from "@/components/auth/AuthForm";
 import styled from "styled-components";
-import {handleInput} from "@/components/auth/common";
+import handleInput from "@/components/auth/common";
 
 const {Text} = Typography;
 

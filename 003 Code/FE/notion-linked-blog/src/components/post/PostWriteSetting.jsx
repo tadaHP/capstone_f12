@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {handleInput} from "@/components/auth/common";
+import handleInput from "@/components/auth/common";
 import {Input, Space, Divider, Button, Radio} from "antd";
 import Link from "next/link";
 import {FolderAddOutlined, GlobalOutlined, LockOutlined} from "@ant-design/icons";

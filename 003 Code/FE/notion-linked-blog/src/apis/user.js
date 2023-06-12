@@ -1,4 +1,4 @@
-import {apiClient} from "@/apis/apiClient";
+import apiClient from "@/apis/apiClient";
 
 export const checkLoginStatus = async () => {
 	try {

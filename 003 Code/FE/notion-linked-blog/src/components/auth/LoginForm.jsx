@@ -2,7 +2,7 @@ import {Button, Form, Input, Typography} from "antd";
 import styled from "styled-components";
 import {StyledDiv, StyledSpace, StyledText} from "@/components/auth/AuthForm";
 import {useEffect, useState} from "react";
-import {handleInput} from "@/components/auth/common";
+import handleInput from "@/components/auth/common";
 import {loginByEmailAPI} from "@/apis/user";
 import {useAppDispatch} from "@/hooks/hooks";
 import {login} from "@/redux/userSlice";

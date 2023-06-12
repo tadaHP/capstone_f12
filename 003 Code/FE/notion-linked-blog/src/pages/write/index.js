@@ -2,7 +2,7 @@ import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import React, {useState} from "react";
 import dynamic from "next/dynamic";
-import {handleInput} from "@/components/auth/common";
+import handleInput from "@/components/auth/common";
 import PostWriteSetting from "@/components/post/PostWriteSetting";
 import {Button} from "antd";
 import Link from "next/link";
