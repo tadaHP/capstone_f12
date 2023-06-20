@@ -14,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import io.f12.notionlinkedblog.domain.dummy.DummyObject;
 import io.f12.notionlinkedblog.domain.user.User;
@@ -109,21 +108,21 @@ class UserServiceTests extends DummyObject {
 				@Test
 				void getUserInfoTest() {
 					//given
+					Long fakeIdForA = 1L;
+					Long fakeIdForB = 2L;
 					User userA = User.builder()
+						.id(fakeIdForA)
 						.email("test1@gmail.com")
 						.username("username1")
 						.password("password1")
 						.build();
 					User userB = User.builder()
+						.id(fakeIdForB)
 						.email("test2@gmail.com")
 						.username("username2")
 						.password("password2")
 						.build();
-					Long fakeIdForA = 1L;
-					Long fakeIdForB = 2L;
 
-					ReflectionTestUtils.setField(userA, "id", fakeIdForA);
-					ReflectionTestUtils.setField(userB, "id", fakeIdForB);
 					//Mock
 					UserSearchDto mockUserSearchDtoA = UserSearchDto.builder()
 						.id(fakeIdForA)
@@ -230,13 +229,13 @@ class UserServiceTests extends DummyObject {
 				@Test
 				void deleteUserTest() {
 					//given
+					Long removedUserId = 1L;
 					User removedUser = User.builder()
+						.id(removedUserId)
 						.email("changed@gmail.com")
 						.username("changedUsername")
 						.password("changedPassword")
 						.build();
-					Long removedUserId = 1L;
-					ReflectionTestUtils.setField(removedUser, "id", removedUserId);
 					//mock
 					given(userDataRepository.findById(removedUserId))
 						.willReturn(Optional.of(removedUser));

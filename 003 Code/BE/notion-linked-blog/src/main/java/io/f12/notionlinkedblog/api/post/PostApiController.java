@@ -2,15 +2,15 @@ package io.f12.notionlinkedblog.api.post;
 
 import static org.springframework.http.MediaType.*;
 
+import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URLConnection;
+import java.nio.file.Files;
 
-import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +30,6 @@ import io.f12.notionlinkedblog.domain.post.dto.PostEditDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostSearchDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostSearchResponseDto;
 import io.f12.notionlinkedblog.domain.post.dto.SearchRequestDto;
-import io.f12.notionlinkedblog.domain.post.dto.ThumbnailReturnDto;
 import io.f12.notionlinkedblog.security.login.ajax.dto.LoginUser;
 import io.f12.notionlinkedblog.service.post.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,11 +40,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Tag(name = "Post", description = "포스트 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(Endpoint.Api.POST)
+@Slf4j
 public class PostApiController {
 
 	private final PostService postService;
@@ -88,8 +89,15 @@ public class PostApiController {
 			content = @Content(mediaType = APPLICATION_JSON_VALUE,
 				schema = @Schema(implementation = CommonErrorResponse.class)))
 	})
-	public PostSearchDto getPostsById(@PathVariable("id") Long id) {
-		return postService.getPostDtoById(id);
+	public PostSearchDto getPostsById(@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser,
+		@PathVariable("id") Long postId) {
+		Long userId = null;
+		try {
+			userId = loginUser.getUser().getId();
+		} catch (Exception e) {
+			log.info("UserIsNotExist: {}", e.getMessage());
+		}
+		return postService.getPostDtoById(postId, userId);
 	}
 
 	@GetMapping("/title")
@@ -191,13 +199,19 @@ public class PostApiController {
 			content = @Content(mediaType = APPLICATION_JSON_VALUE,
 				schema = @Schema(implementation = CommonErrorResponse.class)))
 	})
-	public ResponseEntity<Resource> getThumbnail(@PathVariable String imageName) throws MalformedURLException {
-		ThumbnailReturnDto thumbnailInfo = postService.readImageFile(imageName);
-		String mediaType = URLConnection.guessContentTypeFromName(thumbnailInfo.getThumbnailPath());
-		return ResponseEntity.ok()
-			.contentType(MediaType.parseMediaType(mediaType))
-			.body(thumbnailInfo.getImage());
+	public ResponseEntity<byte[]> getThumbnail(@PathVariable String imageName) throws IOException {
+		File imageFile = postService.readImageFile(imageName);
+		ResponseEntity<byte[]> result = null;
 
+		try {
+			HttpHeaders header = new HttpHeaders();
+			header.add("Content-type", Files.probeContentType(imageFile.toPath()));
+			result = new ResponseEntity<>(FileCopyUtils.copyToByteArray(imageFile), header, HttpStatus.OK);
+		} catch (IOException e) {
+			log.error(e.getMessage());
+		}
+
+		return result;
 	}
 
 	private void validateIsPublic(String isPublic) {

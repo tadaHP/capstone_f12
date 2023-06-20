@@ -22,6 +22,7 @@ public class PostSearchDto {
 	private LocalDateTime createdAt;
 	private Integer countOfComments;
 	private String author;
+	private Boolean isLiked;
 	private String avatar;
 	//TODO: 추후 avatar 이미지 작업 필요
 

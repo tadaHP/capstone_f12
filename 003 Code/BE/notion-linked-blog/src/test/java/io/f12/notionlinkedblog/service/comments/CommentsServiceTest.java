@@ -15,7 +15,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import io.f12.notionlinkedblog.domain.comments.Comments;
 import io.f12.notionlinkedblog.domain.comments.dto.CommentSearchDto;
@@ -168,6 +167,7 @@ class CommentsServiceTest {
 			Long fakeCommentId = 1L;
 			Long fakeUserId = 1L;
 			User user = User.builder()
+				.id(fakeUserId)
 				.username("tester")
 				.email("test@test.com")
 				.password("test123")
@@ -185,8 +185,6 @@ class CommentsServiceTest {
 				.depth(0)
 				.post(post)
 				.build();
-			//Mock
-			ReflectionTestUtils.setField(user, "id", fakeUserId);
 			given(commentsDataRepository.findById(fakeCommentId))
 				.willReturn(Optional.ofNullable(comments));
 			//when
@@ -207,25 +205,25 @@ class CommentsServiceTest {
 			Long fakeUserId = 1L;
 			Long fakePostId = 1L;
 			User user = User.builder()
+				.id(fakeUserId)
 				.username("tester")
 				.email("test@test.com")
 				.password("test123")
 				.build();
 			Post post = Post.builder()
+				.id(fakePostId)
 				.user(user)
 				.title("testTitle")
 				.content("testContent")
 				.build();
 			String content = "testComment1";
 			Comments comments = Comments.builder()
+				.id(fakeCommentId)
 				.content(content)
 				.user(user)
 				.depth(0)
 				.post(post)
 				.build();
-			ReflectionTestUtils.setField(user, "id", fakeUserId);
-			ReflectionTestUtils.setField(post, "id", fakePostId);
-			ReflectionTestUtils.setField(comments, "id", fakeCommentId);
 			//Mock
 			given(commentsDataRepository.findById(fakeCommentId))
 				.willReturn(Optional.ofNullable(comments));

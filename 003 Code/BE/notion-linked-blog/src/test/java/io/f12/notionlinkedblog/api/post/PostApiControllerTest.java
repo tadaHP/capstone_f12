@@ -463,7 +463,7 @@ class PostApiControllerTest {
 				.build();
 			//mock
 			given(postService.readImageFile("testImage"))
-				.willReturn(dto);
+				.willReturn(new File(""));
 			//when
 			ResultActions resultActions = mockMvc.perform(
 				get(url)

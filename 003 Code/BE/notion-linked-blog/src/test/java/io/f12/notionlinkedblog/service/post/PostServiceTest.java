@@ -24,7 +24,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.f12.notionlinkedblog.domain.likes.dto.LikeSearchDto;
@@ -33,7 +32,6 @@ import io.f12.notionlinkedblog.domain.post.dto.PostEditDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostSearchDto;
 import io.f12.notionlinkedblog.domain.post.dto.PostSearchResponseDto;
 import io.f12.notionlinkedblog.domain.post.dto.SearchRequestDto;
-import io.f12.notionlinkedblog.domain.post.dto.ThumbnailReturnDto;
 import io.f12.notionlinkedblog.domain.user.User;
 import io.f12.notionlinkedblog.repository.like.LikeDataRepository;
 import io.f12.notionlinkedblog.repository.post.PostDataRepository;
@@ -69,6 +67,7 @@ class PostServiceTest {
 				//given
 				Long fakeId = 1L;
 				User user = User.builder()
+					.id(fakeId)
 					.username("tester")
 					.email("test@test.com")
 					.password("test123")
@@ -88,8 +87,6 @@ class PostServiceTest {
 					.thumbnailName(thumbnail)
 					.storedThumbnailPath(path)
 					.build();
-
-				ReflectionTestUtils.setField(user, "id", fakeId);
 
 				File file = new ClassPathResource("static/images/test.jpg").getFile();
 
@@ -115,6 +112,7 @@ class PostServiceTest {
 				//given
 				Long fakeId = 1L;
 				User user = User.builder()
+					.id(fakeId)
 					.username("tester")
 					.email("test@test.com")
 					.password("test123")
@@ -130,8 +128,6 @@ class PostServiceTest {
 					.title(title)
 					.content(content)
 					.build();
-
-				ReflectionTestUtils.setField(user, "id", fakeId);
 				//Mock
 				given(userDataRepository.findById(fakeId))
 					.willReturn(Optional.of(user));
@@ -204,6 +200,7 @@ class PostServiceTest {
 				Long fakePostAId = 1L;
 				Long fakePostBId = 2L;
 				Post post1 = Post.builder()
+					.id(fakePostAId)
 					.user(user)
 					.title(title)
 					.content(content)
@@ -211,12 +208,11 @@ class PostServiceTest {
 					.storedThumbnailPath(path)
 					.build();
 				Post post2 = Post.builder()
+					.id(fakePostBId)
 					.user(user)
 					.title(title)
 					.content(content)
 					.build();
-				ReflectionTestUtils.setField(post1, "id", fakePostAId);
-				ReflectionTestUtils.setField(post2, "id", fakePostBId);
 				List<Long> ids = new ArrayList<>();
 				ids.add(fakePostAId);
 				ids.add(fakePostBId);
@@ -275,6 +271,7 @@ class PostServiceTest {
 				Long fakePostAId = 1L;
 				Long fakePostBId = 2L;
 				Post post1 = Post.builder()
+					.id(fakePostAId)
 					.user(user)
 					.title(title)
 					.content(content)
@@ -282,13 +279,12 @@ class PostServiceTest {
 					.storedThumbnailPath(path)
 					.build();
 				Post post2 = Post.builder()
+					.id(fakePostBId)
 					.user(user)
 					.title(title)
 					.content(content)
 					.build();
 
-				ReflectionTestUtils.setField(post1, "id", fakePostAId);
-				ReflectionTestUtils.setField(post2, "id", fakePostBId);
 				List<Long> ids = new ArrayList<>();
 				ids.add(fakePostAId);
 				ids.add(fakePostBId);
@@ -321,58 +317,157 @@ class PostServiceTest {
 		@Nested
 		class LookupPostByPostId {
 			@DisplayName("성공케이스")
-			@Test
-			void successCase() {
-				//given
-				Long fakeId = 1L;
-				String title = "testTitle";
-				String content = "testContent";
-				String thumbnail = "testThumbnail";
-				String username = "tester";
-				String path = "path";
+			@Nested
+			class SuccessfulCase {
+				@DisplayName("유저가 좋아요를 눌렀을 때")
+				@Test
+				void userLikePost() {
+					//given
+					Long fakeId = 1L;
+					String title = "testTitle";
+					String content = "testContent";
+					String thumbnail = "testThumbnail";
+					String username = "tester";
+					String path = "path";
 
-				User user = User.builder()
-					.username(username)
-					.email("test@gamil.com")
-					.password(passwordEncoder.encode("1234"))
-					.build();
+					User user = User.builder()
+						.username(username)
+						.email("test@gamil.com")
+						.password(passwordEncoder.encode("1234"))
+						.build();
 
-				Post testPost = Post.builder()
-					.user(user)
-					.title(title)
-					.content(content)
-					.thumbnailName(thumbnail)
-					.storedThumbnailPath(path)
-					.viewCount(10L)
-					.build();
-				//Mock
-				given(postDataRepository.findById(fakeId))
-					.willReturn(Optional.ofNullable(testPost));
-				//when
-				PostSearchDto postDto = postService.getPostDtoById(fakeId);
+					Post testPost = Post.builder()
+						.user(user)
+						.title(title)
+						.content(content)
+						.thumbnailName(thumbnail)
+						.storedThumbnailPath(path)
+						.viewCount(10L)
+						.build();
+					LikeSearchDto likeSearchDto = LikeSearchDto.builder()
+						.postId(1L)
+						.likeId(1L)
+						.userID(1L)
+						.build();
+					//Mock
+					given(postDataRepository.findById(fakeId))
+						.willReturn(Optional.ofNullable(testPost));
+					given(likeDataRepository.findByUserIdAndPostId(fakeId, fakeId))
+						.willReturn(Optional.ofNullable(likeSearchDto));
+					//when
+					PostSearchDto postDto = postService.getPostDtoById(fakeId, fakeId);
 
-				//then
-				assertThat(postDto).extracting("title").isEqualTo(title);
-				assertThat(postDto).extracting("author").isEqualTo(username);
+					//then
+					assertThat(postDto).extracting("title").isEqualTo(title);
+					assertThat(postDto).extracting("author").isEqualTo(username);
+					assertThat(postDto).extracting("isLiked").isEqualTo(true);
 
+				}
+
+				@DisplayName("유저가 좋아요를 눌렀을 때")
+				@Test
+				void userNotLikePost() {
+					//given
+					Long fakeId = 1L;
+					String title = "testTitle";
+					String content = "testContent";
+					String thumbnail = "testThumbnail";
+					String username = "tester";
+					String path = "path";
+
+					User user = User.builder()
+						.username(username)
+						.email("test@gamil.com")
+						.password(passwordEncoder.encode("1234"))
+						.build();
+
+					Post testPost = Post.builder()
+						.user(user)
+						.title(title)
+						.content(content)
+						.thumbnailName(thumbnail)
+						.storedThumbnailPath(path)
+						.viewCount(10L)
+						.build();
+					LikeSearchDto likeSearchDto = LikeSearchDto.builder()
+						.postId(1L)
+						.likeId(1L)
+						.userID(1L)
+						.build();
+					//Mock
+					given(postDataRepository.findById(fakeId))
+						.willReturn(Optional.ofNullable(testPost));
+					given(likeDataRepository.findByUserIdAndPostId(fakeId, fakeId))
+						.willReturn(Optional.empty());
+					//when
+					PostSearchDto postDto = postService.getPostDtoById(fakeId, fakeId);
+
+					//then
+					assertThat(postDto).extracting("title").isEqualTo(title);
+					assertThat(postDto).extracting("author").isEqualTo(username);
+					assertThat(postDto).extracting("isLiked").isEqualTo(false);
+
+				}
 			}
 
-			@DisplayName("실패케이스 - 해당 포스트 미존재")
-			@Test
-			void failureCase() {
-				//given
-				Long fakeId = 1L;
+			@DisplayName("실패케이스")
+			@Nested
+			class FailureCase {
+				@DisplayName("해당 포스트 미존재")
+				@Test
+				void postNotExist() {
+					//given
+					Long fakeId = 1L;
 
-				//Mock
-				given(postDataRepository.findById(fakeId))
-					.willReturn(Optional.empty());
-				//when
-				//then
-				assertThatThrownBy(() -> {
-					postService.getPostDtoById(fakeId);
-				}).isInstanceOf(IllegalArgumentException.class)
-					.hasMessageContaining(POST_NOT_EXIST);
+					//Mock
+					given(postDataRepository.findById(fakeId))
+						.willReturn(Optional.empty());
+					//when
+					//then
+					assertThatThrownBy(() -> {
+						postService.getPostDtoById(fakeId, fakeId);
+					}).isInstanceOf(IllegalArgumentException.class)
+						.hasMessageContaining(POST_NOT_EXIST);
+				}
+
+				@DisplayName("UserID 미존재")
+				@Test
+				void userNotExist() {
+					//given
+					Long fakeId = 1L;
+					String title = "testTitle";
+					String content = "testContent";
+					String thumbnail = "testThumbnail";
+					String username = "tester";
+					String path = "path";
+
+					User user = User.builder()
+						.username(username)
+						.email("test@gamil.com")
+						.password(passwordEncoder.encode("1234"))
+						.build();
+
+					Post testPost = Post.builder()
+						.user(user)
+						.title(title)
+						.content(content)
+						.thumbnailName(thumbnail)
+						.storedThumbnailPath(path)
+						.viewCount(10L)
+						.build();
+					//Mock
+					given(postDataRepository.findById(fakeId))
+						.willReturn(Optional.ofNullable(testPost));
+					//when
+					PostSearchDto postDto = postService.getPostDtoById(fakeId, null);
+
+					//then
+					assertThat(postDto).extracting("title").isEqualTo(title);
+					assertThat(postDto).extracting("author").isEqualTo(username);
+					assertThat(postDto).extracting("isLiked").isEqualTo(false);
+				}
 			}
+
 		}
 
 		@DisplayName("최신 포스트 조회")
@@ -384,15 +479,16 @@ class PostServiceTest {
 				//given
 				Long fakeUserId = 1L;
 				User user = User.builder()
+					.id(fakeUserId)
 					.email("test@gmail.com")
 					.username("tester")
 					.password(passwordEncoder.encode("1234"))
 					.build();
-				ReflectionTestUtils.setField(user, "id", fakeUserId);
 
 				Long fakePostAId = 1L;
 				Long fakePostBId = 2L;
 				Post postA = Post.builder()
+					.id(fakePostAId)
 					.user(user)
 					.title("testTitle")
 					.content("testContent")
@@ -401,13 +497,12 @@ class PostServiceTest {
 					.user(user)
 					.build();
 				Post postB = Post.builder()
+					.id(fakePostBId)
 					.user(user)
 					.title("testTitle")
 					.content("testContent")
 					.user(user)
 					.build();
-				ReflectionTestUtils.setField(postA, "id", fakePostAId);
-				ReflectionTestUtils.setField(postB, "id", fakePostBId);
 
 				Integer requestPageNumber = 0;
 				PageRequest paging = PageRequest.of(requestPageNumber, 20);
@@ -444,28 +539,28 @@ class PostServiceTest {
 				//given
 				Long fakeUserId = 1L;
 				User user = User.builder()
+					.id(fakeUserId)
 					.email("test@gmail.com")
 					.username("tester")
 					.password(passwordEncoder.encode("1234"))
 					.build();
-				ReflectionTestUtils.setField(user, "id", fakeUserId);
 
 				Long fakePostAId = 1L;
 				Long fakePostBId = 2L;
 				Post postA = Post.builder()
+					.id(fakePostAId)
 					.user(user)
 					.title("testTitle")
 					.content("testContent")
 					.user(user)
 					.build();
 				Post postB = Post.builder()
+					.id(fakePostBId)
 					.user(user)
 					.title("testTitle")
 					.content("testContent")
 					.user(user)
 					.build();
-				ReflectionTestUtils.setField(postA, "id", fakePostAId);
-				ReflectionTestUtils.setField(postB, "id", fakePostBId);
 
 				Integer requestPageNumber = 0;
 				PageRequest paging = PageRequest.of(requestPageNumber, 20);
@@ -504,19 +599,19 @@ class PostServiceTest {
 			Long fakeUserId = 1L;
 			Long fakePostId = 1L;
 			User user = User.builder()
+				.id(fakeUserId)
 				.email("test@gmail.com")
 				.username("tester")
 				.password(passwordEncoder.encode("1234"))
 				.build();
 
 			Post returnPost = Post.builder()
+				.id(fakePostId)
 				.user(User.builder().username("tester").email("test@test.com").password("password").build())
 				.title("testTitle")
 				.content("testContent")
 				.user(user)
 				.build();
-			ReflectionTestUtils.setField(user, "id", fakeUserId);
-			ReflectionTestUtils.setField(returnPost, "id", fakePostId);
 			//Mock
 			given(postDataRepository.findById(fakePostId))
 				.willReturn(Optional.ofNullable(returnPost));
@@ -567,12 +662,13 @@ class PostServiceTest {
 					.build();
 
 				User user = User.builder()
+					.id(fakeUserId)
 					.username("tester")
 					.email("test@test.com")
 					.password("password")
 					.build();
-				ReflectionTestUtils.setField(user, "id", fakeUserId);
 				Post returnPost = Post.builder()
+					.id(fakePostId)
 					.user(user)
 					.title("testTitle")
 					.content("testContent")
@@ -631,12 +727,11 @@ class PostServiceTest {
 					.build();
 
 				User writer = User.builder()
+					.id(fakeUserId)
 					.username("tester")
 					.email("test@test.com")
 					.password("password")
 					.build();
-
-				ReflectionTestUtils.setField(writer, "id", fakeUserId);
 
 				Post returnPost = Post.builder()
 					.user(writer)
@@ -671,19 +766,19 @@ class PostServiceTest {
 				//given
 				Long fakeUserId = 1L;
 				User user = User.builder()
+					.id(fakeUserId)
 					.username("tester")
 					.email("test@gmail.com")
 					.password("1234")
 					.build();
-				ReflectionTestUtils.setField(user, "id", fakeUserId);
 
 				Long fakePostId = 1L;
 				Post post = Post.builder()
+					.id(fakePostId)
 					.user(user)
 					.title("testTitle")
 					.content("testContent")
 					.build();
-				ReflectionTestUtils.setField(post, "id", fakePostId);
 				//mock
 				given(postDataRepository.findById(fakePostId))
 					.willReturn(Optional.of(post));
@@ -701,19 +796,20 @@ class PostServiceTest {
 				//given
 				Long fakeUserId = 1L;
 				User user = User.builder()
+					.id(fakeUserId)
 					.username("tester")
 					.email("test@gmail.com")
 					.password("1234")
 					.build();
-				ReflectionTestUtils.setField(user, "id", fakeUserId);
 
 				Long fakePostId = 1L;
 				Post post = Post.builder()
+					.id(fakePostId)
 					.user(user)
 					.title("testTitle")
 					.content("testContent")
 					.build();
-				ReflectionTestUtils.setField(post, "id", fakePostId);
+
 				LikeSearchDto dto = LikeSearchDto.builder()
 					.postId(post.getId())
 					.userID(user.getId())
@@ -816,12 +912,12 @@ class PostServiceTest {
 					.build();
 				//mock
 				given(postDataRepository.findThumbnailPathWithName(imageName))
-					.willReturn("path.png");
+					.willReturn("testImage.png");
 				//when
-				ThumbnailReturnDto thumbnailReturnDto = postService.readImageFile(imageName);
+				File file = postService.readImageFile(imageName);
 
 				//then
-				assertThat(thumbnailReturnDto).extracting("thumbnailPath").isEqualTo("path.png");
+				assertThat(file).exists();
 			}
 		}
 

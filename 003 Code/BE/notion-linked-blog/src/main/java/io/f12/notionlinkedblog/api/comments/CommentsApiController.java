@@ -43,8 +43,9 @@ public class CommentsApiController {
 	@GetMapping
 	@Operation(summary = "postId 로 댓글 조회", description = "postId 에 해당하는 댓글들 조회")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "201", description = "회원 정보변경 성공",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE)),
+		@ApiResponse(responseCode = "201", description = "정보 조회 성공",
+			content = @Content(mediaType = APPLICATION_JSON_VALUE,
+				schema = @Schema(implementation = CommentSearchDto.class))),
 	})
 	// TODO: 추후 리턴타입 감싸기 필요
 	public List<CommentSearchDto> getComments(@PathVariable("id") Long postId) {
