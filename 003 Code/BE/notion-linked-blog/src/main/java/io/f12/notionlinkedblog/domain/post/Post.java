@@ -2,6 +2,7 @@ package io.f12.notionlinkedblog.domain.post;
 
 import static javax.persistence.FetchType.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,14 +28,11 @@ import io.f12.notionlinkedblog.domain.likes.Like;
 import io.f12.notionlinkedblog.domain.series.Series;
 import io.f12.notionlinkedblog.domain.user.User;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
-@AllArgsConstructor
 @Entity
 @Getter
 @Table(name = "posts")
@@ -76,6 +74,26 @@ public class Post extends PostTimeEntity {
 	private String description;
 	@NotNull
 	private Boolean isPublic = false;
+
+	@Builder
+	public Post(LocalDateTime createdAt, LocalDateTime updatedAt, Long id, User user,
+		List<Comments> comments, List<Like> likes, Series series, String title, String content, String thumbnailName,
+		String storedThumbnailPath, Long viewCount, Double popularity, String description, Boolean isPublic) {
+		super(createdAt, updatedAt);
+		this.id = id;
+		this.user = user;
+		this.comments = comments;
+		this.likes = likes;
+		this.series = series;
+		this.title = title;
+		this.content = content;
+		this.thumbnailName = thumbnailName;
+		this.storedThumbnailPath = storedThumbnailPath;
+		this.viewCount = viewCount;
+		this.popularity = popularity;
+		this.description = description;
+		this.isPublic = isPublic;
+	}
 
 	public void setPopularity(Double popularity) {
 		this.popularity = popularity;
