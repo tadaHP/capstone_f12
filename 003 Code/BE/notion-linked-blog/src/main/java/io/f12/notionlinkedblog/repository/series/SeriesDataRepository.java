@@ -2,6 +2,7 @@ package io.f12.notionlinkedblog.repository.series;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,7 +20,7 @@ public interface SeriesDataRepository extends JpaRepository<Series, Long> {
 		+ "p.comments.size, p.user.username) "
 		+ "FROM Post p WHERE p.isPublic = true AND p.series.id = :seriesId "
 		+ "order by p.createdAt desc")
-	List<PostSearchDto> findPostDtosBySeriesIdOrderByCreatedAtDesc(@Param("seriesId") Long seriesId);
+	List<PostSearchDto> findPostDtosBySeriesIdOrderByCreatedAtDesc(@Param("seriesId") Long seriesId, Pageable pageable);
 
 	@Query("SELECT NEW io.f12.notionlinkedblog.domain.post.dto.PostSearchDto("
 		+ "p.id, p.title, p.content, p.viewCount, p.likes.size,"
@@ -27,6 +28,6 @@ public interface SeriesDataRepository extends JpaRepository<Series, Long> {
 		+ "p.comments.size, p.user.username) "
 		+ "FROM Post p WHERE p.isPublic = true AND p.series.id = :seriesId "
 		+ "order by p.createdAt asc")
-	List<PostSearchDto> findPostDtosBySeriesIdOrderByCreatedAtAsc(@Param("seriesId") Long seriesId);
+	List<PostSearchDto> findPostDtosBySeriesIdOrderByCreatedAtAsc(@Param("seriesId") Long seriesId, Pageable pageable);
 
 }
