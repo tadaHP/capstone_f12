@@ -24,6 +24,7 @@ import org.springframework.util.StringUtils;
 import io.f12.notionlinkedblog.domain.PostTimeEntity;
 import io.f12.notionlinkedblog.domain.comments.Comments;
 import io.f12.notionlinkedblog.domain.likes.Like;
+import io.f12.notionlinkedblog.domain.series.Series;
 import io.f12.notionlinkedblog.domain.user.User;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -58,6 +59,10 @@ public class Post extends PostTimeEntity {
 
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Like> likes = new ArrayList<>();
+
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "series_id")
+	private Series series;
 
 	@NotBlank
 	private String title;

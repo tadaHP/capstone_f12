@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -16,6 +17,7 @@ import io.f12.notionlinkedblog.domain.BaseTimeEntity;
 import io.f12.notionlinkedblog.domain.comments.Comments;
 import io.f12.notionlinkedblog.domain.likes.Like;
 import io.f12.notionlinkedblog.domain.post.Post;
+import io.f12.notionlinkedblog.domain.series.Series;
 import io.f12.notionlinkedblog.domain.user.dto.info.UserEditDto;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -25,7 +27,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = @Index(name = "user_index", columnList = "email"))
 @SequenceGenerator(
 	name = "user_seq_generator",
 	sequenceName = "user_seq",
@@ -45,6 +47,9 @@ public class User extends BaseTimeEntity {
 
 	@OneToMany(mappedBy = "user")
 	private List<Like> likes = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user")
+	private List<Series> series = new ArrayList<>();
 
 	@Column(nullable = false)
 	private String username;
