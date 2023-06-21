@@ -2,6 +2,7 @@ package io.f12.notionlinkedblog.repository.series;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,6 +84,7 @@ class SeriesDataRepositoryTest {
 			.thumbnailName(thumbnailA)
 			.storedThumbnailPath(pathA)
 			.isPublic(true)
+			.createdAt(LocalDateTime.of(2023, 1, 1, 0, 0))
 			.build();
 		postA = postDataRepository.save(savedPostA);
 		Post savedPostB = Post.builder()
@@ -94,6 +96,7 @@ class SeriesDataRepositoryTest {
 			.thumbnailName(thumbnailB)
 			.storedThumbnailPath(pathB)
 			.isPublic(true)
+			.createdAt(LocalDateTime.of(2023, 2, 1, 0, 0))
 			.build();
 		postB = postDataRepository.save(savedPostB);
 		Post savedPostC = Post.builder()
@@ -105,6 +108,7 @@ class SeriesDataRepositoryTest {
 			.thumbnailName(thumbnailC)
 			.storedThumbnailPath(pathC)
 			.isPublic(true)
+			.createdAt(LocalDateTime.of(2023, 3, 1, 0, 0))
 			.build();
 		postC = postDataRepository.save(savedPostC);
 
@@ -123,9 +127,6 @@ class SeriesDataRepositoryTest {
 		seriesDataRepository.deleteAll();
 		postDataRepository.deleteAll();
 		userDataRepository.deleteAll();
-		// entityManager.createNativeQuery("ALTER SEQUENCE user_seq RESTART WITH 1").executeUpdate();
-		// entityManager.createNativeQuery("ALTER SEQUENCE post_seq RESTART WITH 1").executeUpdate();
-		// entityManager.createNativeQuery("ALTER SEQUENCE series_seq RESTART WITH 1").executeUpdate();
 	}
 
 	@DisplayName("시리즈로 포스트 조회")
@@ -147,6 +148,8 @@ class SeriesDataRepositoryTest {
 						= seriesDataRepository.findPostDtosBySeriesIdOrderByCreatedAtAsc(series.getId());
 					//then
 					assertThat(posts).size().isEqualTo(3);
+					assertThat(posts.get(0)).extracting("postId").isEqualTo(postA.getId());
+					assertThat(posts.get(2)).extracting("postId").isEqualTo(postC.getId());
 				}
 
 				@DisplayName("데이터 미존재")
@@ -177,6 +180,8 @@ class SeriesDataRepositoryTest {
 						= seriesDataRepository.findPostDtosBySeriesIdOrderByCreatedAtDesc(series.getId());
 					//then
 					assertThat(posts).size().isEqualTo(3);
+					assertThat(posts.get(0)).extracting("postId").isEqualTo(postC.getId());
+					assertThat(posts.get(2)).extracting("postId").isEqualTo(postA.getId());
 
 				}
 
