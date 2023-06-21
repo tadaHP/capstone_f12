@@ -9,6 +9,8 @@ import {requestDeletePostAPI} from "@/apis/post";
 import {useRouter} from "next/router";
 import {useSelector} from "react-redux";
 import Link from "next/link";
+import {RootState} from "@/redux/store";
+import {UserState} from "@/redux/userSlice";
 
 const MDPreview = dynamic(
 	() => import("@uiw/react-markdown-preview").then(mod => mod.default),
@@ -43,7 +45,7 @@ const StyledTitle = styled.div`
 const StyledSubTitle = styled.div`
 `;
 
-const StyledButtonDiv = styled.div` 
+const StyledButtonDiv = styled.div`
 	& > Button {
 		margin: 10px;
 	}
@@ -52,7 +54,7 @@ const StyledButtonDiv = styled.div`
 export default function PostViewer({post}) {
 	const router = useRouter();
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const user = useSelector(state => state.user.user);
+	const {user} = useSelector<RootState, UserState>(state => state.user);
 
 	const showModal = () => {
 		setIsModalOpen(true);

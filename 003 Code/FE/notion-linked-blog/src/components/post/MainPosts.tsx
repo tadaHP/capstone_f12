@@ -3,10 +3,9 @@ import {Col, Row, Space, Spin, Typography} from "antd";
 import {CloseOutlined} from "@ant-design/icons";
 import Link from "next/link";
 import styled from "styled-components";
-import {faker} from "@faker-js/faker";
 
 import PostCard from "@/components/post/PostCard";
-import {loadPostAPI} from "@/apis/post";
+import {Post, loadPostAPI} from "@/apis/post";
 import useInfiniteScroll from "@/hooks/useInfiniteScroll";
 
 const StyledContentRow = styled(Row)`
@@ -26,20 +25,7 @@ const StyledText = styled(Typography.Text)`
 `;
 
 export default function MainPosts() {
-	const id = useRef(999999);
-	const [mainPosts, setMainPosts] = useState(Array(40).fill(null)
-		.map(() => ({
-			"id": id.current++,
-			"thumbnail": faker.image.url(),
-			"title": faker.word.verb(10),
-			"description": faker.lorem.paragraph(),
-			"content": faker.lorem.paragraph(),
-			"createdAt": faker.date.anytime(),
-			"countOfComments": faker.number.int(50),
-			"author": faker.person.firstName(),
-			"likes": faker.number.int(1000),
-			"avatar": faker.image.avatar(),
-		})));
+	const [mainPosts, setMainPosts] = useState<Post[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [errorMsg, setErrorMsg] = useState("");
 	const target = useRef(null);

@@ -1,6 +1,6 @@
 import {Card, Typography} from "antd";
+import styled from "styled-components";
 import {HeartFilled} from "@ant-design/icons";
-import {styled} from "styled-components";
 import convertKRTimeStyle from "@/utils/time";
 
 const {Meta} = Card;

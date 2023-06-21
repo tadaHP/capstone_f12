@@ -1,25 +1,18 @@
 {
-	"parser": "@babel/eslint-parser",
+	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
 		"requireConfigFile": "false"
 	},
+	"plugins": [
+		"@typescript-eslint"
+	],
 	"extends": [
 		"naver",
-		"plugin:react/recommended"
+		"plugin:@typescript-eslint/eslint-recommended"
 	],
 	"rules": {
 		"consistent-return": "off",
-		"react/prop-types": "off",
 		"react/react-in-jsx-scope": "off",
-		"react/jsx-filename-extension": [
-			1,
-			{
-				"extensions": [
-					".js",
-					".jsx"
-				]
-			}
-		],
 		"array-bracket-newline": [
 			"error",
 			{

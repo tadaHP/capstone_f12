@@ -14,7 +14,7 @@ export default function Page() {
 			(async function() {
 				const params = router.query;
 
-				const receivedPost = await getPostByIdAPI(params.id);
+				const receivedPost = await getPostByIdAPI(params.id as string);
 
 				receivedPost.createdAt = convertKRTimeStyle(receivedPost.createdAt);
 

@@ -1,6 +1,20 @@
 import apiClient from "./apiClient";
 
-export async function getThumbnail(url) {
+export interface Post {
+	postId: number;
+	title: string;
+	content: string;
+	viewCount: number;
+	likes: number;
+	requestThumbnailLink: string;
+	description: string;
+	createdAt: string;
+	countOfComments: number;
+	author: string;
+	avater: string;
+}
+
+export async function getThumbnail(url: string) {
 	try {
 		const resp = await apiClient.get(url);
 
@@ -11,7 +25,7 @@ export async function getThumbnail(url) {
 	}
 }
 
-export async function getPostByIdAPI(postId) {
+export async function getPostByIdAPI(postId: string): Promise<Post> {
 	try {
 		const resp = await apiClient.get(`/posts/${postId}`);
 
@@ -20,7 +34,7 @@ export async function getPostByIdAPI(postId) {
 	}
 }
 
-export async function loadPostAPI(pageNumber) {
+export async function loadPostAPI(pageNumber: number): Promise<Post[]> {
 	try {
 		const resp = await apiClient.get(`/posts/newest/${pageNumber}`);
 

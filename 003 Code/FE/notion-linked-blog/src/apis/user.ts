@@ -1,5 +1,16 @@
 import apiClient from "@/apis/apiClient";
 
+export interface User {
+	id: number;
+	username: string;
+	email: string;
+	profile: string;
+	introduction: string;
+	blogTitle: string;
+	githubLink: string;
+	instagramLink: string;
+}
+
 export const checkLoginStatus = async () => {
 	try {
 		return await apiClient.get("/users/login-status");

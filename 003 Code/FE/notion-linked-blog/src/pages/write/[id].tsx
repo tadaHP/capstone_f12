@@ -14,12 +14,13 @@ import {useRouter} from "next/router";
 import {requestUpdatePostAPI} from "@/apis/post";
 import {styled} from "styled-components";
 import {useSelector} from "react-redux";
+import {RootState} from "@/redux/store";
+import {UserState} from "@/redux/userSlice";
 
 const PostEditor = dynamic(
 	() => import("@/components/post/PostWrite"),
 	{ssr: false},
 );
-
 
 const Write = () => {
 	const router = useRouter();
@@ -27,16 +28,15 @@ const Write = () => {
 	const [title, onChangeTitle] = handleInput(post.title);
 	const [content, setContent] = useState(post.content);
 	const [isDoneWrite, setIsDoneWrite] = useState(false);
-	const user = useSelector(state => state.user.user);
+	const {user} = useSelector<RootState, UserState>(state => state.user);
 
-
-	const StyledButtonDiv = styled.div` 
+	const StyledButtonDiv = styled.div`
 		& > Button {
 			margin: 10px;
 		}
 	`;
 
-	const StyledWrongDiv = styled.div` 
+	const StyledWrongDiv = styled.div`
 		display: flex;
 		height: 100%;
     justify-content: center;

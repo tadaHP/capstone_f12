@@ -3,13 +3,13 @@ import {Button, Col, Dropdown, Layout, Modal, Row, Space, Typography} from "antd
 import {DownOutlined, UserOutlined} from "@ant-design/icons";
 import LoginForm from "@/components/auth/LoginForm";
 import SignupForm from "@/components/auth/SignupForm";
-import {useAppDispatch, useAppSelector} from "@/hooks/hooks";
 import {checkLoginStatus, logoutAPI} from "@/apis/user";
-import {login, logout} from "@/redux/userSlice";
-
+import {UserState, login, logout} from "@/redux/userSlice";
 import styled from "styled-components";
 import Link from "next/link";
 import {useRouter} from "next/router";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "@/redux/store";
 
 const {Header} = Layout;
 
@@ -76,8 +76,8 @@ const StyledImg = styled.img`
 function AppHeader() {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [existAccount, setExistAccount] = useState(true);
-	const {user} = useAppSelector(state => state.user);
-	const dispatch = useAppDispatch();
+	const {user} = useSelector<RootState, UserState>(state => state.user);
+	const dispatch = useDispatch();
 	const router = useRouter();
 
 	useEffect(() => {

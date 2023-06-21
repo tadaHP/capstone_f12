@@ -1,10 +1,11 @@
 import {Button, Form, Input, Typography} from "antd";
 import styled from "styled-components";
-import {StyledDiv, StyledSpace, StyledText} from "@/components/auth/AuthForm";
 import {useEffect, useState} from "react";
+import {useDispatch} from "react-redux";
+
+import {StyledDiv, StyledSpace, StyledText} from "@/components/auth/AuthForm";
 import handleInput from "@/components/auth/common";
 import {loginByEmailAPI} from "@/apis/user";
-import {useAppDispatch} from "@/hooks/hooks";
 import {login} from "@/redux/userSlice";
 
 const {Text} = Typography;
@@ -18,7 +19,7 @@ export default function LoginForm({switchForm, setIsModalOpen}) {
 	const [email, onChangeEmail] = handleInput("");
 	const [password, onChangePassword] = handleInput("");
 	const [loading, setLoading] = useState(false);
-	const dispatch = useAppDispatch();
+	const dispatch = useDispatch();
 	const [err, setErr] = useState("");
 	const handleSubmit = async () => {
 		setLoading(true);
@@ -57,14 +58,14 @@ export default function LoginForm({switchForm, setIsModalOpen}) {
 					name="email"
 					rules={[{required: true, message: "이메일을 입력해 주세요."}]}
 				>
-					<Input onChange={onChangeEmail} placeholder="이메일을 입력하세요" value={email}/>
+					<Input onChange={onChangeEmail} placeholder="이메일을 입력하세요" value={email} />
 				</Form.Item>
 				<Form.Item
 					label="비밀번호"
 					name="password"
 					rules={[{required: true, message: "비밀번호를 입력해 주세요"}]}
 				>
-					<Input.Password onChange={onChangePassword} placeholder="비밀번호를 입력하세요" value={password}/>
+					<Input.Password onChange={onChangePassword} placeholder="비밀번호를 입력하세요" value={password} />
 				</Form.Item>
 				<ErrorDiv>{err}</ErrorDiv>
 				<StyledFormItem>

@@ -16,8 +16,10 @@ const rootReducer = (state, action) => {
 	}
 };
 
-const createStore = () => configureStore({reducer: rootReducer});
+const store = configureStore({reducer: rootReducer});
 
-const wrapper = createWrapper(createStore);
+const wrapper = createWrapper(() => store);
+
+export type RootState = ReturnType<typeof store.getState>
 
 export default wrapper;
