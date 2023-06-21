@@ -1,33 +1,20 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {Button, Col, Dropdown, Layout, Modal, Row, Space, Typography} from "antd";
-import {DownOutlined, UserOutlined} from "@ant-design/icons";
+import {Button, Col, Layout, Modal, Row, Typography} from "antd";
 import LoginForm from "@/components/auth/LoginForm";
 import SignupForm from "@/components/auth/SignupForm";
-import {checkLoginStatus, logoutAPI} from "@/apis/user";
-import {UserState, login, logout} from "@/redux/userSlice";
+import {checkLoginStatus} from "@/apis/user";
+import {UserState, login} from "@/redux/userSlice";
 import styled from "styled-components";
 import Link from "next/link";
-import {useRouter} from "next/router";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "@/redux/store";
+import MenuItemsDropdown from "./MenuItemsDropdown";
 
 const {Header} = Layout;
 
 const {Text} = Typography;
 
 const StyledText = styled(Text)`
-`;
-
-const StyledSpace = styled(Space)`
-  cursor: pointer;
-`;
-
-const StyledUserOutlined = styled(UserOutlined)`
-  cursor: pointer;
-`;
-
-const StyledDownOutlined = styled(DownOutlined)`
-  cursor: pointer;
 `;
 
 const StyledHeader = styled(Header)`
@@ -78,7 +65,6 @@ function AppHeader() {
 	const [existAccount, setExistAccount] = useState(true);
 	const {user} = useSelector<RootState, UserState>(state => state.user);
 	const dispatch = useDispatch();
-	const router = useRouter();
 
 	useEffect(() => {
 		(async () => {
@@ -102,28 +88,6 @@ function AppHeader() {
 		setExistAccount(!existAccount);
 	}, [existAccount]);
 
-	const handleLogout = useCallback(async () => {
-		await logoutAPI();
-		dispatch(logout());
-		await router.replace("/");
-	}, []);
-
-	const items = [
-		{
-			label: <Text>내 정보</Text>,
-			key: "0",
-		}, {
-			label: <Text>설정</Text>,
-			key: "1",
-		}, {
-			label: <Link href="/write"><Text>글쓰기</Text></Link>,
-			key: "2",
-		}, {
-			label: <Text onClick={handleLogout}>로그아웃</Text>,
-			key: "3",
-		},
-	];
-
 	return (
 		<StyledHeader>
 			<StyledHeaderRow>
@@ -137,15 +101,9 @@ function AppHeader() {
 				</StyledCol>
 				<Col>
 					{!user ?
-						(<Button type="primary" onClick={showModal}>로그인</Button>) :
-						(
-							<Dropdown menu={{items}} trigger={["click"]}>
-								<StyledSpace>
-									<StyledUserOutlined />
-									<StyledDownOutlined />
-								</StyledSpace>
-							</Dropdown>
-						)}
+						<Button type="primary" onClick={showModal}>로그인</Button> :
+						<MenuItemsDropdown />
+					}
 					<Modal title={existAccount ? "로그인" : "회원가입"} open={isModalOpen} footer={null} onCancel={handleCancel}>
 						{existAccount ?
 							<LoginForm switchForm={switchForm} setIsModalOpen={setIsModalOpen} /> :
