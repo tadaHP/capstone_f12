@@ -38,3 +38,27 @@ export const logoutAPI = async () => {
 		throw e;
 	}
 };
+
+export const signoutAPI = async (id: number) => {
+	let errorMsg;
+
+	try {
+		await apiClient.delete(`/users/${id}`);
+	} catch (e) {
+		switch (e.response.status) {
+			case 401:
+				errorMsg = "현재 로그인한 사용자가 아닌 사용자의 정보로 요청했습니다";
+				break;
+			case 404:
+				errorMsg = "존재하지 않는 자원에 접근하였습니다.";
+				break;
+			case 500:
+				errorMsg = "서버 에러입니다.";
+				break;
+			default:
+				errorMsg = e.response.status;
+				break;
+		}
+		throw new Error(errorMsg);
+	}
+};
