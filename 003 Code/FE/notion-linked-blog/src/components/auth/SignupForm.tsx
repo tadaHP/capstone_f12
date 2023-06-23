@@ -8,6 +8,7 @@ import handleInput from "@/components/auth/common";
 
 const {Text} = Typography;
 const {Countdown} = Statistic;
+const {TextArea} = Input;
 
 const StyledButton = styled(Button)`
   margin-left: 0.5rem;
@@ -30,6 +31,10 @@ export default function SignupForm({switchForm}) {
 	const [isVerified, setIsVerified] = useState(false);
 	const [username, onChangeUsername] = handleInput("");
 	const [password, onChangePassword] = handleInput("");
+	const [introduction, onChangeIntroduction] = handleInput("");
+	const [blogTitle, onChangeBlogTitle] = handleInput("");
+	const [githubLink, onChangeGithubLink] = handleInput("");
+	const [instagramLink, onChangeInstagramLink] = handleInput("");
 	const [signupLoading, setSignupLoading] = useState(false);
 	const [isSignup, setIsSignup] = useState(false);
 	const [isCorrectVerificationCode, setIsCorrectVerificationCode] = useState(true);
@@ -38,7 +43,9 @@ export default function SignupForm({switchForm}) {
 		setSignupLoading(true);
 		try {
 			await form.validateFields();
-			await requestSignupAPI({email, username, password});
+			await requestSignupAPI(
+				{email, username, password, introduction, blogTitle, githubLink, instagramLink}
+			);
 			setIsSignup(true);
 		} catch (e) {
 			console.log("회원가입 도중 에러가 발생했습니다.", e);
@@ -96,6 +103,7 @@ export default function SignupForm({switchForm}) {
 	useEffect(() => {
 		setIsCorrectVerificationCode(true);
 	}, [verificationCode]);
+
 	return (
 		<StyledSpace direction="vertical" size="large">
 			<Text>이메일로 회원가입</Text>
@@ -152,6 +160,26 @@ export default function SignupForm({switchForm}) {
 							]}
 						>
 							<Input.Password />
+						</Form.Item>
+						<Form.Item
+							label="자기소개"
+							name="introduction">
+							<TextArea rows={4} onChange={onChangeIntroduction} value={introduction} />
+						</Form.Item>
+						<Form.Item
+							label="블로그 제목"
+							name="blogTitle">
+							<Input onChange={onChangeBlogTitle} value={blogTitle} />
+						</Form.Item>
+						<Form.Item
+							label="GitHub Link"
+							name="githubLink">
+							<Input onChange={onChangeGithubLink} value={githubLink} />
+						</Form.Item>
+						<Form.Item
+							label="Instrgram Link"
+							name="instagramLink">
+							<Input onChange={onChangeInstagramLink} value={instagramLink} />
 						</Form.Item>
 						{isSignup && (
 							<Row justify="center">

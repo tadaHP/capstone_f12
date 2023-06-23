@@ -12,7 +12,7 @@ import {
 } from "@/components/post/Post";
 import {useRouter} from "next/router";
 import {requestUpdatePostAPI} from "@/apis/post";
-import {styled} from "styled-components";
+import styled from "styled-components";
 import {useSelector} from "react-redux";
 import {RootState} from "@/redux/store";
 import {UserState} from "@/redux/userSlice";
