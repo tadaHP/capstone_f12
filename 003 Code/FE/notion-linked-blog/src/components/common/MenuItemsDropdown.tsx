@@ -1,9 +1,11 @@
-import {Dropdown, Space} from "antd";
+import Link from "next/link";
+import {Dropdown, Space, Typography} from "antd";
 import {DownOutlined, UserOutlined} from "@ant-design/icons";
 import styled from "styled-components";
 
-import {MenuItemNames} from "@/types";
-import MenuItem from "./MenuItem";
+import data from "./menuItemData.json";
+
+const {Text} = Typography;
 
 const StyledSpace = styled(Space)`
   cursor: pointer;
@@ -18,11 +20,9 @@ const StyledDownOutlined = styled(DownOutlined)`
 `;
 
 export default function MenuItemsDropdown() {
-	const menuItemValues = Object.values(MenuItemNames);
-
-	const items = menuItemValues.map((menuItemValue, index) => ({
-		label: <MenuItem index={index} value={menuItemValue} />,
-		key: index,
+	const items = Object.entries(data).map(([text, href]) => ({
+		label: <Link href={href}><Text>{text}</Text></Link>,
+		key: href,
 	}));
 
 	return (
