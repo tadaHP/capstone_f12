@@ -1,6 +1,9 @@
 package io.f12.notionlinkedblog.security.config;
 
 import static io.f12.notionlinkedblog.api.common.Endpoint.Api.*;
+import static org.springframework.http.MediaType.*;
+
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
@@ -106,6 +109,8 @@ public class SecurityConfig {
 			ObjectMapper objectMapper = new ObjectMapper();
 			AuthenticationFailureDto authenticationFailureDto = AuthenticationFailureDto.getInstance();
 			response.setStatus(HttpStatus.UNAUTHORIZED.value());
+			response.setCharacterEncoding(String.valueOf(StandardCharsets.UTF_8));
+			response.setContentType(String.valueOf(APPLICATION_JSON));
 			objectMapper.writeValue(response.getWriter(), authenticationFailureDto);
 		};
 	}
