@@ -51,12 +51,12 @@ const PostWriteSetting = props => {
 	return (
 		<>
 			<CoverDiv>
-				<Space split={<Divider type="vertical"/>}>
+				<Space split={<Divider type="vertical" />}>
 					<Space direction="vertical">
 						<p>포스트 미리보기</p>
 						<div>
 							<UploaderDiv>
-								<Uploader thumbImage={thumbImage} changeThumbImage={onChangeThumbImage}/>
+								<Uploader thumbImage={thumbImage} changeThumbImage={onChangeThumbImage} />
 							</UploaderDiv>
 						</div>
 						<p>{props.title}</p>
@@ -77,15 +77,15 @@ const PostWriteSetting = props => {
 							<p>공개설정</p>
 							<Space style={{width: "100%"}}>
 								<Radio.Group onChange={setPublicRange} value={isPublic} style={{margin: "10px"}}>
-									<Radio.Button icon={<GlobalOutlined/>} value={0}>전체 공개</Radio.Button>
-									<Radio.Button icon={<LockOutlined/>} value={1}>비공개</Radio.Button>
+									<Radio.Button value={0}><GlobalOutlined /> 전체 공개</Radio.Button>
+									<Radio.Button value={1}><LockOutlined /> 비공개</Radio.Button>
 								</Radio.Group>
 							</Space>
 						</Space>
 						<Space direction="vertical">
 							<p>시리즈설정</p>
 							<Button
-								icon={<FolderAddOutlined/>} style={{margin: "10px"}}
+								icon={<FolderAddOutlined />} style={{margin: "10px"}}
 							>
 								시리즈에 추가하기
 							</Button>

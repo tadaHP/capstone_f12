@@ -44,7 +44,7 @@ export default function SignupForm({switchForm}) {
 		try {
 			await form.validateFields();
 			await requestSignupAPI(
-				{email, username, password, introduction, blogTitle, githubLink, instagramLink}
+				{email, username, password, introduction, blogTitle, githubLink, instagramLink},
 			);
 			setIsSignup(true);
 		} catch (e) {
