@@ -1,5 +1,6 @@
 package io.f12.notionlinkedblog.service.post;
 
+import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.PostExceptionsMessages.IMAGE_NOT_EXIST;
 import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.PostExceptionsMessages.*;
 import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.UserExceptionsMessages.*;
 
@@ -51,7 +52,7 @@ public class PostService {
 
 		String systemPath = System.getProperty("user.dir");
 
-		String fileName = makeFileName();
+		String fileName = makeThumbnailFileName();
 		String fullPath = null;
 		String newName = null;
 		String requestThumbnailLink = null;
@@ -60,7 +61,7 @@ public class PostService {
 			fullPath = getSavedDirectory(multipartFile, systemPath, fileName);
 			multipartFile.transferTo(new File(fullPath));
 			newName = fileName + "." + StringUtils.getFilenameExtension(multipartFile.getOriginalFilename());
-			requestThumbnailLink = Endpoint.Api.REQUEST_IMAGE + newName;
+			requestThumbnailLink = Endpoint.Api.REQUEST_THUMBNAIL_IMAGE + newName;
 		}
 
 		Post post = Post.builder()
@@ -123,7 +124,7 @@ public class PostService {
 		LikeSearchDto likeInfo = null;
 
 		if (post.getThumbnailName() != null) {
-			thumbnailLink = Endpoint.Api.REQUEST_IMAGE + post.getThumbnailName();
+			thumbnailLink = Endpoint.Api.REQUEST_THUMBNAIL_IMAGE + post.getThumbnailName();
 		}
 		if (post.getLikes() != null) {
 			likeSize = post.getLikes().size();
@@ -223,7 +224,7 @@ public class PostService {
 			Integer likeSize = null;
 
 			if (p.getThumbnailName() != null) {
-				thumbnailLink = Endpoint.Api.REQUEST_IMAGE + p.getThumbnailName();
+				thumbnailLink = Endpoint.Api.REQUEST_THUMBNAIL_IMAGE + p.getThumbnailName();
 			}
 			if (p.getLikes() != null) {
 				likeSize = p.getLikes().size();
@@ -261,7 +262,7 @@ public class PostService {
 		return !idA.equals(idB);
 	}
 
-	private String makeFileName() {
+	private String makeThumbnailFileName() {
 		Date now = new Date();
 		SimpleDateFormat savedDataFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SS");
 		return savedDataFormat.format(now);

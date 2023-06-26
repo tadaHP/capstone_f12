@@ -4,6 +4,7 @@ public class ExceptionMessages {
 	public static class UserExceptionsMessages {
 		public static final String USER_NOT_EXIST = "존재하지 않는 유저입니다.";
 		public static final String EMAIL_ALREADY_EXIST = "이미 존재하는 이메일입니다.";
+		public static final String IMAGE_NOT_EXIST = "존재하지 않는 이미지 입니다";
 	}
 
 	public static class PostExceptionsMessages {

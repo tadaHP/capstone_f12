@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 @WebFilter(filterName = "Utf8Filter", urlPatterns = {"/*"})
 public class Utf8Filter implements Filter {
 
-	private static final String[] EXCLUDED_URL_PATTERNS = {"/api/posts/thumbnail/"};
+	private static final String[] EXCLUDED_URL_PATTERNS = {"/api/posts/thumbnail/", "/api/users/profile/"};
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws

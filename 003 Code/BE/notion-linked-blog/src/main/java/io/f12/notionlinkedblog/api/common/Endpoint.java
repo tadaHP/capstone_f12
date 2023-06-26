@@ -9,6 +9,7 @@ public class Endpoint {
 		public static final String COMMENTS = "/api/posts/{id}/comments";
 		public static final String LOGIN_STATUS = "/api/users/login-status";
 		public static final String EMAIL = "/api/email";
-		public static final String REQUEST_IMAGE = "/api/posts/thumbnail/";
+		public static final String REQUEST_THUMBNAIL_IMAGE = "/api/posts/thumbnail/";
+		public static final String REQUEST_PROFILE_IMAGE = "/api/users/profile/";
 	}
 }

@@ -39,7 +39,7 @@ import io.f12.notionlinkedblog.domain.post.dto.PostEditDto;
 import io.f12.notionlinkedblog.domain.post.dto.SearchRequestDto;
 import io.f12.notionlinkedblog.domain.post.dto.ThumbnailReturnDto;
 import io.f12.notionlinkedblog.domain.user.User;
-import io.f12.notionlinkedblog.domain.user.dto.info.UserSearchDto;
+import io.f12.notionlinkedblog.domain.user.dto.response.UserSearchDto;
 import io.f12.notionlinkedblog.repository.post.PostDataRepository;
 import io.f12.notionlinkedblog.repository.user.UserDataRepository;
 import io.f12.notionlinkedblog.service.post.PostService;
@@ -456,7 +456,7 @@ class PostApiControllerTest {
 			//given
 			File file = new ClassPathResource("static/images/test.jpg").getFile();
 			UrlResource urlResource = new UrlResource("file:" + file.getPath());
-			final String url = Endpoint.Api.REQUEST_IMAGE + "testImage";
+			final String url = Endpoint.Api.REQUEST_THUMBNAIL_IMAGE + "testImage";
 			ThumbnailReturnDto dto = ThumbnailReturnDto.builder()
 				.thumbnailPath("path.jpg")
 				.image(urlResource)

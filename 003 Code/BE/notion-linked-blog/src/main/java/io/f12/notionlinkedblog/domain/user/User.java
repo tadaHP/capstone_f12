@@ -18,7 +18,9 @@ import io.f12.notionlinkedblog.domain.comments.Comments;
 import io.f12.notionlinkedblog.domain.likes.Like;
 import io.f12.notionlinkedblog.domain.post.Post;
 import io.f12.notionlinkedblog.domain.series.Series;
-import io.f12.notionlinkedblog.domain.user.dto.info.UserEditDto;
+import io.f12.notionlinkedblog.domain.user.dto.request.UserBasicInfoEditDto;
+import io.f12.notionlinkedblog.domain.user.dto.request.UserBlogTitleEditDto;
+import io.f12.notionlinkedblog.domain.user.dto.request.UserSocialInfoEditDto;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -77,13 +79,21 @@ public class User extends BaseTimeEntity {
 		this.instagramLink = instagramLink;
 	}
 
-	public void editProfile(UserEditDto editDto) {
+	public void editProfile(UserBasicInfoEditDto editDto) {
 		this.username = editDto.getUsername();
-		this.profile = editDto.getProfile();
-		this.blogTitle = editDto.getBlogTitle();
-		this.githubLink = editDto.getGithubLink();
-		this.instagramLink = editDto.getInstagramLink();
 		this.introduction = editDto.getIntroduction();
 	}
 
+	public void editProfile(UserSocialInfoEditDto editDto) {
+		this.githubLink = editDto.getGithubLink();
+		this.instagramLink = editDto.getInstagramLink();
+	}
+
+	public void editProfile(UserBlogTitleEditDto editDto) {
+		this.blogTitle = editDto.getBlogTitle();
+	}
+
+	public void setProfile(String profile) {
+		this.profile = profile;
+	}
 }

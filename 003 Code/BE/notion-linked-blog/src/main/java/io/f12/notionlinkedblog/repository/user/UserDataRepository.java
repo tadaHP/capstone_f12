@@ -7,12 +7,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import io.f12.notionlinkedblog.domain.user.User;
-import io.f12.notionlinkedblog.domain.user.dto.info.UserSearchDto;
+import io.f12.notionlinkedblog.domain.user.dto.response.UserSearchDto;
 
 public interface UserDataRepository extends JpaRepository<User, Long> {
 
 	@Query(
-		"SELECT new io.f12.notionlinkedblog.domain.user.dto.info.UserSearchDto(u.id,"
+		"SELECT new io.f12.notionlinkedblog.domain.user.dto.response.UserSearchDto(u.id,"
 			+ "u.username,u.email,u.profile,u.introduction,u.blogTitle,u.githubLink,u.instagramLink) "
 			+ "FROM User u "
 			+ "WHERE u.id = :id")

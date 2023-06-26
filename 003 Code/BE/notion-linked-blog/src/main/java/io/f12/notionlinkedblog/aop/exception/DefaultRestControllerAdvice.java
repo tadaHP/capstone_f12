@@ -1,6 +1,7 @@
 package io.f12.notionlinkedblog.aop.exception;
 
 import java.net.MalformedURLException;
+import java.nio.file.DirectoryNotEmptyException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -70,5 +71,13 @@ public class DefaultRestControllerAdvice {
 		return CommonErrorResponse.builder()
 			.errorMassage(ex.getMessage())
 			.errorCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value()).build();
+	}
+
+	@ExceptionHandler(DirectoryNotEmptyException.class)
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	public CommonErrorResponse handleDirectoryNotEmptyException(DirectoryNotEmptyException ex) {
+		return CommonErrorResponse.builder()
+			.errorMassage(ex.getMessage())
+			.errorCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).build();
 	}
 }

@@ -1,4 +1,4 @@
-package io.f12.notionlinkedblog.domain.user.dto.info;
+package io.f12.notionlinkedblog.domain.user.dto.request;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -11,12 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserEditDto {
+public class UserBasicInfoEditDto {
 	@NotEmpty
 	private String username;
-	private String profile;
 	private String introduction;
-	private String blogTitle;
-	private String githubLink;
-	private String instagramLink;
 }

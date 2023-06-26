@@ -2,9 +2,13 @@ package io.f12.notionlinkedblog.api.user;
 
 import static io.f12.notionlinkedblog.api.EmailApiController.*;
 import static org.mockito.BDDMockito.*;
+import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.io.File;
+import java.nio.file.Files;
 
 import javax.servlet.http.Cookie;
 
@@ -17,8 +21,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -29,8 +37,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.f12.notionlinkedblog.api.common.Endpoint;
 import io.f12.notionlinkedblog.domain.user.User;
-import io.f12.notionlinkedblog.domain.user.dto.info.UserEditDto;
-import io.f12.notionlinkedblog.domain.user.dto.info.UserSearchDto;
+import io.f12.notionlinkedblog.domain.user.dto.request.UserBasicInfoEditDto;
+import io.f12.notionlinkedblog.domain.user.dto.request.UserBlogTitleEditDto;
+import io.f12.notionlinkedblog.domain.user.dto.request.UserSocialInfoEditDto;
+import io.f12.notionlinkedblog.domain.user.dto.response.UserSearchDto;
 import io.f12.notionlinkedblog.domain.user.dto.signup.UserSignupRequestDto;
 import io.f12.notionlinkedblog.repository.user.UserDataRepository;
 import io.f12.notionlinkedblog.service.user.UserService;
@@ -138,55 +148,274 @@ class UserApiControllerTests {
 	@DisplayName("유저정보 수정 api")
 	@Nested
 	class UserInfoEditApiTest {
-
-		@DisplayName("정상 케이스")
+		@DisplayName("회원 기본정보 변경")
 		@Nested
-		class SuccessCase {
-			@DisplayName("유저 정보 수정")
-			@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-			@Test
-			void editUserInfoTest() throws Exception {
-				//given
-				final String url = Endpoint.Api.USER + "/" + testUser.getId();
+		class UserBasicInfoEdit {
 
-				UserEditDto editDto = UserEditDto.builder().username("test1").build();
+			@DisplayName("정상 케이스")
+			@Nested
+			class SuccessCase {
+				@DisplayName("유저 정보 수정")
+				@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+				@Test
+				void editUserInfoTest() throws Exception {
+					//given
+					final String url = Endpoint.Api.USER + "/basic/" + testUser.getId();
 
-				//stub
-				String requestBody = om.writeValueAsString(editDto);
-				given(userService.editUserInfo(testUser.getId(), editDto)).willReturn(testUser.getId());
+					UserBasicInfoEditDto editDto = UserBasicInfoEditDto.builder().username("test1").build();
 
-				//when
-				ResultActions resultActions = mockMvc.perform(
-					put(url)
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(requestBody));
+					//stub
+					String requestBody = om.writeValueAsString(editDto);
 
-				//then
-				resultActions.andExpect(status().isCreated());
+					//when
+					ResultActions resultActions = mockMvc.perform(
+						put(url)
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(requestBody));
+
+					//then
+					resultActions.andExpect(status().isCreated());
+				}
+			}
+
+			@DisplayName("실패 케이스")
+			@Nested
+			class FailureCase {
+				@DisplayName("로그인 유저와 변경유저 불일치")
+				@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+				@Test
+				void editUnMatchingUserInfoTest() throws Exception {
+					//given
+					String anotherUserId = "0";
+					final String url = Endpoint.Api.USER + "/basic/" + anotherUserId;
+					UserBasicInfoEditDto editDto = UserBasicInfoEditDto.builder().username("test1").build();
+					String requestBody = om.writeValueAsString(editDto);
+
+					//when
+					ResultActions resultActions = mockMvc.perform(
+						put(url)
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(requestBody));
+
+					//then
+					resultActions.andExpect(status().isNotFound());
+				}
+
+				@DisplayName("필요한 dto 정보 미제공")
+				@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+				@Test
+				void editUnFilledDtoUserInfoTest() throws Exception {
+					//given
+					final String url = Endpoint.Api.USER + "/basic/" + testUser.getId();
+
+					UserBasicInfoEditDto editDto = UserBasicInfoEditDto.builder().introduction("edited").build();
+
+					//stub
+					String requestBody = om.writeValueAsString(editDto);
+
+					//when
+					ResultActions resultActions = mockMvc.perform(
+						put(url)
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(requestBody));
+
+					//then
+					resultActions.andExpect(status().isBadRequest());
+				}
 			}
 		}
 
-		@DisplayName("실패 케이스")
+		@DisplayName("회원 BlogTitle 변경")
 		@Nested
-		class FailureCase {
-			@DisplayName("로그인 유저와 변경유저 불일치")
-			@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-			@Test
-			void editUnMatchingUserInfoTest() throws Exception {
-				//given
-				String anotherUserId = "0";
-				final String url = Endpoint.Api.USER + "/" + anotherUserId;
-				UserEditDto editDto = UserEditDto.builder().username("test1").build();
-				String requestBody = om.writeValueAsString(editDto);
+		class UserBlogTitleEdit {
+			@DisplayName("정상 케이스")
+			@Nested
+			class SuccessCase {
+				@DisplayName("유저 정보 수정")
+				@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+				@Test
+				void editUserInfoTest() throws Exception {
+					//given
+					final String url = Endpoint.Api.USER + "/blogTitle/" + testUser.getId();
 
-				//when
-				ResultActions resultActions = mockMvc.perform(
-					put(url)
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(requestBody));
+					UserBlogTitleEditDto editDto = UserBlogTitleEditDto.builder().blogTitle("edited").build();
 
-				//then
-				resultActions.andExpect(status().isNotFound());
+					//stub
+					String requestBody = om.writeValueAsString(editDto);
+
+					//when
+					ResultActions resultActions = mockMvc.perform(
+						put(url)
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(requestBody));
+
+					//then
+					resultActions.andExpect(status().isCreated());
+				}
+			}
+
+			@DisplayName("실패 케이스")
+			@Nested
+			class FailureCase {
+				@DisplayName("로그인 유저와 변경유저 불일치")
+				@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+				@Test
+				void editUnMatchingUserInfoTest() throws Exception {
+					//given
+					String anotherUserId = "0";
+					final String url = Endpoint.Api.USER + "/blogTitle/" + anotherUserId;
+					UserBlogTitleEditDto editDto = UserBlogTitleEditDto.builder().blogTitle("edited").build();
+
+					String requestBody = om.writeValueAsString(editDto);
+
+					//when
+					ResultActions resultActions = mockMvc.perform(
+						put(url)
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(requestBody));
+
+					//then
+					resultActions.andExpect(status().isNotFound());
+				}
+
+				@DisplayName("blogTitle 정보 미 전송")
+				@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+				@Test
+				void editUnFilledDtoUserInfoTest() throws Exception {
+					//given
+					final String url = Endpoint.Api.USER + "/blogTitle/" + testUser.getId();
+
+					UserBlogTitleEditDto editDto = UserBlogTitleEditDto.builder().build();
+
+					//stub
+					String requestBody = om.writeValueAsString(editDto);
+
+					//when
+					ResultActions resultActions = mockMvc.perform(
+						put(url)
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(requestBody));
+
+					//then
+					resultActions.andExpect(status().isBadRequest());
+				}
+			}
+
+		}
+
+		@DisplayName("회원 SNS 정보 변경")
+		@Nested
+		class UserSNSInfoEdit {
+			@DisplayName("정상 케이스")
+			@Nested
+			class SuccessCase {
+				@DisplayName("유저 정보 수정")
+				@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+				@Test
+				void editUserInfoTest() throws Exception {
+					//given
+					final String url = Endpoint.Api.USER + "/social/" + testUser.getId();
+
+					UserSocialInfoEditDto editDto = UserSocialInfoEditDto.builder()
+						.githubLink("editedGit")
+						.instagramLink("editedInsta")
+						.build();
+
+					//stub
+					String requestBody = om.writeValueAsString(editDto);
+
+					//when
+					ResultActions resultActions = mockMvc.perform(
+						put(url)
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(requestBody));
+
+					//then
+					resultActions.andExpect(status().isCreated());
+				}
+			}
+
+			@DisplayName("실패 케이스")
+			@Nested
+			class FailureCase {
+				@DisplayName("로그인 유저와 변경유저 불일치")
+				@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+				@Test
+				void editUnMatchingUserInfoTest() throws Exception {
+					//given
+					String anotherUserId = "0";
+					final String url = Endpoint.Api.USER + "/social/" + anotherUserId;
+					UserSocialInfoEditDto editDto = UserSocialInfoEditDto.builder()
+						.githubLink("editedGit")
+						.instagramLink("editedInsta")
+						.build();
+
+					String requestBody = om.writeValueAsString(editDto);
+
+					//when
+					ResultActions resultActions = mockMvc.perform(
+						put(url)
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(requestBody));
+
+					//then
+					resultActions.andExpect(status().isNotFound());
+				}
+			}
+		}
+
+		@DisplayName("회원 프로파일 이미지 정보 변경")
+		@Nested
+		class UserProfileImageEdit {
+			@DisplayName("정상 케이스")
+			@Nested
+			class SuccessCase {
+				@DisplayName("유저 정보 수정")
+				@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+				@Test
+				void editUserInfoTest() throws Exception {
+					//given
+					final String url = Endpoint.Api.USER + "/profileImage/" + testUser.getId();
+					File file = new ClassPathResource("static/images/test.jpg").getFile();
+					//stub
+					MockMultipartFile fileInfo = new MockMultipartFile("file", "", IMAGE_JPEG_VALUE,
+						Files.readAllBytes(file.toPath()));
+
+					//when
+					ResultActions resultActions = mockMvc.perform(
+						multipart(HttpMethod.PUT, url)
+							.file(fileInfo));
+
+					//then
+					resultActions.andExpect(status().isCreated());
+				}
+			}
+
+			@DisplayName("실패 케이스")
+			@Nested
+			class FailureCase {
+
+				@DisplayName("유저 정보 수정")
+				@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+				@Test
+				void editUserInfoTest() throws Exception {
+					//given
+					Long unMatchedUSerId = 0L;
+					final String url = Endpoint.Api.USER + "/profileImage/" + unMatchedUSerId;
+					File file = new ClassPathResource("static/images/test.jpg").getFile();
+					//stub
+					MockMultipartFile fileInfo = new MockMultipartFile("file", "", IMAGE_JPEG_VALUE,
+						Files.readAllBytes(file.toPath()));
+
+					//when
+					ResultActions resultActions = mockMvc.perform(
+						multipart(HttpMethod.PUT, url)
+							.file(fileInfo));
+
+					//then
+					resultActions.andExpect(status().isNotFound());
+				}
+
 			}
 		}
 	}
@@ -238,6 +467,28 @@ class UserApiControllerTests {
 				//then
 				resultActions.andExpect(status().isNotFound());
 			}
+		}
+	}
+
+	@DisplayName("유저 프로파일 조회 api")
+	@WithUserDetails(value = "test@gmail.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+	@Nested
+	class UserProfileApiTest {
+		@DisplayName("성공 케이스")
+		@Test
+		void successfulCase() throws Exception {
+			//given
+			File file = new ClassPathResource("static/images/test.jpg").getFile();
+			UrlResource urlResource = new UrlResource("file:" + file.getPath());
+			final String url = Endpoint.Api.USER + "/profile/" + testUser.getId();
+
+			//stub
+			given(userService.readImageFile(testUser.getId())).willReturn(new File(""));
+			//when
+			ResultActions resultActions = mockMvc.perform(get(url));
+
+			//then
+			resultActions.andExpect(status().isOk());
 		}
 	}
 }
