@@ -38,6 +38,3 @@ out/
 
 # QueryDSL로 생기는 Q파일은 업로드 하지 않음
 generated/
-
-# 민감한 외부 설정 파일 제외
-application-*.yml
