@@ -5,12 +5,19 @@ server:
       force-response: true
 
 spring:
+  sql:
+    init:
+      mode: never #테스트때에는 data.sql(초기화) 실행 방지
   jpa:
     properties:
       hibernate:
         show_sql: true
         format_sql: true
         use_sql_comments: true
+  config:
+    import:
+      - classpath:application-mail.yml
+      - classpath:application-redis.yml
 
 logging:
   level:
