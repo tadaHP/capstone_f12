@@ -13,7 +13,7 @@ export interface User {
 
 export const checkLoginStatus = async () => {
 	try {
-		return await apiClient.get("/users/login-status");
+		return await apiClient.get("/api/users/login-status");
 	} catch (e) {
 		throw e;
 	}
@@ -21,7 +21,7 @@ export const checkLoginStatus = async () => {
 
 export const loginByEmailAPI = async userDetails => {
 	try {
-		return await apiClient.post("/login/email", userDetails, {
+		return await apiClient.post("/api/login/email", userDetails, {
 			headers: {
 				"Content-Type": "application/json",
 			},
@@ -33,7 +33,7 @@ export const loginByEmailAPI = async userDetails => {
 
 export const logoutAPI = async () => {
 	try {
-		await apiClient.post("/logout");
+		await apiClient.post("/api/logout");
 	} catch (e) {
 		throw e;
 	}
@@ -43,7 +43,7 @@ export const signoutAPI = async (id: number) => {
 	let errorMsg;
 
 	try {
-		await apiClient.delete(`/users/${id}`);
+		await apiClient.delete(`/api/users/${id}`);
 	} catch (e) {
 		switch (e.response.status) {
 			case 401:
