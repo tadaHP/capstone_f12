@@ -34,11 +34,11 @@ public class DefaultRestControllerAdvice {
 	}
 
 	@ExceptionHandler(NullPointerException.class)
-	@ResponseStatus(HttpStatus.UNAUTHORIZED)
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public CommonErrorResponse handleNullPointer(NullPointerException ex) {
 		return CommonErrorResponse.builder()
 			.errorMassage(ex.getMessage())
-			.errorCode(HttpStatus.UNAUTHORIZED.value()).build();
+			.errorCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).build();
 	}
 
 	@ExceptionHandler(MalformedURLException.class)

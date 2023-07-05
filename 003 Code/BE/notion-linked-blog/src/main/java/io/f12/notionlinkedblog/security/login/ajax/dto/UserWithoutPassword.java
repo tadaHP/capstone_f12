@@ -12,7 +12,6 @@ public class UserWithoutPassword {
 	private final Long id;
 	private final String username;
 	private final String email;
-	private final String profile;
 	private final String introduction;
 	private final String blogTitle;
 	private final String githubLink;
@@ -22,7 +21,6 @@ public class UserWithoutPassword {
 		this.id = user.getId();
 		this.username = user.getUsername();
 		this.email = user.getEmail();
-		this.profile = user.getProfile();
 		this.introduction = user.getIntroduction();
 		this.blogTitle = user.getBlogTitle();
 		this.githubLink = user.getGithubLink();

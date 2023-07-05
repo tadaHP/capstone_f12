@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -100,6 +101,17 @@ public class UserService {
 			.build();
 	}
 
+	public void removeUserProfileImage(Long id) {
+		User findUser = userDataRepository.findById(id)
+			.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
+		try {
+			Files.delete(Path.of(findUser.getProfile()));
+		} catch (Exception e) {
+			log.warn("파일이 존재하지 않습니다: {}", e.getMessage());
+		}
+		findUser.setProfile(null);
+	}
+
 	public void removeUser(Long id) {
 		userDataRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
@@ -111,7 +123,9 @@ public class UserService {
 			userDataRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
 
 		if (editedUSer.getProfile() == null) {
-			throw new IllegalArgumentException(IMAGE_NOT_EXIST);
+			Path path = Paths
+				.get("src", "main", "resources", "static", "images", "defaultImageFile.png");
+			return path.toFile();
 		}
 
 		return new File(editedUSer.getProfile());

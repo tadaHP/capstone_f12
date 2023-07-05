@@ -1,11 +1,13 @@
 package io.f12.notionlinkedblog.api.user;
 
 import static io.f12.notionlinkedblog.api.EmailApiController.*;
+import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.UserExceptionsMessages.*;
 import static org.springframework.http.MediaType.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Objects;
 
 import javax.servlet.http.HttpSession;
 
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.f12.notionlinkedblog.api.common.Endpoint;
@@ -133,12 +136,15 @@ public class UserApiController {
 	@Operation(summary = "profileImage 변경", description = "profileImage 를 변경합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "201", description = "이미지 변경 성공"),
+		@ApiResponse(responseCode = "401", description = "미존재"),
 		@ApiResponse(responseCode = "500", description = "기존 썸네일 삭제 실패")
 	})
 	public ProfileSuccessEditDto editUserProfile(
 		@PathVariable Long id, @Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser,
 		@RequestPart(value = "profile", required = false) MultipartFile file) throws IOException {
 		checkSameUser(id, loginUser);
+		checkIsValidImageFile(file);
+
 		return userService.editUserProfileImage(id, file);
 	}
 
@@ -153,6 +159,20 @@ public class UserApiController {
 		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser) {
 		checkSameUser(id, loginUser);
 		userService.removeUser(id);
+	}
+
+	@DeleteMapping(value = "/profileImage/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@Operation(summary = "profileImage 삭제", description = "profileImage 를 삭제합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "204", description = "이미지 삭제 성공"),
+		@ApiResponse(responseCode = "401", description = "미존재"),
+		@ApiResponse(responseCode = "500", description = "기존 썸네일 삭제 실패")
+	})
+	public void removeUserProfile(
+		@PathVariable Long id, @Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser) {
+		checkSameUser(id, loginUser);
+		userService.removeUserProfileImage(id);
 	}
 
 	@GetMapping("/profile/{userId}")
@@ -181,6 +201,15 @@ public class UserApiController {
 
 		if (!id.equals(loginUser.getUser().getId())) {
 			throw new AccessDeniedException("데이터를 찾지 못했습니다");
+		}
+	}
+
+	private static void checkIsValidImageFile(MultipartFile file) throws IOException {
+		if (file.getBytes().length == 0) {
+			throw new MultipartException(FILE_IS_EMPTY);
+		}
+		if (!Objects.requireNonNull(file.getContentType()).contains("image/")) {
+			throw new MultipartException(FILE_IS_INVALID);
 		}
 	}
 }
