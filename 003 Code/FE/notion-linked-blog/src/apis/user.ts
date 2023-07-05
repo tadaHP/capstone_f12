@@ -62,3 +62,75 @@ export const signoutAPI = async (id: number) => {
 		throw new Error(errorMsg);
 	}
 };
+
+export const modifyBlogTitleAPI = async (blogTitle: string, id: number) => {
+	try {
+		await apiClient.put(`/api/users/blogTitle/${id}`, {blogTitle});
+	} catch (e) {
+		throw new Error(e);
+	}
+};
+
+export interface ModifyingSocialInfo {
+	githubLink: string;
+	instagramLink: string;
+}
+
+export const modifySocialInfoAPI = async (
+	{githubLink, instagramLink}: ModifyingSocialInfo, id: number,
+) => {
+	try {
+		await apiClient.put(`/api/users/social/${id}`, {githubLink, instagramLink});
+	} catch (e) {
+		throw new Error(e);
+	}
+};
+
+export interface ModifyingBasicInfo {
+	username: string;
+	introduction: string;
+}
+
+export const modifyBasicInfoAPI = async (
+	{username, introduction}: ModifyingBasicInfo, id: number,
+) => {
+	try {
+		await apiClient.put(`/api/users/basic/${id}`, {username, introduction});
+	} catch (e) {
+		throw new Error(e);
+	}
+};
+
+export const modifyProfileImageAPI = async (profile: FormData, id: number) => {
+	try {
+		const resp = await apiClient.put(`/api/users/profileImage/${id}`, profile, {
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+		});
+
+		return resp.data;
+	} catch (e) {
+		throw new Error(e);
+	}
+};
+
+export const getProfileImageAPI = async (id: number) => {
+	try {
+		const resp = await apiClient.get(`/api/users/profile/${id}`, {
+			responseType: "blob",
+		});
+
+		return resp.data;
+	} catch (e) {
+		throw new Error(e);
+	}
+};
+
+export const deleteProfileImageAPI = async (id: number) => {
+	try {
+		await apiClient.delete(`/api/users/profileImage/${id}`);
+	} catch (e) {
+		throw new Error(e);
+	}
+};
