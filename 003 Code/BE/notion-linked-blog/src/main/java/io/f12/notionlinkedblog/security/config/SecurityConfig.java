@@ -25,6 +25,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.f12.notionlinkedblog.api.common.Endpoint;
+import io.f12.notionlinkedblog.repository.user.UserDataRepository;
 import io.f12.notionlinkedblog.security.common.dto.AuthenticationFailureDto;
 import io.f12.notionlinkedblog.security.login.ajax.configure.AjaxLoginConfigurer;
 import io.f12.notionlinkedblog.security.login.check.filter.LoginStatusCheckingFilter;
@@ -37,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SecurityConfig {
 
 	private final UserDetailsService userDetailsService;
+	private final UserDataRepository userDataRepository;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -83,7 +85,7 @@ public class SecurityConfig {
 			.apply(ajaxLoginConfigurer());
 
 		http
-			.addFilterBefore(new LoginStatusCheckingFilter(), LogoutFilter.class);
+			.addFilterBefore(new LoginStatusCheckingFilter(userDataRepository), LogoutFilter.class);
 
 		return http.build();
 	}
