@@ -54,7 +54,7 @@ public class Comments extends PostTimeEntity {
 	private Post post;
 	private String content;
 	@NotNull
-	private Integer depth; // 0 = parents, 1 = child
+	private Integer depth; // 0 = parents, 1 = children
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "parent_id")
 	private Comments parent;

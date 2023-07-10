@@ -17,8 +17,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import io.f12.notionlinkedblog.domain.comments.Comments;
-import io.f12.notionlinkedblog.domain.comments.dto.CommentSearchDto;
 import io.f12.notionlinkedblog.domain.comments.dto.CreateCommentDto;
+import io.f12.notionlinkedblog.domain.comments.dto.response.CommentEditDto;
+import io.f12.notionlinkedblog.domain.comments.dto.response.ParentsCommentDto;
 import io.f12.notionlinkedblog.domain.post.Post;
 import io.f12.notionlinkedblog.domain.user.User;
 import io.f12.notionlinkedblog.repository.comments.CommentsDataRepository;
@@ -62,29 +63,35 @@ class CommentsServiceTest {
 					.build();
 				String content1 = "testComment1";
 				String content2 = "testComment2";
-				returnComments.add(Comments.builder()
+
+				Comments parent = Comments.builder()
 					.content(content1)
 					.user(user)
 					.post(post)
 					.depth(0)
-					.build());
-				returnComments.add(Comments.builder()
+					.build();
+
+				Comments child = Comments.builder()
 					.content(content2)
 					.user(user)
-					.depth(0)
+					.parent(parent)
+					.depth(1)
 					.post(post)
-					.build());
+					.build();
+
+				returnComments.add(parent);
+				returnComments.add(child);
 				//Mock
 				given(commentsDataRepository.findByPostId(fakePostId))
 					.willReturn(returnComments);
 				//when
-				List<CommentSearchDto> comments = commentsService.getCommentsByPostId(fakePostId);
-				CommentSearchDto comment1 = comments.get(0);
-				CommentSearchDto comment2 = comments.get(1);
+				List<ParentsCommentDto> commentsDto = commentsService.getCommentsByPostId(fakePostId);
+				ParentsCommentDto parentsCommentDto = commentsDto.get(0);
+
 				//then
-				assertThat(comments).size().isEqualTo(2);
-				assertThat(comment1).extracting("comments").isEqualTo(content1);
-				assertThat(comment2).extracting("comments").isEqualTo(content2);
+				assertThat(parentsCommentDto.getChildren()).size().isEqualTo(1);
+				assertThat(parentsCommentDto.getChildren().get(0).getComment()).isEqualTo(content2);
+				assertThat(parentsCommentDto.getComment()).isEqualTo(content1);
 
 			}
 
@@ -103,9 +110,9 @@ class CommentsServiceTest {
 				given(commentsDataRepository.findByPostId(fakePostId))
 					.willReturn(returnComments);
 				//when
-				List<CommentSearchDto> comments = commentsService.getCommentsByPostId(fakePostId);
+				List<ParentsCommentDto> commentsDto = commentsService.getCommentsByPostId(fakePostId);
 				//then
-				assertThat(comments).isEmpty();
+				assertThat(commentsDto).isEmpty();
 			}
 		}
 
@@ -149,10 +156,10 @@ class CommentsServiceTest {
 			given(commentsDataRepository.save(any(Comments.class)))
 				.willReturn(comments);
 			//when
-			CommentSearchDto commentDto = commentsService.createComments(fakePostId, fakeUserId, createCommentDto);
+			CommentEditDto commentDto = commentsService.createComments(fakePostId, fakeUserId, createCommentDto);
 			//then
-			assertThat(commentDto).extracting("comments").isEqualTo(content);
-			assertThat(commentDto).extracting("username").isEqualTo(user.getUsername());
+			assertThat(commentDto.getComment()).isEqualTo(content);
+			assertThat(commentDto.getAuthor()).isEqualTo(user.getUsername());
 		}
 
 	}
@@ -188,9 +195,9 @@ class CommentsServiceTest {
 			given(commentsDataRepository.findById(fakeCommentId))
 				.willReturn(Optional.ofNullable(comments));
 			//when
-			CommentSearchDto editedComment = commentsService.editComment(fakeCommentId, fakeUserId, editContent);
+			CommentEditDto editedComment = commentsService.editComment(fakeCommentId, fakeUserId, editContent);
 			//then
-			assertThat(editedComment).extracting("comments").isEqualTo(editContent);
+			assertThat(editedComment.getComment()).isEqualTo(editContent);
 		}
 	}
 
