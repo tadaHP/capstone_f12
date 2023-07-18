@@ -4,6 +4,7 @@ import {HeartFilled} from "@ant-design/icons";
 import convertKRTimeStyle from "@/utils/time";
 import {useEffect, useState} from "react";
 import {getThumbnailAPI} from "@/apis/post";
+import Image from "next/image";
 
 const {Meta} = Card;
 
@@ -13,19 +14,13 @@ const StyledCard = styled(Card)`
   height: 100%;
 `;
 
-const StyledCover = styled.img`
-  height: 170px;
-`;
-
 const StyledDiv = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 
-const StyledAvatar = styled.img`
-  width: 15px;
-  height: 15px;
+const StyledAvatar = styled(Image)`
   border-radius: 50%;
 `;
 
@@ -56,22 +51,36 @@ export default function PostCard({post}) {
 		<StyledCard
 			hoverable
 			bordered={false}
-			cover={<StyledCover src={thumbnail}/>}
+			cover={
+				<Image
+					src={thumbnail}
+					alt="CardCover"
+					width={170}
+					height={170}
+				/>}
 			actions={
 				[
 					<StyledDiv key="left">
-						<StyledAvatar src={post.avatar}/>
+						{post.avater && <StyledAvatar
+							src={post.avatar}
+							alt="PostAuthorAvatar"
+							width={15}
+							height={15}
+						/>}
 						&nbsp;by
 						<Typography.Text strong={true}>&nbsp;{post.author}</Typography.Text>
-						{/* eslint-disable-next-line array-element-newline */}
+						{/* eslint-disable-next-line array-element-newline */
+						}
 					</StyledDiv>,
 					<Typography.Text key="right">
-						<HeartFilled/>
+						<HeartFilled />
 						&nbsp;{post.likes}
 					</Typography.Text>,
-				]}
+				]
+			}
 		>
-			<StyledMeta
+			<
+				StyledMeta
 				title={post.title}
 				description={(
 					<>
@@ -81,7 +90,9 @@ export default function PostCard({post}) {
 						<Typography.Text> · </Typography.Text>
 						<Typography.Text>{post.countOfComments}개의 댓글</Typography.Text>
 					</>
-				)}/>
+				)
+				}
+			/>
 		</StyledCard>
 	);
 }

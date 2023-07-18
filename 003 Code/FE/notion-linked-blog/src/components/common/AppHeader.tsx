@@ -1,63 +1,57 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {Button, Col, Layout, Modal, Row, Typography} from "antd";
+import Image from "next/image";
+import Link from "next/link";
 import LoginForm from "@/components/auth/LoginForm";
 import SignupForm from "@/components/auth/SignupForm";
 import {checkLoginStatus} from "@/apis/user";
 import {UserState, login} from "@/redux/userSlice";
-import styled from "styled-components";
-import Link from "next/link";
-import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "@/redux/store";
+import styled from "styled-components";
+import {useDispatch, useSelector} from "react-redux";
 import MenuItemsDropdown from "./MenuItemsDropdown";
 
 const {Header} = Layout;
 
 const {Text} = Typography;
 
-const StyledText = styled(Text)`
-`;
-
 const StyledHeader = styled(Header)`
   display: flex;
   justify-content: center;
   padding: 0;
-	background-color: inherit;
+  background-color: inherit;
 `;
 
 const StyledHeaderRow = styled(Row)`
   display: flex;
   max-width: 1728px;
   justify-content: space-between;
-	width: 100%;
+  width: 100%;
 
-	@media screen and (max-width: 1872px) {
-		width: calc(352px * 4 - 32px);
-	}
+  @media screen and (max-width: 1872px) {
+    width: calc(352px * 4 - 32px);
+  }
 
-	@media screen and (max-width: 1520px) {
-		width: calc(352px * 3 - 32px);
-	}
+  @media screen and (max-width: 1520px) {
+    width: calc(352px * 3 - 32px);
+  }
 
-	@media screen and (max-width: 1058px) {
-		width: 100vw;
-		padding: 0 16px;
-	}
+  @media screen and (max-width: 1058px) {
+    width: 100vw;
+    padding: 0 16px;
+  }
 `;
 
 const StyledCol = styled(Col)`
-	display: flex;
-	align-items: center;
+  display: flex;
+  align-items: center;
 `;
 
 const StyledLink = styled(Link)`
-	display: flex;
-	justify-content: space-between;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-	width: 70px;
-`;
-
-const StyledImg = styled.img`
-	width: 32px;
+  width: 70px;
 `;
 
 function AppHeader() {
@@ -93,10 +87,13 @@ function AppHeader() {
 			<StyledHeaderRow>
 				<StyledCol>
 					<StyledLink href="/">
-						<StyledImg src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" alt="Logo" />
-						<StyledText>
-							NLB
-						</StyledText>
+						<Image
+							src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png"
+							alt="Logo of Service"
+							width={32}
+							height={32}
+						/>
+						<Text>NLB</Text>
 					</StyledLink>
 				</StyledCol>
 				<Col>
