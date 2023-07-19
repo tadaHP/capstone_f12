@@ -1,4 +1,4 @@
-import {useState, useRef, useEffect, useMemo} from "react";
+import {useState, useRef, useEffect} from "react";
 
 export default function useInfiniteScroll({
 	root = null, target, threshold = 1, rootMargin = "0px", targetArray, endPoint = 1,
@@ -6,22 +6,19 @@ export default function useInfiniteScroll({
 	const [count, setCount] = useState(0);
 	const currentChild = useRef(null);
 
-	const intersectionObserver = useMemo(() => new IntersectionObserver(
-		(entries, observer) => {
-			if (target?.current === null) {
-				return;
-			}
-			if (entries[0].isIntersecting) {
-				setCount(v => v + 1);
-				observer.disconnect();
-			}
-		},
-	), [target, root, rootMargin, threshold]);
-
 	useEffect(() => {
 		if (target?.current === null) {
 			return;
 		}
+
+		const intersectionObserver = new IntersectionObserver(
+			(entries, observer) => {
+				if (entries[0].isIntersecting) {
+					setCount(v => v + 1);
+					observer.disconnect();
+				}
+			},
+		);
 
 		const observeChild = target.current.children[target.current.children.length - endPoint];
 
@@ -37,8 +34,8 @@ export default function useInfiniteScroll({
 		};
 	}, [count, targetArray, target, endPoint]);
 
-	return {
+	return [
 		count,
 		setCount,
-	};
+	] as const;
 }
