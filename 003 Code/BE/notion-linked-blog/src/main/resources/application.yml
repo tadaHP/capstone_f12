@@ -16,6 +16,7 @@ spring:
     import:
       - classpath:application-mail.yml
       - classpath:application-redis.yml
+      - classpath:application-notion.yml
 
 logging:
   level:

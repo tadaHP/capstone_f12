@@ -1,7 +1,7 @@
 package io.f12.notionlinkedblog.repository.post;
 
-import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.PostExceptionsMessages.*;
-import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.UserExceptionsMessages.*;
+import static io.f12.notionlinkedblog.exceptions.message.ExceptionMessages.PostExceptionsMessages.*;
+import static io.f12.notionlinkedblog.exceptions.message.ExceptionMessages.UserExceptionsMessages.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;

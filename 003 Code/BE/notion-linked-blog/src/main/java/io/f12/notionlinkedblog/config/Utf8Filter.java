@@ -10,10 +10,13 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 
+import io.f12.notionlinkedblog.api.common.Endpoint;
+
 @WebFilter(filterName = "Utf8Filter", urlPatterns = {"/*"})
 public class Utf8Filter implements Filter {
 
-	private static final String[] EXCLUDED_URL_PATTERNS = {"/api/posts/thumbnail/", "/api/users/profile/"};
+	private static final String[] EXCLUDED_URL_PATTERNS = {"/api/posts/thumbnail/", "/api/users/profile/",
+		Endpoint.Api.REQUEST_IMAGE};
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws

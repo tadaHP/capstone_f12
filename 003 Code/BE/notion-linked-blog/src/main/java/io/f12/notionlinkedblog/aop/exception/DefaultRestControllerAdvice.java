@@ -7,10 +7,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import io.f12.notionlinkedblog.domain.common.CommonErrorResponse;
+import io.f12.notionlinkedblog.exceptions.exception.AuthFailureException;
+import io.f12.notionlinkedblog.exceptions.runtimeexception.IllegalDatabaseStateException;
 import io.swagger.v3.oas.annotations.Hidden;
 
 @Hidden
@@ -80,4 +83,29 @@ public class DefaultRestControllerAdvice {
 			.errorMassage(ex.getMessage())
 			.errorCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).build();
 	}
+
+	@ExceptionHandler(AuthFailureException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public CommonErrorResponse handleAuthFailureException(AuthFailureException ex) {
+		return CommonErrorResponse.builder()
+			.errorMassage(ex.getMessage())
+			.errorCode(HttpStatus.BAD_REQUEST.value()).build();
+	}
+
+	@ExceptionHandler(HttpClientErrorException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public CommonErrorResponse handleHttpClientErrorException(HttpClientErrorException ex) {
+		return CommonErrorResponse.builder()
+			.errorMassage(ex.getMessage())
+			.errorCode(HttpStatus.BAD_REQUEST.value()).build();
+	}
+
+	@ExceptionHandler(IllegalDatabaseStateException.class)
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	public CommonErrorResponse handleIllegalDatabaseStateException(IllegalDatabaseStateException ex) {
+		return CommonErrorResponse.builder()
+			.errorMassage(ex.getMessage())
+			.errorCode(HttpStatus.BAD_REQUEST.value()).build();
+	}
+
 }

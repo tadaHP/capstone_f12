@@ -66,7 +66,7 @@
 - ### 2023 년 OO학술대회
 
 ## ERD
-updatedAt 2023.05.31
+updatedAt 2023.07.20 - notion과 연동을 위한 테이블 추가
 ![erd](./img/F12-ERD.png)
 
 ## Class Diagram

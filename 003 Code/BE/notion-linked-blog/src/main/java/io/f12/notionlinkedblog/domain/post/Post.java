@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
@@ -25,6 +26,7 @@ import org.springframework.util.StringUtils;
 import io.f12.notionlinkedblog.domain.PostTimeEntity;
 import io.f12.notionlinkedblog.domain.comments.Comments;
 import io.f12.notionlinkedblog.domain.likes.Like;
+import io.f12.notionlinkedblog.domain.notion.Notion;
 import io.f12.notionlinkedblog.domain.series.Series;
 import io.f12.notionlinkedblog.domain.user.User;
 import lombok.AccessLevel;
@@ -61,6 +63,9 @@ public class Post extends PostTimeEntity {
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "series_id")
 	private Series series;
+
+	@OneToOne(mappedBy = "post", cascade = CascadeType.REMOVE)
+	private Notion notion;
 
 	@NotBlank
 	private String title;

@@ -17,4 +17,6 @@ public interface PostRepositoryCustom {
 
 	List<Post> findByIds(List<Long> ids);
 
+	Post findWithNotion(Long id);
+
 }

@@ -1,7 +1,7 @@
 package io.f12.notionlinkedblog.api.user;
 
 import static io.f12.notionlinkedblog.api.EmailApiController.*;
-import static io.f12.notionlinkedblog.exceptions.ExceptionMessages.UserExceptionsMessages.*;
+import static io.f12.notionlinkedblog.exceptions.message.ExceptionMessages.UserExceptionsMessages.*;
 import static org.springframework.http.MediaType.*;
 
 import java.io.File;

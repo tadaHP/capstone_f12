@@ -7,6 +7,7 @@ plugins {
 group = 'io.f12'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
+ext.notionSdkVersion = "1.8.0"
 
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
@@ -34,6 +35,9 @@ dependencies {
     implementation 'com.querydsl:querydsl-apt'
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.3'
     implementation 'org.springdoc:springdoc-openapi-security:1.6.3'
+    implementation("com.github.seratch:notion-sdk-jvm-core:${notionSdkVersion}")
+//    implementation("com.github.seratch:notion-sdk-jvm-okhttp4:${notionSdkVersion}")
+    implementation 'commons-io:commons-io'
     testImplementation 'org.projectlombok:lombok:1.18.22'
 
     compileOnly 'org.projectlombok:lombok'
