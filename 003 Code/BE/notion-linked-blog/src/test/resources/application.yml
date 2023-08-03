@@ -1,5 +1,6 @@
 # 콘솔에 한글 깨짐 방지
 server:
+  url: "localhost:8080"
   servlet:
     encoding:
       force-response: true

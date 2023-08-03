@@ -1,5 +1,7 @@
 package io.f12.notionlinkedblog.aop.exception;
 
+import static io.f12.notionlinkedblog.exceptions.message.ExceptionMessages.UserExceptionsMessages.*;
+
 import java.net.MalformedURLException;
 import java.nio.file.DirectoryNotEmptyException;
 
@@ -12,7 +14,9 @@ import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import io.f12.notionlinkedblog.domain.common.CommonErrorResponse;
+import io.f12.notionlinkedblog.domain.user.dto.response.NoUserProfileDto;
 import io.f12.notionlinkedblog.exceptions.exception.AuthFailureException;
+import io.f12.notionlinkedblog.exceptions.exception.NoProfileImageException;
 import io.f12.notionlinkedblog.exceptions.runtimeexception.IllegalDatabaseStateException;
 import io.swagger.v3.oas.annotations.Hidden;
 
@@ -108,4 +112,11 @@ public class DefaultRestControllerAdvice {
 			.errorCode(HttpStatus.BAD_REQUEST.value()).build();
 	}
 
+	@ExceptionHandler(NoProfileImageException.class)
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public NoUserProfileDto handleNoProfileImageException(NoProfileImageException ex) {
+		return NoUserProfileDto.builder()
+			.status(PROFILE_IMAGE_NOT_EXIST)
+			.build();
+	}
 }

@@ -39,7 +39,6 @@ import io.f12.notionlinkedblog.domain.post.dto.PostEditDto;
 import io.f12.notionlinkedblog.domain.post.dto.SearchRequestDto;
 import io.f12.notionlinkedblog.domain.post.dto.ThumbnailReturnDto;
 import io.f12.notionlinkedblog.domain.user.User;
-import io.f12.notionlinkedblog.domain.user.dto.response.UserSearchDto;
 import io.f12.notionlinkedblog.repository.post.PostDataRepository;
 import io.f12.notionlinkedblog.repository.user.UserDataRepository;
 import io.f12.notionlinkedblog.service.post.PostService;
@@ -101,8 +100,6 @@ class PostApiControllerTest {
 			void createPostWithoutThumbnail() throws Exception {
 				//given
 				final String url = Endpoint.Api.POST;
-				UserSearchDto user = userDataRepository.findUserById(testUser.getId())
-					.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
 				//mock
 				MockMultipartFile titleData = new MockMultipartFile("title",
 					"testTitle".getBytes());
@@ -131,8 +128,6 @@ class PostApiControllerTest {
 			void createPostWithThumbnail() throws Exception {
 				//given
 				final String url = Endpoint.Api.POST;
-				UserSearchDto user = userDataRepository.findUserById(testUser.getId())
-					.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
 				File file = new ClassPathResource("static/images/test.jpg").getFile();
 				//mock
 				MockMultipartFile fileInfo = new MockMultipartFile("file", "", IMAGE_JPEG_VALUE,
@@ -413,7 +408,7 @@ class PostApiControllerTest {
 		void successCase() throws Exception {
 			//given
 			String url = Endpoint.Api.POST + "/" + testPost.getId();
-			UserSearchDto user = userDataRepository.findUserById(testUser.getId())
+			User user = userDataRepository.findUserById(testUser.getId())
 				.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
 			//mock
 			MockHttpSession mockHttpSession = new MockHttpSession();

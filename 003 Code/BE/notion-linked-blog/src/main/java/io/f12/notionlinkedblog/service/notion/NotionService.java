@@ -10,12 +10,12 @@ import java.util.List;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import io.f12.notionlinkedblog.Component.NotionDevComponent;
+import io.f12.notionlinkedblog.component.NotionDevComponent;
 import io.f12.notionlinkedblog.domain.notion.Notion;
 import io.f12.notionlinkedblog.domain.post.Post;
 import io.f12.notionlinkedblog.domain.post.dto.PostSearchDto;
 import io.f12.notionlinkedblog.domain.user.User;
-import io.f12.notionlinkedblog.exceptions.AlreadyExistException;
+import io.f12.notionlinkedblog.exceptions.exception.AlreadyExistException;
 import io.f12.notionlinkedblog.repository.notion.NotionDataRepository;
 import io.f12.notionlinkedblog.repository.post.PostDataRepository;
 import io.f12.notionlinkedblog.repository.user.UserDataRepository;

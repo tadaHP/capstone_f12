@@ -1,4 +1,4 @@
-package io.f12.notionlinkedblog.Component.OAtuh;
+package io.f12.notionlinkedblog.component.oauth;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

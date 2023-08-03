@@ -1,4 +1,4 @@
-package io.f12.notionlinkedblog.Component;
+package io.f12.notionlinkedblog.component;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

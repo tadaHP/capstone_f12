@@ -25,3 +25,5 @@ logging:
         type:
           descriptor:
             sql: trace
+server:
+  url: "localhost:8080"

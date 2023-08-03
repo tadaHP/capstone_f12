@@ -135,12 +135,12 @@ class UserServiceTests extends DummyObject {
 						.build();
 
 					//Mock
-					UserSearchDto mockUserSearchDtoA = UserSearchDto.builder()
+					User mockUserSearchDtoA = User.builder()
 						.id(fakeIdForA)
 						.email("test1@gmail.com")
 						.username("username1")
 						.build();
-					UserSearchDto mockUserSearchDtoB = UserSearchDto.builder()
+					User mockUserSearchDtoB = User.builder()
 						.id(fakeIdForB)
 						.email("test2@gmail.com")
 						.username("username2")
@@ -425,7 +425,7 @@ class UserServiceTests extends DummyObject {
 				//when
 				File file = userService.readImageFile(1L);
 				//then
-				assertThat(file).exists();
+				assertThat(file).isNull();
 
 			}
 

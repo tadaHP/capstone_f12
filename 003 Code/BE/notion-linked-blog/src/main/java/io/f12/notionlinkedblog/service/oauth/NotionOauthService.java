@@ -21,7 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.f12.notionlinkedblog.Component.OAtuh.NotionOAuthComponent;
+import io.f12.notionlinkedblog.component.oauth.NotionOAuthComponent;
 import io.f12.notionlinkedblog.domain.oauth.NotionOauth;
 import io.f12.notionlinkedblog.domain.oauth.dto.notion.NotionOAuthLinkDto;
 import io.f12.notionlinkedblog.domain.oauth.dto.notion.accesstokendto.NotionAccessTokenDto;

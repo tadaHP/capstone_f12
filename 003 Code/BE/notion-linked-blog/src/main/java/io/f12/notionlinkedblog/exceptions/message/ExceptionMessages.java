@@ -7,6 +7,7 @@ public class ExceptionMessages {
 		public static final String IMAGE_NOT_EXIST = "존재하지 않는 이미지 입니다";
 		public static final String FILE_IS_EMPTY = "파일이 존재하지 않습니다.";
 		public static final String FILE_IS_INVALID = "파일의 종류가 잘못되었습니다.";
+		public static final String PROFILE_IMAGE_NOT_EXIST = "프로필 이미지가 존재하지 않습니다.";
 	}
 
 	public static class PostExceptionsMessages {

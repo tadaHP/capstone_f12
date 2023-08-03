@@ -18,7 +18,6 @@ import org.springframework.context.annotation.Import;
 
 import io.f12.notionlinkedblog.config.TestQuerydslConfiguration;
 import io.f12.notionlinkedblog.domain.user.User;
-import io.f12.notionlinkedblog.domain.user.dto.response.UserSearchDto;
 
 @DataJpaTest
 @Import(TestQuerydslConfiguration.class)
@@ -62,10 +61,10 @@ class UserDataRepositoryTest {
 				.build();
 			User userB = userDataRepository.save(user2);
 			//when
-			UserSearchDto findUserA = userDataRepository.findUserById(userA.getId()).orElseThrow(
+			User findUserA = userDataRepository.findUserById(userA.getId()).orElseThrow(
 				() -> new IllegalArgumentException(USER_NOT_EXIST));
 
-			UserSearchDto findUserB = userDataRepository.findUserById(userB.getId()).orElseThrow(
+			User findUserB = userDataRepository.findUserById(userB.getId()).orElseThrow(
 				() -> new IllegalArgumentException(USER_NOT_EXIST));
 			//then
 			assertThat(findUserA).extracting("id").isEqualTo(userA.getId());
@@ -83,7 +82,7 @@ class UserDataRepositoryTest {
 			//given
 			Long wrongId = userA.getId() + 100;
 			//when, then
-			Optional<UserSearchDto> user = userDataRepository.findUserById(wrongId);
+			Optional<User> user = userDataRepository.findUserById(wrongId);
 			assertThatThrownBy(() -> {
 				user.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
 			}).isInstanceOf(IllegalArgumentException.class)
