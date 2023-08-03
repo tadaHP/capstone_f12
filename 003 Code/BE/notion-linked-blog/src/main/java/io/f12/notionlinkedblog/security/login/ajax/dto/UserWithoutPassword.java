@@ -16,6 +16,7 @@ public class UserWithoutPassword {
 	private final String blogTitle;
 	private final String githubLink;
 	private final String instagramLink;
+	private final Boolean notionCertificate;
 
 	private UserWithoutPassword(User user) {
 		this.id = user.getId();
@@ -25,6 +26,7 @@ public class UserWithoutPassword {
 		this.blogTitle = user.getBlogTitle();
 		this.githubLink = user.getGithubLink();
 		this.instagramLink = user.getInstagramLink();
+		this.notionCertificate = user.getNotionOauth() != null;
 	}
 
 	public static UserWithoutPassword of(User user) {
