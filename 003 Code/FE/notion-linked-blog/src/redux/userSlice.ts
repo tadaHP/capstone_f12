@@ -33,6 +33,9 @@ const userSlice = createSlice({
 		modifyProfileImage: (state, action: PayloadAction<string>) => {
 			state.user.profile = action.payload;
 		},
+		modifyNotionCertificate: (state, action: PayloadAction<boolean>) => {
+			state.user.notionCertificate = action.payload;
+		},
 	},
 });
 
@@ -45,6 +48,7 @@ export const {
 	modifySocialInfo,
 	modifyBasicInfo,
 	modifyProfileImage,
+	modifyNotionCertificate,
 } = actions;
 
 export default userReducer;

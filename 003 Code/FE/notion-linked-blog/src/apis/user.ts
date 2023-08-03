@@ -9,6 +9,7 @@ export interface User {
 	blogTitle: string;
 	githubLink: string;
 	instagramLink: string;
+	notionCertificate: boolean;
 }
 
 export const checkLoginStatus = async () => {
@@ -132,5 +133,13 @@ export const deleteProfileImageAPI = async (id: number) => {
 		await apiClient.delete(`/api/users/profileImage/${id}`);
 	} catch (e) {
 		throw new Error(e);
+	}
+};
+
+export const getUser = async (id: number) => {
+	try {
+		return (await apiClient.get(`/api/users/${id}`)).data;
+	} catch (e) {
+		throw e;
 	}
 };

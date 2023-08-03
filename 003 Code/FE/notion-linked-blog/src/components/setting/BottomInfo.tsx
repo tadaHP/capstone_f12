@@ -3,6 +3,7 @@ import styled from "styled-components";
 import BlogInfo from "./bottom/BlogInfo";
 import SocialInfo from "./bottom/SocialInfo";
 import Signout from "./bottom/Signout";
+import NotionLinking from "./bottom/NotionLinking";
 
 const StyledSpace = styled(Space)`
 	width: 100%;
@@ -16,6 +17,7 @@ const StyledSpace = styled(Space)`
 export default function BottomInfo() {
 	return (
 		<StyledSpace direction="vertical">
+			<NotionLinking />
 			<BlogInfo />
 			<SocialInfo />
 			<Signout />
