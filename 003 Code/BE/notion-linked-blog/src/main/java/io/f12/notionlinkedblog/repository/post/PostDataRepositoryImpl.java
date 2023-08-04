@@ -74,20 +74,4 @@ public class PostDataRepositoryImpl implements PostRepositoryCustom {
 			.fetch();
 	}
 
-	@Override
-	public Post findWithNotion(Long id) {
-		return queryFactory.select(post)
-			.from(post)
-			.leftJoin(post.notion)
-			.fetchJoin()
-			.leftJoin(post.user)
-			.fetchJoin()
-			.leftJoin(post.likes)
-			.fetchJoin()
-			.leftJoin(post.comments)
-			.fetchJoin()
-			.where(post.id.eq(id))
-			.fetchOne();
-	}
-
 }

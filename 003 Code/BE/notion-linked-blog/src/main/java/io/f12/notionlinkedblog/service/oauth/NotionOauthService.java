@@ -47,7 +47,7 @@ public class NotionOauthService {
 			.build();
 	}
 
-	public void saveAccessToken(String code, Long userId) throws TokenAvailabilityFailureException {
+	public String saveAccessToken(String code, Long userId) throws TokenAvailabilityFailureException {
 		User user = userDataRepository.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
 
@@ -55,7 +55,7 @@ public class NotionOauthService {
 		NotionAccessTokenDto notionAccessTokenDto = authNotion(code);
 
 		saveToken(notionAccessTokenDto, userId, user, exist);
-
+		return notionAccessTokenDto.getAccessToken();
 	}
 
 	@Transactional

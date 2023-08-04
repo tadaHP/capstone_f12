@@ -2,6 +2,8 @@ package io.f12.notionlinkedblog.api.oauth;
 
 import static io.f12.notionlinkedblog.exceptions.message.ExceptionMessages.NotionValidateMessages.*;
 
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,8 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import io.f12.notionlinkedblog.api.common.Endpoint;
 import io.f12.notionlinkedblog.domain.oauth.dto.notion.NotionOAuthLinkDto;
 import io.f12.notionlinkedblog.exceptions.exception.AuthFailureException;
+import io.f12.notionlinkedblog.exceptions.exception.NotionAuthenticationException;
 import io.f12.notionlinkedblog.exceptions.exception.TokenAvailabilityFailureException;
 import io.f12.notionlinkedblog.security.login.ajax.dto.LoginUser;
+import io.f12.notionlinkedblog.service.notion.NotionService;
+import io.f12.notionlinkedblog.service.notion.UpdateNotionSchedule;
 import io.f12.notionlinkedblog.service.oauth.NotionOauthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,6 +36,8 @@ import lombok.extern.slf4j.Slf4j;
 public class OAuthApiController {
 
 	private final NotionOauthService notionOauthService;
+	private final NotionService notionService;
+	private final UpdateNotionSchedule test;
 
 	//TODO: 추후 SCOPE 추가로 보안목적 달성필요
 	@GetMapping("/startAuth")
@@ -54,9 +61,11 @@ public class OAuthApiController {
 		@RequestParam(value = "state", required = false) String state,
 		@NotNull @Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser) throws
 		AuthFailureException,
-		TokenAvailabilityFailureException {
+		TokenAvailabilityFailureException, NotionAuthenticationException {
 		isError(error);
-		notionOauthService.saveAccessToken(code, loginUser.getUser().getId());
+		String accessToken = notionOauthService.saveAccessToken(code, loginUser.getUser().getId());
+		List<String> everyPages = notionService.getEveryPages(accessToken);
+		notionService.initEveryPages(everyPages, loginUser.getUser().getId(), accessToken);
 	}
 
 	@DeleteMapping
@@ -67,6 +76,12 @@ public class OAuthApiController {
 	public void removeNotionAccessToken(
 		@NotNull @Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser) {
 		notionOauthService.removeAccessToken(loginUser.getUser().getId());
+	}
+
+	@GetMapping("/test")
+	@Operation(summary = "일정시간 마다 동기화 확인 매서드, Test용", description = "노션 연동된 Post들 내용 업데이트")
+	public void test() throws NotionAuthenticationException {
+		test.updateNotionData();
 	}
 
 	private void isError(String error) throws AuthFailureException {

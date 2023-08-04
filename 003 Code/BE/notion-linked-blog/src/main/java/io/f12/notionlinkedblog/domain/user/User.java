@@ -18,6 +18,7 @@ import javax.persistence.Table;
 import io.f12.notionlinkedblog.domain.BaseTimeEntity;
 import io.f12.notionlinkedblog.domain.comments.Comments;
 import io.f12.notionlinkedblog.domain.likes.Like;
+import io.f12.notionlinkedblog.domain.notion.SyncedPages;
 import io.f12.notionlinkedblog.domain.oauth.NotionOauth;
 import io.f12.notionlinkedblog.domain.post.Post;
 import io.f12.notionlinkedblog.domain.series.Series;
@@ -58,6 +59,9 @@ public class User extends BaseTimeEntity {
 
 	@OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
 	private NotionOauth notionOauth;
+
+	@OneToMany(mappedBy = "user")
+	private List<SyncedPages> syncedPages;
 
 	@Column(nullable = false)
 	private String username;
