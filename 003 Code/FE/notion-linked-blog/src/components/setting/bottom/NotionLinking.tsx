@@ -46,8 +46,6 @@ export default function NotionLinking() {
 			router.replace(url);
 		} catch (e) {
 			dispatch(setError(true));
-		} finally {
-			dispatch(setLoading(false));
 		}
 	};
 

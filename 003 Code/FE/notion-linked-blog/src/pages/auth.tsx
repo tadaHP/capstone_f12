@@ -12,6 +12,7 @@ export default function OAuthCode() {
 	useEffect(() => {
 		const fetch = async () => {
 			try {
+				dispatch(setLoading(true));
 				const query = router.query;
 
 				await createAccessToken(query);
