@@ -36,4 +36,8 @@ public class ExceptionMessages {
 		public static final String ACCESS_TOKEN_INVALID = "토큰이 존재하지 않습니다";
 
 	}
+
+	public static class SeriesExceptionMessages {
+		public static final String SERIES_NOT_EXIST = "시리즈가 존재하지 않습니다.";
+	}
 }

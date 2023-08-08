@@ -32,6 +32,7 @@ import io.f12.notionlinkedblog.domain.post.dto.PostSearchResponseDto;
 import io.f12.notionlinkedblog.domain.post.dto.SearchRequestDto;
 import io.f12.notionlinkedblog.security.login.ajax.dto.LoginUser;
 import io.f12.notionlinkedblog.service.post.PostService;
+import io.f12.notionlinkedblog.service.series.SeriesService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -50,11 +51,12 @@ import lombok.extern.slf4j.Slf4j;
 public class PostApiController {
 
 	private final PostService postService;
+	private final SeriesService seriesService;
 
 	//TODO: 현재 Series 기능 미포함
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	@Operation(summary = "포스트 생성", description = "포스트를 생성합니다.")
+	@Operation(summary = "포스트 생성", description = "포스트를 생성합니다, 시리즈에 등록할 경우 Series의 Id를 입력해야 합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "201", description = "포스트 생성 성공",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE,
@@ -69,10 +71,16 @@ public class PostApiController {
 		@RequestPart(value = "title") String title,
 		@RequestPart(value = "content") String content,
 		@RequestPart(value = "description", required = false) String description,
-		@RequestPart(value = "isPublic") String stringIsPublic) throws IOException {
-		validateIsPublic(stringIsPublic);
-		return postService.createPost(loginUser.getUser().getId(), title, content, description,
-			isPublic(stringIsPublic), file);
+		@RequestPart(value = "isPublic") String isPublic,
+		@RequestPart(value = "seriesId", required = false) String seriesId
+	) throws IOException {
+		validateIsPublic(isPublic);
+		PostSearchDto post = postService.createPost(loginUser.getUser().getId(), title, content, description,
+			isPublic(isPublic), file);
+		if (seriesId != null) {
+			seriesService.addPostTo(Long.parseLong(seriesId), post.getPostId());
+		}
+		return post;
 	}
 
 	@GetMapping("/{id}")
@@ -161,11 +169,14 @@ public class PostApiController {
 		@ApiResponse(responseCode = "302", description = "포스트 수정 성공")
 	})
 	//TODO: 추후 JSON 으로 리턴타입 변경 필요
-	public String editPost(@PathVariable("id") Long postId,
+	public PostSearchDto editPost(@PathVariable("id") Long postId,
 		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser,
 		@RequestBody @Validated PostEditDto editInfo) {
-		postService.editPostContent(postId, loginUser.getUser().getId(), editInfo);
-		return Endpoint.Api.POST + "/" + postId;
+		PostSearchDto postSearchDto = postService.editPostContent(postId, loginUser.getUser().getId(), editInfo);
+		if (editInfo.getSeriesId() != null) {
+			seriesService.addPostTo(editInfo.getSeriesId(), postSearchDto.getPostId());
+		}
+		return postSearchDto;
 	}
 
 	@DeleteMapping("/{id}")

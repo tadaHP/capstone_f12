@@ -16,11 +16,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.PageRequest;
 
 import io.f12.notionlinkedblog.config.TestQuerydslConfiguration;
 import io.f12.notionlinkedblog.domain.post.Post;
-import io.f12.notionlinkedblog.domain.post.dto.PostSearchDto;
 import io.f12.notionlinkedblog.domain.series.Series;
 import io.f12.notionlinkedblog.domain.user.User;
 import io.f12.notionlinkedblog.repository.post.PostDataRepository;
@@ -61,7 +59,7 @@ class SeriesDataRepositoryTest {
 	private final String pathC = "pathC";
 
 	@BeforeEach
-	void init() throws InterruptedException {
+	void init() {
 		User savedUser = User.builder()
 			.id(1L)
 			.username("tester")
@@ -69,6 +67,7 @@ class SeriesDataRepositoryTest {
 			.password("nope")
 			.build();
 		user = userDataRepository.save(savedUser);
+
 		Series savedSeries = Series.builder()
 			.id(1L)
 			.user(user)
@@ -121,119 +120,50 @@ class SeriesDataRepositoryTest {
 		List<Post> post = series.getPost();
 		post = postList;
 
+		entityManager.flush();
+		entityManager.clear();
+
 	}
 
 	@AfterEach
 	void clear() {
-		seriesDataRepository.deleteAll();
 		postDataRepository.deleteAll();
+		seriesDataRepository.deleteAll();
 		userDataRepository.deleteAll();
 	}
 
-	@DisplayName("시리즈로 포스트 조회")
+	@DisplayName("간단 시리즈 조회")
 	@Nested
-	class PostLookupBySeries {
+	class SimpleSeriesLookUp {
+		@DisplayName("성공케이스")
+		@Test
+		void successCase() {
+			//given
+			Long seriesId = series.getId();
+			//when
+			Series searchSeries = seriesDataRepository.findSeriesById(seriesId)
+				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 ID"));
 
-		@DisplayName("시리즈 오름차순 조회") //asc
-		@Nested
-		class OrderByAsc {
-			@DisplayName("성공 케이스")
-			@Nested
-			class SuccessfulCase {
-				@DisplayName("데이터 존재 - 전체조회")
-				@Test
-				void dataExistFullScan() {
-					//given
-					PageRequest pageRequest = PageRequest.of(0, 5);
-					//when
-					List<PostSearchDto> posts
-						= seriesDataRepository.findPostDtosBySeriesIdOrderByCreatedAtAsc(series.getId(), pageRequest);
-					//then
-					assertThat(posts).size().isEqualTo(3);
-					assertThat(posts.get(0)).extracting("postId").isEqualTo(postA.getId());
-					assertThat(posts.get(2)).extracting("postId").isEqualTo(postC.getId());
-				}
-
-				@DisplayName("데이터 존재 - 부분조회")
-				@Test
-				void dataExistPageableScan() {
-					//given
-					PageRequest pageRequest = PageRequest.of(0, 2);
-					//when
-					List<PostSearchDto> posts
-						= seriesDataRepository.findPostDtosBySeriesIdOrderByCreatedAtAsc(series.getId(), pageRequest);
-					//then
-					assertThat(posts).size().isEqualTo(2);
-					assertThat(posts.get(0)).extracting("postId").isEqualTo(postA.getId());
-					assertThat(posts.get(1)).extracting("postId").isEqualTo(postB.getId());
-				}
-
-				@DisplayName("데이터 미존재")
-				@Test
-				void dataNonExist() {
-					//given
-					PageRequest pageRequest = PageRequest.of(0, 5);
-					//when
-					List<PostSearchDto> posts
-						= seriesDataRepository.findPostDtosBySeriesIdOrderByCreatedAtAsc(-1L, pageRequest);
-					//then
-					assertThat(posts).size().isEqualTo(0);
-				}
-			}
-		}
-
-		@DisplayName("시리즈 내림차순 조회") //desc
-		@Nested
-		class OrderByDesc {
-			@DisplayName("성공 케이스")
-			@Nested
-			class SuccessfulCase {
-				@DisplayName("데이터 존재 - 전체조회")
-				@Test
-				void dataExistFullScan() {
-					//given
-					PageRequest pageRequest = PageRequest.of(0, 5);
-					//when
-					List<PostSearchDto> posts
-						= seriesDataRepository.findPostDtosBySeriesIdOrderByCreatedAtDesc(series.getId(), pageRequest);
-					//then
-					assertThat(posts).size().isEqualTo(3);
-					assertThat(posts.get(0)).extracting("postId").isEqualTo(postC.getId());
-					assertThat(posts.get(2)).extracting("postId").isEqualTo(postA.getId());
-
-				}
-
-				@DisplayName("데이터 존재 - 부분조회")
-				@Test
-				void dataExistPageableScan() {
-					//given
-					PageRequest pageRequest = PageRequest.of(0, 2);
-					//when
-					List<PostSearchDto> posts
-						= seriesDataRepository.findPostDtosBySeriesIdOrderByCreatedAtDesc(series.getId(), pageRequest);
-					//then
-					assertThat(posts).size().isEqualTo(2);
-					assertThat(posts.get(0)).extracting("postId").isEqualTo(postC.getId());
-					assertThat(posts.get(1)).extracting("postId").isEqualTo(postB.getId());
-
-				}
-
-				@DisplayName("데이터 미존재")
-				@Test
-				void dataNonExist() {
-					//given
-					PageRequest pageRequest = PageRequest.of(0, 5);
-					//when
-					List<PostSearchDto> posts
-						= seriesDataRepository.findPostDtosBySeriesIdOrderByCreatedAtDesc(-1L, pageRequest);
-					//then
-					assertThat(posts).size().isEqualTo(0);
-
-				}
-			}
+			//then
+			assertThat(searchSeries).extracting("id").isEqualTo(series.getId());
+			assertThat(searchSeries).extracting("title").isEqualTo(series.getTitle());
+			assertThat(searchSeries.getPost()).size().isEqualTo(3);
+			assertThat(searchSeries.getPost().get(0).getId()).isEqualTo(postA.getId());
+			assertThat(searchSeries.getPost().get(2).getId()).isEqualTo(postC.getId());
 
 		}
 
+		@DisplayName("실패케이스")
+		@Test
+		void failureCase() {
+			//given
+			Long seriesId = 0L;
+			//when
+			assertThatThrownBy(() -> {
+				Series searchSeries = seriesDataRepository.findSeriesById(seriesId)
+					.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 ID"));
+			}).isInstanceOf(IllegalArgumentException.class);
+
+		}
 	}
-
 }

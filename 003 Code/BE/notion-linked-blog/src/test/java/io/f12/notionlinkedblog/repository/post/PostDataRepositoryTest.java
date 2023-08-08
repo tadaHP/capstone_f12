@@ -4,10 +4,10 @@ import static io.f12.notionlinkedblog.exceptions.message.ExceptionMessages.PostE
 import static io.f12.notionlinkedblog.exceptions.message.ExceptionMessages.UserExceptionsMessages.*;
 import static org.assertj.core.api.Assertions.*;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +21,9 @@ import org.springframework.data.domain.PageRequest;
 
 import io.f12.notionlinkedblog.config.TestQuerydslConfiguration;
 import io.f12.notionlinkedblog.domain.post.Post;
+import io.f12.notionlinkedblog.domain.series.Series;
 import io.f12.notionlinkedblog.domain.user.User;
+import io.f12.notionlinkedblog.repository.series.SeriesDataRepository;
 import io.f12.notionlinkedblog.repository.user.UserDataRepository;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,10 +37,11 @@ class PostDataRepositoryTest {
 	@Autowired
 	private UserDataRepository userDataRepository;
 	@Autowired
-	private EntityManager entityManager;
+	private SeriesDataRepository seriesDataRepository;
 
 	private User user;
 	private Post post;
+	private Series series;
 
 	String title = "testTitle";
 	String content = "testContent";
@@ -53,6 +56,13 @@ class PostDataRepositoryTest {
 			.password("nope")
 			.build();
 		user = userDataRepository.save(savedUser);
+
+		Series savedSeries = Series.builder()
+			.title("testSeries")
+			.user(user)
+			.post(new ArrayList<>())
+			.build();
+		series = seriesDataRepository.save(savedSeries);
 
 		Post savedPost = Post.builder()
 			.title(title)
@@ -69,9 +79,8 @@ class PostDataRepositoryTest {
 	@AfterEach
 	void clear() {
 		postDataRepository.deleteAll();
+		seriesDataRepository.deleteAll();
 		userDataRepository.deleteAll();
-		entityManager.createNativeQuery("ALTER SEQUENCE user_seq RESTART WITH 1").executeUpdate();
-		entityManager.createNativeQuery("ALTER SEQUENCE post_seq RESTART WITH 1").executeUpdate();
 	}
 
 	@DisplayName("포스트 조회")
@@ -193,7 +202,7 @@ class PostDataRepositoryTest {
 						PageRequest paging = PageRequest.of(0, 20);
 						//when
 						List<Long> ids = postDataRepository.findPostIdsByTitle(example, paging);
-						List<Post> posts = postDataRepository.findByIds(ids);
+						List<Post> posts = postDataRepository.findByPostIdsJoinWithUserAndLikeOrderByTrend(ids);
 						//then
 						assertThat(posts).isEmpty();
 
@@ -206,7 +215,7 @@ class PostDataRepositoryTest {
 						PageRequest paging = PageRequest.of(0, 20);
 						//when
 						List<Long> ids = postDataRepository.findPostIdsByTitle(title, paging);
-						List<Post> posts = postDataRepository.findByIds(ids);
+						List<Post> posts = postDataRepository.findByPostIdsJoinWithUserAndLikeOrderByTrend(ids);
 						Post post = posts.get(0);
 
 						//then
@@ -236,10 +245,10 @@ class PostDataRepositoryTest {
 
 						//when
 						List<Long> ids1 = postDataRepository.findPostIdsByTitle(title, paging1);
-						List<Post> posts1 = postDataRepository.findByIds(ids1);
+						List<Post> posts1 = postDataRepository.findByPostIdsJoinWithUserAndLikeOrderByLatest(ids1);
 
 						List<Long> ids2 = postDataRepository.findPostIdsByTitle(title, paging2);
-						List<Post> posts2 = postDataRepository.findByIds(ids2);
+						List<Post> posts2 = postDataRepository.findByPostIdsJoinWithUserAndLikeOrderByLatest(ids2);
 						//then
 						assertThat(posts1).size().isEqualTo(20);
 						assertThat(posts2).size().isEqualTo(11);
@@ -263,7 +272,7 @@ class PostDataRepositoryTest {
 						//when
 						// Slice<Post> postByContent = postDataRepository.findByContent(example, paging);
 						List<Long> ids = postDataRepository.findPostIdsByContent(example, paging);
-						List<Post> posts = postDataRepository.findByIds(ids);
+						List<Post> posts = postDataRepository.findByPostIdsJoinWithUserAndLikeOrderByTrend(ids);
 						//then
 						assertThat(posts).isEmpty();
 					}
@@ -276,7 +285,7 @@ class PostDataRepositoryTest {
 						//when
 
 						List<Long> ids = postDataRepository.findPostIdsByContent(content, paging);
-						List<Post> posts = postDataRepository.findByIds(ids);
+						List<Post> posts = postDataRepository.findByPostIdsJoinWithUserAndLikeOrderByTrend(ids);
 						Post post = posts.get(0);
 
 						//then
@@ -305,10 +314,10 @@ class PostDataRepositoryTest {
 						PageRequest paging2 = PageRequest.of(1, 20);
 						//when
 						List<Long> ids1 = postDataRepository.findPostIdsByContent(content, paging1);
-						List<Post> posts1 = postDataRepository.findByIds(ids1);
+						List<Post> posts1 = postDataRepository.findByPostIdsJoinWithUserAndLikeOrderByLatest(ids1);
 
 						List<Long> ids2 = postDataRepository.findPostIdsByContent(content, paging2);
-						List<Post> posts2 = postDataRepository.findByIds(ids2);
+						List<Post> posts2 = postDataRepository.findByPostIdsJoinWithUserAndLikeOrderByLatest(ids2);
 
 						//then
 						assertThat(posts1).size().isEqualTo(20);
@@ -319,9 +328,9 @@ class PostDataRepositoryTest {
 			}
 		}
 
-		@DisplayName("포스트 정렬 조회 - 최신순")
+		@DisplayName("포스트 정렬 조회")
 		@Nested
-		class LookupByDate {
+		class SortByList {
 			@BeforeEach
 			void init() {
 				for (int i = 0; i < 10; i++) {
@@ -330,24 +339,97 @@ class PostDataRepositoryTest {
 						.content(content)
 						.user(user)
 						.isPublic(true)
+						.createdAt(LocalDateTime.of(2023, 1, i + 1, 0, 0))
 						.build();
-					postDataRepository.save(newPost);
+					Post save = postDataRepository.save(newPost);
+					// log.info("save.isEmpty: {}", save.getId());
+					series.addPost(save);
+				}
+				// entityManager.merge(series);
+			}
+
+			@DisplayName("최신순 조회")
+			@Nested
+			class LookupByDate {
+				@DisplayName("성공 케이스")
+				@Nested
+				class SuccessCase {
+					@DisplayName("조회 성공")
+					@Test
+					void successful() {
+						//given
+						PageRequest paging = PageRequest.of(0, 3);
+						//when
+						List<Long> ids = postDataRepository.findLatestPostIdsByCreatedAtDesc(paging);
+						List<Post> posts = postDataRepository.findByPostIdsJoinWithUserAndLikeOrderByLatest(ids);
+						//then
+						assertThat(posts).size().isEqualTo(paging.getPageSize());
+					}
 				}
 			}
 
-			@DisplayName("성공 케이스")
+			@DisplayName("인기순 조회")
 			@Nested
-			class SuccessCase {
-				@DisplayName("조회 성공")
-				@Test
-				void successful() {
-					//given
-					PageRequest paging = PageRequest.of(0, 3);
-					//when
-					List<Long> ids = postDataRepository.findLatestPostIdsByCreatedAtDesc(paging);
-					List<Post> posts = postDataRepository.findByIds(ids);
-					//then
-					assertThat(posts).size().isEqualTo(paging.getPageSize());
+			class LookupByPopularity {
+				@DisplayName("성공 케이스")
+				@Nested
+				class SuccessCase {
+					@DisplayName("조회 성공")
+					@Test
+					void successful() {
+						//given
+						PageRequest paging = PageRequest.of(0, 3);
+						//when
+						List<Long> ids = postDataRepository.findPopularityPostIdsByViewCountAtDesc(paging);
+						List<Post> posts = postDataRepository.findByPostIdsJoinWithUserAndLikeOrderByTrend(ids);
+						//then
+						assertThat(posts).size().isEqualTo(paging.getPageSize());
+					}
+				}
+			}
+
+			@DisplayName("시리즈 Id로 조회")
+			@Nested
+			class LookupBySeriesId {
+				@DisplayName("오름차순")
+				@Nested
+				class LookupAsc {
+					@DisplayName("성공 케이스")
+					@Nested
+					class SuccessCase {
+						@DisplayName("조회 성공")
+						@Test
+						void successful() {
+							//given
+							PageRequest paging = PageRequest.of(0, 3);
+							//when
+							List<Long> ids = postDataRepository.findIdsBySeriesIdAsc(series.getId(), paging);
+							List<Post> posts = postDataRepository.findByIdsJoinWithSeries(ids);
+							//then
+							assertThat(posts).size().isEqualTo(paging.getPageSize());
+						}
+					}
+				}
+
+				@DisplayName("내림차순")
+				@Nested
+				class LookupDesc {
+					@DisplayName("성공 케이스")
+					@Nested
+					class SuccessCase {
+						@DisplayName("조회 성공")
+						@Test
+						void successful() {
+							//given
+							PageRequest paging = PageRequest.of(0, 3);
+							//when
+							List<Long> ids = postDataRepository.findIdsBySeriesIdDesc(series.getId(), paging);
+							List<Post> posts = postDataRepository.findByIdsJoinWithSeries(ids);
+							//then
+							assertThat(posts).size().isEqualTo(paging.getPageSize());
+						}
+					}
+
 				}
 			}
 

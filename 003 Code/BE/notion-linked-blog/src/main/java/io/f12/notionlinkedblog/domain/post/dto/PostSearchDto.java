@@ -24,8 +24,7 @@ public class PostSearchDto {
 	private String author;
 	private Boolean isLiked;
 	private String avatar;
-
-	//TODO: 추후 avatar 이미지 작업 필요
+	
 	public PostSearchDto(Long postId, String title, String content, Long viewCount, Integer likes,
 		String requestThumbnailLink, String description, LocalDateTime createdAt, Integer countOfComments,
 		String author) {

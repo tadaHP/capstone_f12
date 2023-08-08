@@ -36,8 +36,10 @@ import io.f12.notionlinkedblog.domain.user.User;
 import io.f12.notionlinkedblog.repository.like.LikeDataRepository;
 import io.f12.notionlinkedblog.repository.post.PostDataRepository;
 import io.f12.notionlinkedblog.repository.user.UserDataRepository;
+import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(MockitoExtension.class)
+@Slf4j
 class PostServiceTest {
 
 	@InjectMocks
@@ -228,7 +230,7 @@ class PostServiceTest {
 				//Mock
 				given(postDataRepository.findPostIdsByTitle(requestDto.getParam(), paging))
 					.willReturn(ids);
-				given(postDataRepository.findByIds(ids))
+				given(postDataRepository.findByPostIdsJoinWithUserAndLikeOrderByTrend(ids))
 					.willReturn(postList);
 				//when
 				PostSearchResponseDto posts = postService.getPostsByTitle(requestDto);
@@ -297,7 +299,7 @@ class PostServiceTest {
 				//Mock
 				given(postDataRepository.findPostIdsByContent(requestDto.getParam(), paging))
 					.willReturn(ids);
-				given(postDataRepository.findByIds(ids))
+				given(postDataRepository.findByPostIdsJoinWithUserAndLikeOrderByTrend(ids))
 					.willReturn(postList);
 				//when
 				PostSearchResponseDto posts = postService.getPostByContent(requestDto);
@@ -517,7 +519,7 @@ class PostServiceTest {
 				//Mock
 				given(postDataRepository.findLatestPostIdsByCreatedAtDesc(paging))
 					.willReturn(postIds);
-				given(postDataRepository.findByIds(postIds))
+				given(postDataRepository.findByPostIdsJoinWithUserAndLikeOrderByLatest(postIds))
 					.willReturn(postList);
 
 				//when
@@ -575,7 +577,7 @@ class PostServiceTest {
 				//Mock
 				given(postDataRepository.findPopularityPostIdsByViewCountAtDesc(paging))
 					.willReturn(postIds);
-				given(postDataRepository.findByIds(postIds))
+				given(postDataRepository.findByPostIdsJoinWithUserAndLikeOrderByTrend(postIds))
 					.willReturn(postList);
 
 				//when
