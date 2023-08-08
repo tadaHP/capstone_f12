@@ -1,6 +1,5 @@
 package io.f12.notionlinkedblog.service.notion;
 
-import static io.f12.notionlinkedblog.exceptions.message.ExceptionMessages.NotionValidateMessages.*;
 import static io.f12.notionlinkedblog.exceptions.message.ExceptionMessages.UserExceptionsMessages.*;
 import static io.f12.notionlinkedblog.exceptions.message.ExceptionMessages.UserValidateMessages.*;
 
@@ -13,16 +12,11 @@ import java.util.List;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-
 import io.f12.notionlinkedblog.component.oauth.NotionOAuthComponent;
-import io.f12.notionlinkedblog.domain.notion.Notion;
 import io.f12.notionlinkedblog.domain.notion.SyncedPages;
 import io.f12.notionlinkedblog.domain.post.Post;
-import io.f12.notionlinkedblog.domain.post.dto.PostSearchDto;
 import io.f12.notionlinkedblog.domain.user.User;
-import io.f12.notionlinkedblog.exceptions.exception.AlreadyExistException;
 import io.f12.notionlinkedblog.exceptions.exception.NotionAuthenticationException;
-import io.f12.notionlinkedblog.repository.notion.NotionDataRepository;
 import io.f12.notionlinkedblog.repository.post.PostDataRepository;
 import io.f12.notionlinkedblog.repository.syncedpages.SyncedPagesDataRepository;
 import io.f12.notionlinkedblog.repository.user.UserDataRepository;
@@ -42,7 +36,6 @@ import notion.api.v1.request.blocks.RetrieveBlockRequest;
 public class NotionService {
 
 	private final NotionOAuthComponent notionOAuthComponent;
-	private final NotionDataRepository notionDataRepository;
 	private final PostDataRepository postDataRepository;
 	private final UserDataRepository userDataRepository;
 	private final NotionBlockConverter notionBlockConverter;
@@ -61,44 +54,44 @@ public class NotionService {
 	}
 
 	//아래 도메인 으로 묶기
-	public PostSearchDto saveNotionPageToBlog(String path, Long userId) throws NotionAuthenticationException {
-		String convertPath = convertPathToId(path);
-		Notion notion = notionDataRepository.findByPathValue(convertPath).orElse(null);
-		if (notion != null) {
-			throw new AlreadyExistException(DATA_ALREADY_EXIST);
-		}
-		String title = getTitle(convertPath, userId);
-		String content = getContent(convertPath, userId);
-
-		User user = userDataRepository.findById(userId)
-			.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
-		Post savePost = postDataRepository.save(Post.builder()
-			.user(user)
-			.title(title)
-			.content(content)
-			.viewCount(0L)
-			.popularity(0.0)
-			.isPublic(true)
-			.build());
-		notionDataRepository.save(Notion.builder()
-			.notionId(convertPath)
-			.post(savePost)
-			.build());
-
-		return PostSearchDto.builder()
-			.postId(savePost.getId())
-			.title(savePost.getTitle())
-			.content(savePost.getContent())
-			.viewCount(savePost.getViewCount())
-			.likes(0)
-			.requestThumbnailLink(savePost.getStoredThumbnailPath())
-			.description(savePost.getDescription())
-			.createdAt(LocalDateTime.now())
-			.countOfComments(0)
-			.author(user.getUsername())
-			.isLiked(false)
-			.build();
-	}
+	// public PostSearchDto saveNotionPageToBlog(String path, Long userId) throws NotionAuthenticationException {
+	// 	String convertPath = convertPathToId(path);
+	// 	Notion notion = notionDataRepository.findByPathValue(convertPath).orElse(null);
+	// 	if (notion != null) {
+	// 		throw new AlreadyExistException(DATA_ALREADY_EXIST);
+	// 	}
+	// 	String title = getTitle(convertPath, userId);
+	// 	String content = getContent(convertPath, userId);
+	//
+	// 	User user = userDataRepository.findById(userId)
+	// 		.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
+	// 	Post savePost = postDataRepository.save(Post.builder()
+	// 		.user(user)
+	// 		.title(title)
+	// 		.content(content)
+	// 		.viewCount(0L)
+	// 		.popularity(0.0)
+	// 		.isPublic(true)
+	// 		.build());
+	// 	notionDataRepository.save(Notion.builder()
+	// 		.notionId(convertPath)
+	// 		.post(savePost)
+	// 		.build());
+	//
+	// 	return PostSearchDto.builder()
+	// 		.postId(savePost.getId())
+	// 		.title(savePost.getTitle())
+	// 		.content(savePost.getContent())
+	// 		.viewCount(savePost.getViewCount())
+	// 		.likes(0)
+	// 		.requestThumbnailLink(savePost.getStoredThumbnailPath())
+	// 		.description(savePost.getDescription())
+	// 		.createdAt(LocalDateTime.now())
+	// 		.countOfComments(0)
+	// 		.author(user.getUsername())
+	// 		.isLiked(false)
+	// 		.build();
+	// }
 
 	public void editNotionPageToBlog(Long userId, Post post) throws NotionAuthenticationException {
 		Long postUserId = post.getUser().getId();
