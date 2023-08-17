@@ -1,6 +1,6 @@
 package io.f12.notionlinkedblog.security.config;
 
-import static io.f12.notionlinkedblog.api.common.Endpoint.Api.*;
+import static io.f12.notionlinkedblog.common.Endpoint.Api.*;
 import static org.springframework.http.MediaType.*;
 
 import java.nio.charset.StandardCharsets;
@@ -24,11 +24,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.f12.notionlinkedblog.api.common.Endpoint;
-import io.f12.notionlinkedblog.repository.user.UserDataRepository;
+import io.f12.notionlinkedblog.common.Endpoint;
 import io.f12.notionlinkedblog.security.common.dto.AuthenticationFailureDto;
 import io.f12.notionlinkedblog.security.login.ajax.configure.AjaxLoginConfigurer;
 import io.f12.notionlinkedblog.security.login.check.filter.LoginStatusCheckingFilter;
+import io.f12.notionlinkedblog.user.service.port.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SecurityConfig {
 
 	private final UserDetailsService userDetailsService;
-	private final UserDataRepository userDataRepository;
+	private final UserRepository userRepository;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -85,7 +85,7 @@ public class SecurityConfig {
 			.apply(ajaxLoginConfigurer());
 
 		http
-			.addFilterBefore(new LoginStatusCheckingFilter(userDataRepository), LogoutFilter.class);
+			.addFilterBefore(new LoginStatusCheckingFilter(userRepository), LogoutFilter.class);
 
 		return http.build();
 	}

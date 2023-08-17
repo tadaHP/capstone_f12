@@ -1,6 +1,6 @@
 package io.f12.notionlinkedblog.security.login.ajax.dto;
 
-import io.f12.notionlinkedblog.domain.user.User;
+import io.f12.notionlinkedblog.user.infrastructure.UserEntity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -18,7 +18,7 @@ public class UserWithoutPassword {
 	private final String instagramLink;
 	private final Boolean notionCertificate;
 
-	private UserWithoutPassword(User user) {
+	private UserWithoutPassword(UserEntity user) {
 		this.id = user.getId();
 		this.username = user.getUsername();
 		this.email = user.getEmail();
@@ -29,7 +29,7 @@ public class UserWithoutPassword {
 		this.notionCertificate = user.getNotionOauth() != null;
 	}
 
-	public static UserWithoutPassword of(User user) {
+	public static UserWithoutPassword of(UserEntity user) {
 		return new UserWithoutPassword(user);
 	}
 }

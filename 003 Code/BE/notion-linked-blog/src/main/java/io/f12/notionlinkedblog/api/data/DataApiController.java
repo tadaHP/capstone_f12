@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.f12.notionlinkedblog.api.common.Endpoint;
-import io.f12.notionlinkedblog.exceptions.message.ExceptionMessages;
+import io.f12.notionlinkedblog.common.Endpoint;
+import io.f12.notionlinkedblog.common.exceptions.message.ExceptionMessages;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

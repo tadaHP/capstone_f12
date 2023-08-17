@@ -1,6 +1,6 @@
 package io.f12.notionlinkedblog.security.common.dto;
 
-import io.f12.notionlinkedblog.api.common.Endpoint;
+import io.f12.notionlinkedblog.common.Endpoint;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
