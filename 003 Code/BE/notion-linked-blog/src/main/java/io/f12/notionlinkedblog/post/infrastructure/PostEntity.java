@@ -5,7 +5,6 @@ import static javax.persistence.FetchType.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -14,6 +13,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -25,19 +26,17 @@ import javax.validation.constraints.NotNull;
 import org.springframework.util.StringUtils;
 
 import io.f12.notionlinkedblog.comments.infrastructure.CommentsEntity;
+import io.f12.notionlinkedblog.common.infrastructure.PostTimeEntity;
+import io.f12.notionlinkedblog.hashtag.infrastructure.HashtagEntity;
 import io.f12.notionlinkedblog.like.infrastructure.LikeEntity;
 import io.f12.notionlinkedblog.notion.infrastructure.SyncedPagesEntity;
-import io.f12.notionlinkedblog.post.domain.Post;
 import io.f12.notionlinkedblog.series.infrastructure.SeriesEntity;
 import io.f12.notionlinkedblog.user.infrastructure.UserEntity;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Getter
@@ -71,6 +70,12 @@ public class PostEntity extends PostTimeEntity {
 	@OneToOne(mappedBy = "post", cascade = CascadeType.REMOVE)
 	private SyncedPagesEntity syncedPages;
 
+	@ManyToMany
+	@JoinTable(name = "posts_hashtags",
+		joinColumns = @JoinColumn(name = "hashtags_id"),
+		inverseJoinColumns = @JoinColumn(name = "post_id"))
+	private List<HashtagEntity> hashtag;
+
 	@NotBlank
 	private String title;
 	@NotBlank
@@ -87,14 +92,16 @@ public class PostEntity extends PostTimeEntity {
 
 	@Builder
 	public PostEntity(LocalDateTime createdAt, LocalDateTime updatedAt, Long id, UserEntity user,
-		List<CommentsEntity> comments, List<LikeEntity> likes, SeriesEntity series, String title, String content,
-		String thumbnailName,
-		String storedThumbnailPath, Long viewCount, Double popularity, String description, Boolean isPublic) {
+		List<CommentsEntity> comments, List<LikeEntity> likes, List<HashtagEntity> hashtag, SeriesEntity series,
+		SyncedPagesEntity syncedPages, String title, String content, String thumbnailName, String storedThumbnailPath,
+		Long viewCount, Double popularity, String description, Boolean isPublic) {
 		super(createdAt, updatedAt);
 		this.id = id;
 		this.user = user;
 		this.comments = comments;
 		this.likes = likes;
+		this.hashtag = hashtag;
+		this.syncedPages = syncedPages;
 		this.series = series;
 		this.title = title;
 		this.content = content;
@@ -106,22 +113,12 @@ public class PostEntity extends PostTimeEntity {
 		this.isPublic = isPublic;
 	}
 
-	public Post toModel() {
-		return Post.builder()
-			.id(this.id)
-			.user(this.user.toModel())
-			.comments(this.comments.stream().map(CommentsEntity::toModel).collect(Collectors.toList()))
-			.likes(this.likes.stream().map(LikeEntity::toModel).collect(Collectors.toList()))
-			.series(this.series.toModel())
-			.syncedPages(this.syncedPages.toModel())
-			.title(this.title)
-			.content(this.content)
-			.thumbnailName(this.thumbnailName)
-			.storedThumbnailPath(this.storedThumbnailPath)
-			.viewCount(this.viewCount)
-			.popularity(this.popularity)
-			.description(this.description)
-			.build();
+	public void changeHashtags(List<HashtagEntity> hashtags) {
+		this.hashtag = hashtags;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	//have to move

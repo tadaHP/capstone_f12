@@ -3,6 +3,7 @@ package io.f12.notionlinkedblog.post.api.port;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,7 +14,7 @@ import io.f12.notionlinkedblog.post.domain.dto.SearchRequestDto;
 
 public interface PostService {
 	public PostSearchDto createPost(Long userId, String title, String content, String description,
-		Boolean isPublic, MultipartFile multipartFile) throws IOException;
+		Boolean isPublic, MultipartFile multipartFile, List<String> hashtags) throws IOException;
 
 	public PostSearchResponseDto getPostsByTitle(SearchRequestDto dto);
 
@@ -28,7 +29,7 @@ public interface PostService {
 	public void removePost(Long postId, Long userId);
 
 	//TODO: 추후 EditThumbnail 을 따로 만들어야 함
-	public PostSearchDto editPostContent(Long postId, Long userId, PostEditDto postEditDto);
+	public PostSearchDto editPost(Long postId, Long userId, PostEditDto postEditDto);
 
 	public void likeStatusChange(Long postId, Long userId);
 

@@ -1,6 +1,7 @@
 package io.f12.notionlinkedblog.post.api.response;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,19 +25,5 @@ public class PostSearchDto {
 	private String author;
 	private Boolean isLiked;
 	private String avatar;
-
-	public PostSearchDto(Long postId, String title, String content, Long viewCount, Integer likes,
-		String requestThumbnailLink, String description, LocalDateTime createdAt, Integer countOfComments,
-		String author) {
-		this.postId = postId;
-		this.title = title;
-		this.content = content;
-		this.viewCount = viewCount;
-		this.likes = likes;
-		this.requestThumbnailLink = requestThumbnailLink;
-		this.description = description;
-		this.createdAt = createdAt;
-		this.countOfComments = countOfComments;
-		this.author = author;
-	}
+	private List<String> hashtags;
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import io.f12.notionlinkedblog.comments.domain.Comments;
+import io.f12.notionlinkedblog.hashtag.domain.Hashtag;
 import io.f12.notionlinkedblog.like.domain.Like;
 import io.f12.notionlinkedblog.notion.domain.SyncedPages;
 import io.f12.notionlinkedblog.post.infrastructure.PostEntity;
@@ -22,6 +23,7 @@ public class Post {
 	private List<Like> likes;
 	private Series series;
 	private SyncedPages syncedPages;
+	private List<Hashtag> hashtag;
 	private String title;
 	private String content;
 	private String thumbnailName;
@@ -39,6 +41,7 @@ public class Post {
 			.user(this.user.toEntity())
 			.comments(this.comments.stream().map(Comments::toEntity).collect(Collectors.toList()))
 			.likes(this.likes.stream().map(Like::toEntity).collect(Collectors.toList()))
+			.hashtag(this.hashtag.stream().map(Hashtag::toEntity).collect(Collectors.toList()))
 			.series(this.series.toEntity())
 			.syncedPages(this.syncedPages.toEntity())
 			.title(this.title)
@@ -50,5 +53,9 @@ public class Post {
 			.description(this.description)
 			.isPublic(this.isPublic)
 			.build();
+	}
+
+	public void changeHashtags(List<Hashtag> hashtag) {
+		this.hashtag = hashtag;
 	}
 }

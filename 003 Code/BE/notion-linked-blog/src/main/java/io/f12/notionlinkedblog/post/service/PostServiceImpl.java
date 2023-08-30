@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.f12.notionlinkedblog.common.Endpoint;
 import io.f12.notionlinkedblog.common.exceptions.message.ExceptionMessages;
+import io.f12.notionlinkedblog.hashtag.infrastructure.HashtagEntity;
 import io.f12.notionlinkedblog.like.domain.dto.LikeSearchDto;
 import io.f12.notionlinkedblog.like.infrastructure.LikeEntity;
 import io.f12.notionlinkedblog.like.service.port.LikeRepository;
@@ -32,6 +33,7 @@ import io.f12.notionlinkedblog.post.domain.dto.SearchRequestDto;
 import io.f12.notionlinkedblog.post.infrastructure.PostEntity;
 import io.f12.notionlinkedblog.post.service.port.PostRepository;
 import io.f12.notionlinkedblog.post.service.port.QuerydslPostRepository;
+import io.f12.notionlinkedblog.post.service.port.RegistrationPostHashtagService;
 import io.f12.notionlinkedblog.user.infrastructure.UserEntity;
 import io.f12.notionlinkedblog.user.service.port.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,13 +49,14 @@ public class PostServiceImpl implements PostService {
 	private final QuerydslPostRepository querydslPostRepository;
 	private final UserRepository userRepository;
 	private final LikeRepository likeRepository;
+	private final RegistrationPostHashtagService registrationPostHashtagService;
 	private final int pageSize = 20;
 	@Value("${server.url}")
 	private String serverUrl;
 
 	@Override
 	public PostSearchDto createPost(Long userId, String title, String content, String description,
-		Boolean isPublic, MultipartFile multipartFile) throws IOException {
+		Boolean isPublic, MultipartFile multipartFile, List<String> hashtags) throws IOException {
 		UserEntity findUser = userRepository.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
 
@@ -83,7 +86,8 @@ public class PostServiceImpl implements PostService {
 			.isPublic(isPublic)
 			.build();
 
-		PostEntity savedPost = postRepository.save(post);
+		PostEntity savedPost = registrationPostHashtagService.addHashtags(hashtags, postRepository.save(post));
+		List<String> hashtagList = getHashtagsFromPost(savedPost);
 
 		return PostSearchDto.builder()
 			.isLiked(false)
@@ -97,6 +101,7 @@ public class PostServiceImpl implements PostService {
 			.createdAt(savedPost.getCreatedAt())
 			.author(savedPost.getUser().getUsername())
 			.avatar(getAvatarRequestUrl(userId))
+			.hashtags(hashtagList)
 			.build();
 	}
 
@@ -197,26 +202,29 @@ public class PostServiceImpl implements PostService {
 	}
 
 	//TODO: 추후 EditThumbnail 을 따로 만들어야 함
-	public PostSearchDto editPostContent(Long postId, Long userId, PostEditDto postEditDto) {
+	public PostSearchDto editPost(Long postId, Long userId, PostEditDto postEditDto) {
 		PostEntity changedPost = postRepository.findById(postId)
 			.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
 		if (isSame(changedPost.getUser().getId(), userId)) {
 			throw new IllegalStateException(WRITER_USER_NOT_MATCH);
 		}
 		changedPost.editPost(postEditDto.getTitle(), postEditDto.getContent());
+		PostEntity savedPost = registrationPostHashtagService.editHashtags(postEditDto.getHashtags(), changedPost);
+		List<String> savedHashtagList = getHashtagsFromPost(savedPost);
 
 		return PostSearchDto.builder()
 			.isLiked(false)
-			.postId(changedPost.getId())
-			.title(changedPost.getTitle())
-			.content(changedPost.getContent())
-			.viewCount(changedPost.getViewCount())
+			.postId(savedPost.getId())
+			.title(savedPost.getTitle())
+			.content(savedPost.getContent())
+			.viewCount(savedPost.getViewCount())
 			.likes(0)
-			.requestThumbnailLink(Endpoint.Api.REQUEST_THUMBNAIL_IMAGE + changedPost.getThumbnailName())
-			.description(changedPost.getDescription())
-			.createdAt(changedPost.getCreatedAt())
-			.author(changedPost.getUser().getUsername())
+			.requestThumbnailLink(Endpoint.Api.REQUEST_THUMBNAIL_IMAGE + savedPost.getThumbnailName())
+			.description(savedPost.getDescription())
+			.createdAt(savedPost.getCreatedAt())
+			.author(savedPost.getUser().getUsername())
 			.avatar(getAvatarRequestUrl(userId))
+			.hashtags(savedHashtagList)
 			.build();
 	}
 
@@ -247,6 +255,14 @@ public class PostServiceImpl implements PostService {
 	}
 
 	// 내부 사용 매서드
+
+	private List<String> getHashtagsFromPost(PostEntity savedPost) {
+		List<String> savedHashtagList = savedPost.getHashtag().stream()
+			.map(HashtagEntity::getName)
+			.collect(Collectors.toList());
+		return savedHashtagList;
+	}
+
 	private List<PostSearchDto> convertPostToPostDto(List<PostEntity> posts) {
 		return posts.stream().map(p -> {
 			String thumbnailLink = null;

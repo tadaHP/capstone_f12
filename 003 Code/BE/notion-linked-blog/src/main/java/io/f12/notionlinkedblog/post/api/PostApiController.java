@@ -5,6 +5,7 @@ import static org.springframework.http.MediaType.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -72,11 +74,12 @@ public class PostApiController {
 		@RequestPart(value = "content") String content,
 		@RequestPart(value = "description", required = false) String description,
 		@RequestPart(value = "isPublic") String isPublic,
-		@RequestPart(value = "seriesId", required = false) String seriesId
+		@RequestPart(value = "seriesId", required = false) String seriesId,
+		@RequestParam(value = "hashtags", required = false) List<String> hashtags
 	) throws IOException {
 		validateIsPublic(isPublic);
 		PostSearchDto post = postService.createPost(loginUser.getUser().getId(), title, content, description,
-			isPublic(isPublic), file);
+			isPublic(isPublic), file, hashtags);
 		if (seriesId != null) {
 			seriesService.addPostTo(Long.parseLong(seriesId), post.getPostId());
 		}
@@ -168,11 +171,10 @@ public class PostApiController {
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "302", description = "포스트 수정 성공")
 	})
-	//TODO: 추후 JSON 으로 리턴타입 변경 필요
 	public PostSearchDto editPost(@PathVariable("id") Long postId,
 		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser,
 		@RequestBody @Validated PostEditDto editInfo) {
-		PostSearchDto postSearchDto = postService.editPostContent(postId, loginUser.getUser().getId(), editInfo);
+		PostSearchDto postSearchDto = postService.editPost(postId, loginUser.getUser().getId(), editInfo);
 		if (editInfo.getSeriesId() != null) {
 			seriesService.addPostTo(editInfo.getSeriesId(), postSearchDto.getPostId());
 		}

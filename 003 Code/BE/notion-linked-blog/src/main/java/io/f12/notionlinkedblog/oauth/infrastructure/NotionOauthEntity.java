@@ -9,7 +9,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import io.f12.notionlinkedblog.oauth.domain.notion.NotionOauth;
 import io.f12.notionlinkedblog.user.infrastructure.UserEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -37,15 +36,6 @@ public class NotionOauthEntity {
 	private String accessToken;
 	@Column(unique = true)
 	private String botId;
-
-	public NotionOauth toModel() {
-		return NotionOauth.builder()
-			.id(this.id)
-			.user(this.user.toModel())
-			.accessToken(this.accessToken)
-			.botId(this.botId)
-			.build();
-	}
 
 	public void renewAccessToken(String accessToken) {
 		this.accessToken = accessToken;
