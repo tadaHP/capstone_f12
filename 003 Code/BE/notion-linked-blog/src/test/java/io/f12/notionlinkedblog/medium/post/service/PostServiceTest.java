@@ -35,9 +35,9 @@ import io.f12.notionlinkedblog.post.domain.dto.PostEditDto;
 import io.f12.notionlinkedblog.post.domain.dto.SearchRequestDto;
 import io.f12.notionlinkedblog.post.infrastructure.PostEntity;
 import io.f12.notionlinkedblog.post.service.PostServiceImpl;
+import io.f12.notionlinkedblog.post.service.port.HashtagService;
 import io.f12.notionlinkedblog.post.service.port.PostRepository;
 import io.f12.notionlinkedblog.post.service.port.QuerydslPostRepository;
-import io.f12.notionlinkedblog.post.service.port.RegistrationPostHashtagService;
 import io.f12.notionlinkedblog.user.infrastructure.UserEntity;
 import io.f12.notionlinkedblog.user.service.port.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +50,7 @@ class PostServiceTest {
 	PostServiceImpl postService;
 
 	@Mock
-	RegistrationPostHashtagService hashtagService;
+	HashtagService hashtagService;
 
 	@Mock
 	PostRepository postRepository;

@@ -6,18 +6,19 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import io.f12.notionlinkedblog.hashtag.exception.NoHashtagException;
 import io.f12.notionlinkedblog.hashtag.infrastructure.HashtagEntity;
 import io.f12.notionlinkedblog.hashtag.serivce.port.HashtagRepository;
 import io.f12.notionlinkedblog.post.infrastructure.PostEntity;
+import io.f12.notionlinkedblog.post.service.port.HashtagService;
 import io.f12.notionlinkedblog.post.service.port.PostRepository;
-import io.f12.notionlinkedblog.post.service.port.RegistrationPostHashtagService;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @Builder
 @RequiredArgsConstructor
-public class HashtagServiceImpl implements RegistrationPostHashtagService {
+public class HashtagServiceImpl implements HashtagService {
 
 	private final HashtagRepository hashtagRepository;
 	private final PostRepository postRepository;
@@ -47,6 +48,25 @@ public class HashtagServiceImpl implements RegistrationPostHashtagService {
 	public PostEntity editHashtags(List<String> hashtagList, PostEntity post) {
 		removeHashtags(post);
 		return addHashtags(hashtagList, post);
+	}
+
+	@Override
+	public List<Long> getPostIdsByHashtag(String hashtagName) throws NoHashtagException {
+		HashtagEntity hashtag = hashtagRepository.findByName(hashtagName).orElseThrow(NoHashtagException::new);
+		List<PostEntity> post = hashtag.getPost();
+
+		return postToPostIds(post);
+	}
+
+	// private method
+	private List<Long> postToPostIds(List<PostEntity> post) {
+		List<Long> postIds = new ArrayList<>();
+
+		for (PostEntity postEntity : post) {
+			postIds.add(postEntity.getId());
+		}
+
+		return postIds;
 	}
 
 	private void removeHashtags(PostEntity post) {

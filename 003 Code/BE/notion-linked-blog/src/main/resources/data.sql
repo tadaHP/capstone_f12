@@ -4,6 +4,13 @@ values (999999, 'test', 'test@gmail.com', '$2a$10$mLXRFrihpPDDc/iKr/Sqz.pcl6zqz4
 -- 시리즈 --
 insert into series(id, user_id, title)
 values (999999, 999999, 'testSeries');
+-- 해쉬태그 --
+insert into hashtags(id, name)
+values (999999, 'hashtagA');
+insert into hashtags(id, name)
+values (1000000, 'hashtagB');
+insert into hashtags(id, name)
+values (1000001, 'hashtagC');
 -- 포스트 --
 --포스트 1번, 후순위--
 insert into posts(id, user_id, title, content, view_count, created_at, is_public, description, series_id)
@@ -25,6 +32,22 @@ values (1000002, 999999, 'testTitle4', 'testContent4', 200, FORMATDATETIME('2023
 insert into posts(id, user_id, title, content, view_count, created_at, is_public, description, series_id)
 values (1000003, 999999, 'testTitle5', 'testContent2', 5000, FORMATDATETIME('2023-04-06 00:00:02', 'yyyy-MM-dd'), true,
         'description5', 999999);
+-- 포스트-해쉬태그 --
+insert into posts_hashtags(hashtags_id, post_id)
+values (999999, 999999);
+insert into posts_hashtags(hashtags_id, post_id)
+values (1000000, 999999);
+insert into posts_hashtags(hashtags_id, post_id)
+values (999999, 1000000);
+insert into posts_hashtags(hashtags_id, post_id)
+values (1000001, 1000000);
+insert into posts_hashtags(hashtags_id, post_id)
+values (999999, 1000001);
+insert into posts_hashtags(hashtags_id, post_id)
+values (1000000, 1000001);
+insert into posts_hashtags(hashtags_id, post_id)
+values (1000001, 1000001);
+
 -- 댓글 --
 insert into comments(id, user_id, post_id, content, depth) --부모 댓글, 포스트 1번--
 values (999999, 999999, 999999, 'testParentComment', 0);

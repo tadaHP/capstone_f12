@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
-public class PostDataRepositoryImpl implements QuerydslPostRepository {
+public class PostQuerydslRepositoryImpl implements QuerydslPostRepository {
 	private final JPAQueryFactory queryFactory;
 
 	@Override

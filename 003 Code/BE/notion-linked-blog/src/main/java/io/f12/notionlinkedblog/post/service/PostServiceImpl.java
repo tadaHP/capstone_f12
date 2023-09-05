@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.f12.notionlinkedblog.common.Endpoint;
 import io.f12.notionlinkedblog.common.exceptions.message.ExceptionMessages;
+import io.f12.notionlinkedblog.hashtag.exception.NoHashtagException;
 import io.f12.notionlinkedblog.hashtag.infrastructure.HashtagEntity;
 import io.f12.notionlinkedblog.like.domain.dto.LikeSearchDto;
 import io.f12.notionlinkedblog.like.infrastructure.LikeEntity;
@@ -31,9 +33,9 @@ import io.f12.notionlinkedblog.post.api.response.PostSearchResponseDto;
 import io.f12.notionlinkedblog.post.domain.dto.PostEditDto;
 import io.f12.notionlinkedblog.post.domain.dto.SearchRequestDto;
 import io.f12.notionlinkedblog.post.infrastructure.PostEntity;
+import io.f12.notionlinkedblog.post.service.port.HashtagService;
 import io.f12.notionlinkedblog.post.service.port.PostRepository;
 import io.f12.notionlinkedblog.post.service.port.QuerydslPostRepository;
-import io.f12.notionlinkedblog.post.service.port.RegistrationPostHashtagService;
 import io.f12.notionlinkedblog.user.infrastructure.UserEntity;
 import io.f12.notionlinkedblog.user.service.port.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +51,7 @@ public class PostServiceImpl implements PostService {
 	private final QuerydslPostRepository querydslPostRepository;
 	private final UserRepository userRepository;
 	private final LikeRepository likeRepository;
-	private final RegistrationPostHashtagService registrationPostHashtagService;
+	private final HashtagService hashtagService;
 	private final int pageSize = 20;
 	@Value("${server.url}")
 	private String serverUrl;
@@ -86,7 +88,7 @@ public class PostServiceImpl implements PostService {
 			.isPublic(isPublic)
 			.build();
 
-		PostEntity savedPost = registrationPostHashtagService.addHashtags(hashtags, postRepository.save(post));
+		PostEntity savedPost = hashtagService.addHashtags(hashtags, postRepository.save(post));
 		List<String> hashtagList = getHashtagsFromPost(savedPost);
 
 		return PostSearchDto.builder()
@@ -154,6 +156,8 @@ public class PostServiceImpl implements PostService {
 				.orElse(null);
 		}
 
+		List<String> hashtagList = getHashtagsFromPost(post);
+
 		return PostSearchDto.builder()
 			.isLiked(likeInfo != null)
 			.postId(post.getId())
@@ -167,6 +171,7 @@ public class PostServiceImpl implements PostService {
 			.author(post.getUser().getUsername())
 			.likes(likeSize)
 			.avatar(getAvatarRequestUrl(post.getUser().getId()))
+			.hashtags(hashtagList)
 			.build();
 	}
 
@@ -201,6 +206,49 @@ public class PostServiceImpl implements PostService {
 
 	}
 
+	@Override
+	public PostSearchResponseDto getByHashtagOrderByTrend(String hashtagName, Integer pageNumber) {
+		List<Long> postIds = null;
+		try {
+			postIds = hashtagService.getPostIdsByHashtag(hashtagName);
+		} catch (NoHashtagException e) {
+			return PostSearchResponseDto.builder()
+				.pageSize(0)
+				.pageNow(pageNumber)
+				.posts(new ArrayList<>())
+				.elementsSize(0)
+				.build();
+		}
+
+		List<PostEntity> posts = querydslPostRepository.findByPostIdsJoinWithUserAndLikeOrderByTrend(postIds);
+
+		List<PostSearchDto> postSearchDtos = convertPostToPostDto(posts);
+		PageRequest paging = PageRequest.of(pageNumber, pageSize);
+
+		return buildPostSearchResponseDto(paging, postSearchDtos, posts.size());
+	}
+
+	@Override
+	public PostSearchResponseDto getByHashtagOrderByLatest(String hashtagName, Integer pageNumber) {
+		List<Long> postIds = null;
+		try {
+			postIds = hashtagService.getPostIdsByHashtag(hashtagName);
+		} catch (NoHashtagException e) {
+			return PostSearchResponseDto.builder()
+				.pageSize(0)
+				.pageNow(pageNumber)
+				.posts(new ArrayList<>())
+				.elementsSize(0)
+				.build();
+		}
+		List<PostEntity> posts = querydslPostRepository.findByPostIdsJoinWithUserAndLikeOrderByLatest(postIds);
+
+		List<PostSearchDto> postSearchDtos = convertPostToPostDto(posts);
+		PageRequest paging = PageRequest.of(pageNumber, pageSize);
+
+		return buildPostSearchResponseDto(paging, postSearchDtos, posts.size());
+	}
+
 	//TODO: 추후 EditThumbnail 을 따로 만들어야 함
 	public PostSearchDto editPost(Long postId, Long userId, PostEditDto postEditDto) {
 		PostEntity changedPost = postRepository.findById(postId)
@@ -209,7 +257,7 @@ public class PostServiceImpl implements PostService {
 			throw new IllegalStateException(WRITER_USER_NOT_MATCH);
 		}
 		changedPost.editPost(postEditDto.getTitle(), postEditDto.getContent());
-		PostEntity savedPost = registrationPostHashtagService.editHashtags(postEditDto.getHashtags(), changedPost);
+		PostEntity savedPost = hashtagService.editHashtags(postEditDto.getHashtags(), changedPost);
 		List<String> savedHashtagList = getHashtagsFromPost(savedPost);
 
 		return PostSearchDto.builder()
@@ -280,6 +328,8 @@ public class PostServiceImpl implements PostService {
 				commentsSize = p.getComments().size();
 			}
 
+			List<String> hashtagList = getHashtagsFromPost(p);
+
 			return PostSearchDto.builder()
 				.postId(p.getId())
 				.title(p.getTitle())
@@ -292,6 +342,7 @@ public class PostServiceImpl implements PostService {
 				.countOfComments(commentsSize)
 				.author(p.getUser().getUsername())
 				.avatar(getAvatarRequestUrl(p.getUser().getId()))
+				.hashtags(hashtagList)
 				.build();
 		}).collect(Collectors.toList());
 	}

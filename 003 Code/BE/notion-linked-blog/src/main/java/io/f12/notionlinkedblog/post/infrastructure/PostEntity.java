@@ -67,7 +67,7 @@ public class PostEntity extends PostTimeEntity {
 	@JoinColumn(name = "series_id")
 	private SeriesEntity series;
 
-	@OneToOne(mappedBy = "post", cascade = CascadeType.REMOVE)
+	@OneToOne(mappedBy = "post", fetch = LAZY, cascade = CascadeType.REMOVE)
 	private SyncedPagesEntity syncedPages;
 
 	@ManyToMany

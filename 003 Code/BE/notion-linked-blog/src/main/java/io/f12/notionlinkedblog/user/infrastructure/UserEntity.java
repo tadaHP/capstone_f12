@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -60,7 +61,7 @@ public class UserEntity extends BaseTimeEntity {
 	@OneToMany(mappedBy = "user")
 	private List<SeriesEntity> series = new ArrayList<>();
 
-	@OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
+	@OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
 	private NotionOauthEntity notionOauth;
 
 	@OneToMany(mappedBy = "user")

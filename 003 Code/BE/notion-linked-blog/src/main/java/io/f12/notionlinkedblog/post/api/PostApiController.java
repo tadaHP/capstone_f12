@@ -31,6 +31,7 @@ import io.f12.notionlinkedblog.common.domain.CommonErrorResponse;
 import io.f12.notionlinkedblog.post.api.port.PostService;
 import io.f12.notionlinkedblog.post.api.response.PostSearchDto;
 import io.f12.notionlinkedblog.post.api.response.PostSearchResponseDto;
+import io.f12.notionlinkedblog.post.domain.dto.HashtagSearchDto;
 import io.f12.notionlinkedblog.post.domain.dto.PostEditDto;
 import io.f12.notionlinkedblog.post.domain.dto.SearchRequestDto;
 import io.f12.notionlinkedblog.security.login.ajax.dto.LoginUser;
@@ -163,6 +164,16 @@ public class PostApiController {
 	})
 	public PostSearchResponseDto searchPopularPosts(@PathVariable Integer pageNumber) {
 		return postService.getPopularityPosts(pageNumber);
+	}
+
+	@GetMapping("/hashtag/trend/{pageNumber}")
+	public void searchByHashtagTrend(@PathVariable Integer pageNumber, @RequestBody HashtagSearchDto dto) {
+		postService.getByHashtagOrderByTrend(dto.getHashtag(), pageNumber);
+	}
+
+	@GetMapping("/hashtag/latest/{pageNumber}")
+	public void searchByHashtagLatest(@PathVariable Integer pageNumber, @RequestBody HashtagSearchDto dto) {
+		postService.getByHashtagOrderByLatest(dto.getHashtag(), pageNumber);
 	}
 
 	@PutMapping("/{id}")

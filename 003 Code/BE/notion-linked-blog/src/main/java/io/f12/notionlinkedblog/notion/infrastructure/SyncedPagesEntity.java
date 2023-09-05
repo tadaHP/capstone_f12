@@ -36,7 +36,7 @@ public class SyncedPagesEntity {
 	@NotNull
 	private UserEntity user;
 
-	@OneToOne
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "post_id")
 	@NotNull
 	private PostEntity post;
