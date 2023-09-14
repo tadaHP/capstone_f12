@@ -305,10 +305,13 @@ public class PostServiceImpl implements PostService {
 	// 내부 사용 매서드
 
 	private List<String> getHashtagsFromPost(PostEntity savedPost) {
-		List<String> savedHashtagList = savedPost.getHashtag().stream()
+		List<HashtagEntity> hashtags = savedPost.getHashtag();
+		if (hashtags == null) {
+			return new ArrayList<>();
+		}
+		return hashtags.stream()
 			.map(HashtagEntity::getName)
 			.collect(Collectors.toList());
-		return savedHashtagList;
 	}
 
 	private List<PostSearchDto> convertPostToPostDto(List<PostEntity> posts) {

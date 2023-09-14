@@ -7,6 +7,9 @@ import org.springframework.context.annotation.Bean;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+import io.f12.notionlinkedblog.post.infrastructure.PostQuerydslRepositoryImpl;
+import io.f12.notionlinkedblog.post.service.port.QuerydslPostRepository;
+
 public class TestQuerydslConfiguration {
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -14,5 +17,10 @@ public class TestQuerydslConfiguration {
 	@Bean
 	public JPAQueryFactory jpaQueryFactory() {
 		return new JPAQueryFactory(entityManager);
+	}
+
+	@Bean
+	public QuerydslPostRepository querydslPostRepository() {
+		return new PostQuerydslRepositoryImpl(new JPAQueryFactory(entityManager));
 	}
 }
