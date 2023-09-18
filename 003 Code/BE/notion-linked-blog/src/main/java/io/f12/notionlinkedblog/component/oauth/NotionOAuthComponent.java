@@ -11,12 +11,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class NotionOAuthComponent {
-	@Value("${external.real.notionClientId}")
+	@Value("${external.notion.real.notionClientId}")
 	private String clientId;
-	@Value("${external.real.notionClientSecret}")
+	@Value("${external.notion.real.notionClientSecret}")
 	private String clientSecret;
-	@Value("${external.real.authorizeUrl}")
+	@Value("${external.notion.real.authorizeUrl}")
 	private String authUrl;
-	@Value("${external.real.redirectUrl}")
+	@Value("${external.notion.real.redirectUrl}")
 	private String redirectUrl;
 }

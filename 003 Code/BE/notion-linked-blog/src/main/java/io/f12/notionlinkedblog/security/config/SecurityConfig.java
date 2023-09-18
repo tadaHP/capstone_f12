@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.token.SecureRandomFactoryBean;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
@@ -25,6 +24,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.f12.notionlinkedblog.common.Endpoint;
+import io.f12.notionlinkedblog.common.handler.CommonAuthenticationSuccessHandler;
+import io.f12.notionlinkedblog.oauth.common.domain.handler.OAuth2AuthenticationFailureHandler;
+import io.f12.notionlinkedblog.oauth.common.service.CustomOAuth2UserDetailsService;
 import io.f12.notionlinkedblog.security.common.dto.AuthenticationFailureDto;
 import io.f12.notionlinkedblog.security.login.ajax.configure.AjaxLoginConfigurer;
 import io.f12.notionlinkedblog.security.login.check.filter.LoginStatusCheckingFilter;
@@ -39,6 +41,9 @@ public class SecurityConfig {
 
 	private final UserDetailsService userDetailsService;
 	private final UserRepository userRepository;
+	private final CustomOAuth2UserDetailsService customOAuth2UserDetailsService;
+	private final PasswordEncoder passwordEncoder;
+	private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -54,6 +59,13 @@ public class SecurityConfig {
 			.antMatchers("/v3/api-docs/**").permitAll()
 			.antMatchers("/h2-console/**").permitAll()
 			.anyRequest().authenticated();
+
+		http.oauth2Login()
+			.userInfoEndpoint()
+			.userService(customOAuth2UserDetailsService)
+			.and()
+			.successHandler(CommonAuthenticationSuccessHandler.create())
+			.failureHandler(oAuth2AuthenticationFailureHandler);
 
 		http
 			.headers().frameOptions().disable()
@@ -124,7 +136,7 @@ public class SecurityConfig {
 
 	public AjaxLoginConfigurer<HttpSecurity> ajaxLoginConfigurer() {
 		AjaxLoginConfigurer<HttpSecurity> ajaxLoginConfigurer = AjaxLoginConfigurer.create();
-		ajaxLoginConfigurer.setPasswordEncoder(passwordEncoder());
+		ajaxLoginConfigurer.setPasswordEncoder(passwordEncoder);
 		ajaxLoginConfigurer.setUserDetailsService(userDetailsService);
 		return ajaxLoginConfigurer;
 	}
@@ -134,8 +146,4 @@ public class SecurityConfig {
 		return new SecureRandomFactoryBean();
 	}
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
 }

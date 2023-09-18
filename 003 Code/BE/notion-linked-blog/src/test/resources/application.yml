@@ -20,6 +20,7 @@ spring:
       - classpath:application-mail.yml
       - classpath:application-redis.yml
       - classpath:application-notion.yml
+      - classpath:application-oauth2.yml
 
 logging:
   level:

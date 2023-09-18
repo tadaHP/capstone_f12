@@ -20,7 +20,7 @@ import io.f12.notionlinkedblog.comments.infrastructure.CommentsEntity;
 import io.f12.notionlinkedblog.common.infrastructure.BaseTimeEntity;
 import io.f12.notionlinkedblog.like.infrastructure.LikeEntity;
 import io.f12.notionlinkedblog.notion.infrastructure.SyncedPagesEntity;
-import io.f12.notionlinkedblog.oauth.infrastructure.NotionOauthEntity;
+import io.f12.notionlinkedblog.oauth.notion.infrastructure.NotionOauthEntity;
 import io.f12.notionlinkedblog.post.infrastructure.PostEntity;
 import io.f12.notionlinkedblog.series.infrastructure.SeriesEntity;
 import io.f12.notionlinkedblog.user.domain.dto.request.UserBasicInfoEditDto;

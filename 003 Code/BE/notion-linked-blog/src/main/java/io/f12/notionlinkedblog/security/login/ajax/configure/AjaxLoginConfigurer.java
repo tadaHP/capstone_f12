@@ -11,9 +11,9 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import io.f12.notionlinkedblog.common.handler.CommonAuthenticationSuccessHandler;
 import io.f12.notionlinkedblog.security.login.ajax.filter.AjaxEmailPasswordAuthenticationFilter;
 import io.f12.notionlinkedblog.security.login.ajax.handler.AjaxAuthenticationFailureHandler;
-import io.f12.notionlinkedblog.security.login.ajax.handler.AjaxAuthenticationSuccessHandler;
 import io.f12.notionlinkedblog.security.login.ajax.provider.AjaxEmailPasswordAuthenticationProvider;
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,8 +62,8 @@ public class AjaxLoginConfigurer<H extends HttpSecurityBuilder<H>>
 		return authenticationProvider;
 	}
 
-	public AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler() {
-		return AjaxAuthenticationSuccessHandler.create();
+	public CommonAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler() {
+		return CommonAuthenticationSuccessHandler.create();
 	}
 
 	public AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler() {

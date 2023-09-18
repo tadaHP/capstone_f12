@@ -40,6 +40,9 @@ dependencies {
     implementation 'commons-io:commons-io'
     testImplementation 'org.projectlombok:lombok:1.18.22'
 
+    implementation 'org.springframework.security:spring-security-oauth2-client'
+    implementation 'org.springframework.security:spring-security-oauth2-jose'
+
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.h2database:h2'

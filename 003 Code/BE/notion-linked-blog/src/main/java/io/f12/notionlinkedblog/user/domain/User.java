@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import io.f12.notionlinkedblog.comments.domain.Comments;
 import io.f12.notionlinkedblog.like.domain.Like;
 import io.f12.notionlinkedblog.notion.domain.SyncedPages;
-import io.f12.notionlinkedblog.oauth.domain.notion.NotionOauth;
+import io.f12.notionlinkedblog.oauth.notion.domain.NotionOauth;
 import io.f12.notionlinkedblog.post.domain.Post;
 import io.f12.notionlinkedblog.series.domain.Series;
 import io.f12.notionlinkedblog.user.infrastructure.UserEntity;

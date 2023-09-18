@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.f12.notionlinkedblog.common.Endpoint;
+import io.f12.notionlinkedblog.user.api.port.UserService;
 import io.f12.notionlinkedblog.user.api.response.ProfileSuccessEditDto;
 import io.f12.notionlinkedblog.user.api.response.UserSearchDto;
 import io.f12.notionlinkedblog.user.domain.dto.request.UserBasicInfoEditDto;
@@ -31,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 @Service
 @Slf4j
-public class UserServiceImpl implements io.f12.notionlinkedblog.user.api.port.UserService {
+public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
