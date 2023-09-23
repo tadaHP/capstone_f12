@@ -78,6 +78,7 @@ public class UserEntity extends BaseTimeEntity {
 	private String blogTitle;
 	private String githubLink;
 	private String instagramLink;
+	private String oauthId;
 
 	@Builder
 	public UserEntity(Long id, String username, String email, String password, String profile, String introduction,

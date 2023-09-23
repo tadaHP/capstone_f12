@@ -17,6 +17,8 @@ public interface UserRepository {
 
 	Optional<UserEntity> findById(Long id);
 
+	Optional<UserEntity> findByOauthId(String id);
+
 	// Optional<User> findUserById(Long id);
 	//
 	// Optional<User> findUserByIdForNotionAuthToken(Long id);

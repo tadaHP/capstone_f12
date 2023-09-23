@@ -26,4 +26,8 @@ public interface UserDataRepository extends JpaRepository<UserEntity, Long>, Use
 		+ "LEFT JOIN FETCH u.series "
 		+ "WHERE u.id = :userId")
 	Optional<UserEntity> findSeriesByUserId(@Param("userId") Long userId);
+
+	@Override
+	@Query("SELECT u FROM UserEntity u WHERE u.oauthId = :oauthId")
+	Optional<UserEntity> findByOauthId(@Param("oauthId") String id);
 }
