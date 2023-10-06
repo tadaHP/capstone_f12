@@ -10,6 +10,5 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 public class CreateNotionPageToBlogDto {
-	private Long userId;
 	private String path;
 }

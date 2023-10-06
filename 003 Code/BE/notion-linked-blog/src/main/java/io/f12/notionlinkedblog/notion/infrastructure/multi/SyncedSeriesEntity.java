@@ -1,4 +1,4 @@
-package io.f12.notionlinkedblog.notion.infrastructure;
+package io.f12.notionlinkedblog.notion.infrastructure.multi;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -10,7 +10,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import io.f12.notionlinkedblog.post.infrastructure.PostEntity;
+import io.f12.notionlinkedblog.series.infrastructure.SeriesEntity;
 import io.f12.notionlinkedblog.user.infrastructure.UserEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,8 +23,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Getter
-@Table(name = "synced_pages")
-public class SyncedPagesEntity {
+@Table(name = "synced_series")
+public class SyncedSeriesEntity {
 	@Id
 	@GeneratedValue
 	private Long id;
@@ -37,8 +37,8 @@ public class SyncedPagesEntity {
 	private UserEntity user;
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "post_id")
+	@JoinColumn(name = "series_id")
 	@NotNull
-	private PostEntity post;
+	private SeriesEntity series;
 
 }

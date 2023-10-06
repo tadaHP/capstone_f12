@@ -14,9 +14,11 @@ import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import io.f12.notionlinkedblog.common.domain.CommonErrorResponse;
+import io.f12.notionlinkedblog.common.exceptions.exception.AlreadyExistException;
 import io.f12.notionlinkedblog.common.exceptions.exception.AuthFailureException;
 import io.f12.notionlinkedblog.common.exceptions.exception.NoProfileImageException;
 import io.f12.notionlinkedblog.common.exceptions.runtimeexception.IllegalDatabaseStateException;
+import io.f12.notionlinkedblog.notion.exception.NoContentException;
 import io.f12.notionlinkedblog.user.api.response.NoUserProfileDto;
 import io.swagger.v3.oas.annotations.Hidden;
 
@@ -118,5 +120,21 @@ public class DefaultRestControllerAdvice {
 		return NoUserProfileDto.builder()
 			.status(PROFILE_IMAGE_NOT_EXIST)
 			.build();
+	}
+
+	@ExceptionHandler(AlreadyExistException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public CommonErrorResponse handleAlreadyExistException(AlreadyExistException ex) {
+		return CommonErrorResponse.builder()
+			.errorMassage(ex.getMessage())
+			.errorCode(HttpStatus.BAD_REQUEST.value()).build();
+	}
+
+	@ExceptionHandler(NoContentException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public CommonErrorResponse handleNoContentException(NoContentException ex) {
+		return CommonErrorResponse.builder()
+			.errorMassage(ex.getMessage())
+			.errorCode(HttpStatus.BAD_REQUEST.value()).build();
 	}
 }

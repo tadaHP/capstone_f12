@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 
 import io.f12.notionlinkedblog.common.exceptions.exception.NotionAuthenticationException;
 import io.f12.notionlinkedblog.notion.api.port.NotionService;
-import io.f12.notionlinkedblog.notion.infrastructure.SyncedPagesEntity;
+import io.f12.notionlinkedblog.notion.infrastructure.multi.SyncedSeriesEntity;
+import io.f12.notionlinkedblog.notion.infrastructure.single.SyncedPagesEntity;
 import io.f12.notionlinkedblog.notion.service.port.SyncedPagesRepository;
+import io.f12.notionlinkedblog.notion.service.port.SyncedSeriesRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -20,10 +22,11 @@ import lombok.RequiredArgsConstructor;
 public class UpdateNotionSchedule {
 
 	private final SyncedPagesRepository syncedPagesRepository;
+	private final SyncedSeriesRepository syncedSeriesRepository;
 	private final NotionService notionService;
 
 	@Scheduled(fixedDelay = 3600000) // 1시간 (임시 설정)
-	public void updateNotionData() throws NotionAuthenticationException {
+	public void updatePostData() throws NotionAuthenticationException {
 		List<SyncedPagesEntity> everyData = syncedPagesRepository.findAll();
 
 		for (SyncedPagesEntity data : everyData) {
@@ -35,5 +38,20 @@ public class UpdateNotionSchedule {
 			}
 		}
 
+	}
+
+	@Scheduled(fixedDelay = 3600000) // 1시간 (임시 설정)
+	public void updateSeriesData() throws NotionAuthenticationException {
+		List<SyncedSeriesEntity> everyData
+			= syncedSeriesRepository.findAll();
+
+		for (SyncedSeriesEntity series : everyData) {
+			Long userId = series.getUser().getId();
+			String id = series.getPageId();
+			LocalDateTime updateTime = series.getSeries().getUpdatedAt();
+			if (notionService.needUpdate(userId, id, updateTime)) {
+				notionService.updateSeriesRequest(userId, id);
+			}
+		}
 	}
 }

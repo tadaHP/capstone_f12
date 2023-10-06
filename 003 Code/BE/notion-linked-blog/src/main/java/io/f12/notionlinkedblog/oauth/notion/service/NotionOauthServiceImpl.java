@@ -67,9 +67,8 @@ public class NotionOauthServiceImpl implements NotionOauthService {
 		notionOauthRepository.deleteNotionOauthByUserId(userId);
 	}
 
-	private void saveToken(NotionAccessTokenDto notionAccessTokenDto, Long userId, UserEntity user,
-		boolean exist) throws
-		TokenAvailabilityFailureException {
+	private void saveToken(NotionAccessTokenDto notionAccessTokenDto, Long userId,
+		UserEntity user, boolean exist) throws TokenAvailabilityFailureException {
 		if (exist) {
 			changeExistAccessCode(notionAccessTokenDto, userId);
 		} else {

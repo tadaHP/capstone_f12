@@ -11,9 +11,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import io.f12.notionlinkedblog.common.infrastructure.PostTimeEntity;
+import io.f12.notionlinkedblog.notion.infrastructure.multi.SyncedSeriesEntity;
 import io.f12.notionlinkedblog.post.infrastructure.PostEntity;
 import io.f12.notionlinkedblog.user.infrastructure.UserEntity;
 import lombok.AccessLevel;
@@ -26,7 +29,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "series")
 @Getter
-public class SeriesEntity {
+public class SeriesEntity extends PostTimeEntity {
 
 	@Id
 	@GeneratedValue
@@ -39,6 +42,9 @@ public class SeriesEntity {
 
 	@OneToMany(mappedBy = "series", cascade = CascadeType.PERSIST)
 	private List<PostEntity> post = new ArrayList<>();
+
+	@OneToOne(mappedBy = "series", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+	private SyncedSeriesEntity syncedSeries;
 
 	@NotNull
 	@Setter

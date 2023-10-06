@@ -29,7 +29,7 @@ import io.f12.notionlinkedblog.comments.infrastructure.CommentsEntity;
 import io.f12.notionlinkedblog.common.infrastructure.PostTimeEntity;
 import io.f12.notionlinkedblog.hashtag.infrastructure.HashtagEntity;
 import io.f12.notionlinkedblog.like.infrastructure.LikeEntity;
-import io.f12.notionlinkedblog.notion.infrastructure.SyncedPagesEntity;
+import io.f12.notionlinkedblog.notion.infrastructure.single.SyncedPagesEntity;
 import io.f12.notionlinkedblog.series.infrastructure.SeriesEntity;
 import io.f12.notionlinkedblog.user.infrastructure.UserEntity;
 import lombok.AccessLevel;
@@ -136,6 +136,15 @@ public class PostEntity extends PostTimeEntity {
 		}
 		if (StringUtils.hasText(content)) {
 			this.content = content;
+		}
+	}
+
+	public void editPost(PostEntity postEntity) {
+		if (StringUtils.hasText(postEntity.getTitle())) {
+			this.title = postEntity.getTitle();
+		}
+		if (StringUtils.hasText(postEntity.getContent())) {
+			this.content = postEntity.getContent();
 		}
 	}
 

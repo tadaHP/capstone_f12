@@ -2,8 +2,6 @@ package io.f12.notionlinkedblog.oauth.notion.api;
 
 import static io.f12.notionlinkedblog.common.exceptions.message.ExceptionMessages.NotionValidateMessages.*;
 
-import java.util.List;
-
 import javax.validation.constraints.NotNull;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -59,14 +57,10 @@ public class OAuthApiController {
 	public void notionOAuth(@RequestParam(value = "code", required = false) String code,
 		@RequestParam(value = "error", required = false) String error,
 		@RequestParam(value = "state", required = false) String state,
-		@NotNull @Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser) throws
-		AuthFailureException,
-		TokenAvailabilityFailureException, NotionAuthenticationException {
+		@NotNull @Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser)
+		throws AuthFailureException, TokenAvailabilityFailureException {
 		isError(error);
-		//TODO 서비스 분리 필요
 		String accessToken = notionOauthService.saveAccessToken(code, loginUser.getUser().getId());
-		List<String> everyPages = notionService.getEveryPages(accessToken);
-		notionService.initEveryPages(everyPages, loginUser.getUser().getId(), accessToken);
 	}
 
 	@DeleteMapping
@@ -82,7 +76,7 @@ public class OAuthApiController {
 	@GetMapping("/test")
 	@Operation(summary = "일정시간 마다 동기화 확인 매서드, Test용", description = "노션 연동된 Post들 내용 업데이트")
 	public void test() throws NotionAuthenticationException {
-		test.updateNotionData();
+		test.updatePostData();
 	}
 
 	private void isError(String error) throws AuthFailureException {

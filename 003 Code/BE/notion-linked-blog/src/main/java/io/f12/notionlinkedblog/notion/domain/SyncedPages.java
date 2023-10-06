@@ -1,6 +1,6 @@
 package io.f12.notionlinkedblog.notion.domain;
 
-import io.f12.notionlinkedblog.notion.infrastructure.SyncedPagesEntity;
+import io.f12.notionlinkedblog.notion.infrastructure.single.SyncedPagesEntity;
 import io.f12.notionlinkedblog.post.domain.Post;
 import io.f12.notionlinkedblog.user.domain.User;
 import lombok.AllArgsConstructor;
