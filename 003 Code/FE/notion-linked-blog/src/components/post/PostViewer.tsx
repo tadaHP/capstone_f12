@@ -80,7 +80,7 @@ export default function PostViewer({post}) {
 				<StyledSubTitle>{post.author} · {post.createdAt}</StyledSubTitle>
 			</StyledTop>
 			<div className="wmde-markdown-var" />
-			<StyledMDPreview source={post.content} height="100%" />
+			<StyledMDPreview source={post.content} />
 			{user?.username === post.author &&
 				<StyledButtonDiv>
 					<Link href={{
