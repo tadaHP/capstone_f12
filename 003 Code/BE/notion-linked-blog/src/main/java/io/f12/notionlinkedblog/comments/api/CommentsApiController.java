@@ -51,7 +51,7 @@ public class CommentsApiController {
 		return commentsService.getCommentsByPostId(postId);
 	}
 
-	@PostMapping(Endpoint.Api.COMMENTS + "/{commentId}")
+	@PostMapping(Endpoint.Api.COMMENTS + "/{postId}")
 	@ResponseStatus(HttpStatus.CREATED)
 	@Operation(summary = "댓글 생성", description = "postId에 해당하는 댓글 생성")
 	@ApiResponses(value = {
@@ -59,7 +59,7 @@ public class CommentsApiController {
 			content = @Content(mediaType = APPLICATION_JSON_VALUE,
 				schema = @Schema(implementation = CommentEditDto.class)))
 	})
-	public CommentEditDto createComment(@PathVariable("commentId") Long postId,
+	public CommentEditDto createComment(@PathVariable("postId") Long postId,
 		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser,
 		@RequestBody @Validated CreateCommentDto commentDto) {
 		return commentsService.createComments(postId, loginUser.getUser().getId(), commentDto);
