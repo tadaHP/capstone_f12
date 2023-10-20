@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 public class ParentsCommentDto {
-	private Long commentsId;
+	private Long commentId;
 	private String comment;
 	private LocalDateTime createdAt;
 	private Long authorId;
@@ -24,7 +24,7 @@ public class ParentsCommentDto {
 	private List<ChildCommentDto> children;
 
 	public ParentsCommentDto createParentCommentDto(CommentsEntity comments) {
-		this.commentsId = comments.getId();
+		this.commentId = comments.getId();
 		this.comment = comments.getContent();
 		this.createdAt = comments.getCreatedAt();
 		this.authorId = comments.getUser().getId();

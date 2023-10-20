@@ -66,7 +66,7 @@ public class CommentsApiController {
 	}
 
 	@PutMapping(Endpoint.Api.COMMENTS + "/{commentId}")
-	@Operation(summary = "댓글 수정", description = "commentsId 에 해당하는 댓글 수정")
+	@Operation(summary = "댓글 수정", description = "commentId 에 해당하는 댓글 수정")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "댓글 변경 성공",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE,

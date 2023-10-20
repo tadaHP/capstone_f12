@@ -22,7 +22,7 @@ public interface CommentsDataRepository extends JpaRepository<CommentsEntity, Lo
 	@Override
 	@Query("SELECT c "
 		+ "FROM CommentsEntity c left join fetch c.user "
-		+ "WHERE c.id = :commentsId")
-	Optional<CommentsEntity> findById(@Param("commentsId") Long commentsId);
+		+ "WHERE c.id = :commentId")
+	Optional<CommentsEntity> findById(@Param("commentId") Long commentId);
 
 }

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 public class ChildCommentDto { //7
-	private Long commentsId;
+	private Long commentId;
 	private String comment;
 	private Long parentCommentId;
 	private LocalDateTime createdAt;
@@ -22,7 +22,7 @@ public class ChildCommentDto { //7
 	private String authorProfileLink;
 
 	public ChildCommentDto createChildCommentDto(CommentsEntity comments) {
-		this.commentsId = comments.getId();
+		this.commentId = comments.getId();
 		this.comment = comments.getContent();
 		this.parentCommentId = comments.getParent().getId();
 		this.createdAt = comments.getCreatedAt();
