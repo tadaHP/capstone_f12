@@ -20,10 +20,17 @@ configurations {
 
 repositories {
     mavenCentral()
+    repositories {
+        maven {
+            url 'https://repo.spring.io/milestone'
+            name 'Spring Maven MILESTONE Repository'
+        }
+    }
 }
 
 dependencies {
     implementation 'it.ozimov:embedded-redis:0.7.2'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.7'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
