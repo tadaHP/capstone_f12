@@ -22,6 +22,7 @@ import io.f12.notionlinkedblog.comments.domain.dto.CreateCommentDto;
 import io.f12.notionlinkedblog.comments.infrastructure.CommentsEntity;
 import io.f12.notionlinkedblog.comments.service.CommentsServiceImpl;
 import io.f12.notionlinkedblog.comments.service.port.CommentsRepository;
+import io.f12.notionlinkedblog.common.domain.AwsBucket;
 import io.f12.notionlinkedblog.post.infrastructure.PostEntity;
 import io.f12.notionlinkedblog.post.service.port.PostRepository;
 import io.f12.notionlinkedblog.user.infrastructure.UserEntity;
@@ -39,6 +40,8 @@ class CommentsServiceTest {
 	UserRepository userRepository;
 	@Mock
 	private PasswordEncoder passwordEncoder;
+	@Mock
+	private AwsBucket awsBucket;
 
 	@DisplayName("댓글 조회")
 	@Nested
@@ -85,6 +88,8 @@ class CommentsServiceTest {
 				//Mock
 				given(commentsRepository.findByPostId(fakePostId))
 					.willReturn(returnComments);
+				given(awsBucket.makeFileUrl(user.getProfile()))
+					.willReturn("test");
 				//when
 				List<ParentsCommentDto> commentsDto = commentsService.getCommentsByPostId(fakePostId);
 				ParentsCommentDto parentsCommentDto = commentsDto.get(0);
@@ -156,6 +161,8 @@ class CommentsServiceTest {
 				.willReturn(Optional.ofNullable(user));
 			given(commentsRepository.save(any(CommentsEntity.class)))
 				.willReturn(comments);
+			given(awsBucket.makeFileUrl(user.getProfile()))
+				.willReturn("test");
 			//when
 			CommentEditDto commentDto = commentsService.createComments(fakePostId, fakeUserId, createCommentDto);
 			//then
@@ -195,6 +202,8 @@ class CommentsServiceTest {
 				.build();
 			given(commentsRepository.findById(fakeCommentId))
 				.willReturn(Optional.ofNullable(comments));
+			given(awsBucket.makeFileUrl(user.getProfile()))
+				.willReturn("test");
 			//when
 			CommentEditDto editedComment = commentsService.editComment(fakeCommentId, fakeUserId, editContent);
 			//then

@@ -21,14 +21,14 @@ public class ChildCommentDto { //7
 	private String author;
 	private String authorProfileLink;
 
-	public ChildCommentDto createChildCommentDto(CommentsEntity comments) {
+	public ChildCommentDto createChildCommentDto(CommentsEntity comments, String profileUrl) {
 		this.commentId = comments.getId();
 		this.comment = comments.getContent();
 		this.parentCommentId = comments.getParent().getId();
 		this.createdAt = comments.getCreatedAt();
 		this.authorId = comments.getUser().getId();
 		this.author = comments.getUser().getUsername();
-		this.authorProfileLink = comments.getUser().getProfile();
+		this.authorProfileLink = profileUrl;
 
 		return this;
 	}

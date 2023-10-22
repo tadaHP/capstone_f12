@@ -23,13 +23,13 @@ public class ParentsCommentDto {
 	private String authorProfileLink;
 	private List<ChildCommentDto> children;
 
-	public ParentsCommentDto createParentCommentDto(CommentsEntity comments) {
+	public ParentsCommentDto createParentCommentDto(CommentsEntity comments, String profileUrl) {
 		this.commentId = comments.getId();
 		this.comment = comments.getContent();
 		this.createdAt = comments.getCreatedAt();
 		this.authorId = comments.getUser().getId();
 		this.author = comments.getUser().getUsername();
-		this.authorProfileLink = comments.getUser().getProfile();
+		this.authorProfileLink = profileUrl;
 		this.children = new ArrayList<>();
 		return this;
 	}

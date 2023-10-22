@@ -19,6 +19,7 @@ import io.f12.notionlinkedblog.comments.api.response.ParentsCommentDto;
 import io.f12.notionlinkedblog.comments.domain.dto.CreateCommentDto;
 import io.f12.notionlinkedblog.comments.infrastructure.CommentsEntity;
 import io.f12.notionlinkedblog.comments.service.port.CommentsRepository;
+import io.f12.notionlinkedblog.common.domain.AwsBucket;
 import io.f12.notionlinkedblog.common.exceptions.message.ExceptionMessages;
 import io.f12.notionlinkedblog.post.infrastructure.PostEntity;
 import io.f12.notionlinkedblog.post.service.port.PostRepository;
@@ -34,6 +35,7 @@ public class CommentsServiceImpl implements CommentsService {
 	private final CommentsRepository commentsRepository;
 	private final PostRepository postRepository;
 	private final UserRepository userRepository;
+	private final AwsBucket awsBucket;
 
 	public List<ParentsCommentDto> getCommentsByPostId(Long postId) {
 		List<CommentsEntity> comments = commentsRepository.findByPostId(postId);
@@ -127,7 +129,7 @@ public class CommentsServiceImpl implements CommentsService {
 		return new ArrayList<>(parentsMap.values());
 	}
 
-	private static CommentEditDto convertCommentsToCommentEditDto(CommentsEntity comments, UserEntity user) {
+	private CommentEditDto convertCommentsToCommentEditDto(CommentsEntity comments, UserEntity user) {
 		return CommentEditDto.builder()
 			.commentId(comments.getId())
 			.comment(comments.getContent())
@@ -135,7 +137,7 @@ public class CommentsServiceImpl implements CommentsService {
 			.createdAt(comments.getCreatedAt())
 			.author(user.getUsername())
 			.authorId(user.getId())
-			.authorProfileLink(user.getProfile())
+			.authorProfileLink(awsBucket.makeFileUrl(user.getProfile()))
 			.build();
 	}
 
@@ -147,11 +149,14 @@ public class CommentsServiceImpl implements CommentsService {
 
 	private ParentsCommentDto createParentsCommentDto(CommentsEntity comment) {
 		ParentsCommentDto parentsCommentDto = new ParentsCommentDto();
-		return parentsCommentDto.createParentCommentDto(comment);
+		return parentsCommentDto.createParentCommentDto(comment,
+			awsBucket.makeFileUrl(comment.getUser().getProfile()));
 	}
 
 	private ChildCommentDto createChildCommentDto(CommentsEntity comment) {
 		ChildCommentDto childCommentDto = new ChildCommentDto();
-		return childCommentDto.createChildCommentDto(comment);
+		return childCommentDto.createChildCommentDto(comment,
+			awsBucket.makeFileUrl(comment.getUser().getProfile())
+		);
 	}
 }
