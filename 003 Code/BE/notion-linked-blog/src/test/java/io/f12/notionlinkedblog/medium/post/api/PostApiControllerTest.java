@@ -19,7 +19,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartFile;
@@ -36,7 +35,6 @@ import io.f12.notionlinkedblog.post.api.port.PostService;
 import io.f12.notionlinkedblog.post.api.response.PostSearchDto;
 import io.f12.notionlinkedblog.post.domain.dto.PostEditDto;
 import io.f12.notionlinkedblog.post.domain.dto.SearchRequestDto;
-import io.f12.notionlinkedblog.post.domain.dto.ThumbnailReturnDto;
 import io.f12.notionlinkedblog.post.infrastructure.PostEntity;
 import io.f12.notionlinkedblog.post.service.port.PostRepository;
 import io.f12.notionlinkedblog.user.infrastructure.UserEntity;
@@ -436,33 +434,6 @@ class PostApiControllerTest {
 			//then
 			resultActions.andExpect(status().isCreated());
 
-		}
-	}
-
-	@DisplayName("썸네일 실제 조회")
-	@Nested
-	class ThumbnailLookup {
-		//TODO: 변경 필요
-		@DisplayName("성공 케이스")
-		@Test
-		void successCase() throws Exception {
-			//given
-			File file = new ClassPathResource("static/images/test.jpg").getFile();
-			UrlResource urlResource = new UrlResource("file:" + file.getPath());
-			final String url = Endpoint.Api.REQUEST_THUMBNAIL_IMAGE + "testImage";
-			ThumbnailReturnDto dto = ThumbnailReturnDto.builder()
-				.thumbnailPath("path.jpg")
-				.image(urlResource)
-				.build();
-			//mock
-			given(postService.readImageFile("testImage"))
-				.willReturn(new File(""));
-			//when
-			ResultActions resultActions = mockMvc.perform(
-				get(url)
-			);
-			//then
-			resultActions.andExpect(status().isOk());
 		}
 	}
 

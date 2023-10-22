@@ -21,6 +21,7 @@ spring:
       - classpath:application-redis.yml
       - classpath:application-notion.yml
       - classpath:application-oauth2.yml
+      - classpath:application-s3.yml
 
 logging:
   level:

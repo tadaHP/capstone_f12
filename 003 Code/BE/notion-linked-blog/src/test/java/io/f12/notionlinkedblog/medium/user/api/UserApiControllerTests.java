@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.f12.notionlinkedblog.common.Endpoint;
 import io.f12.notionlinkedblog.user.api.port.UserService;
+import io.f12.notionlinkedblog.user.api.response.ProfileImageLinkDto;
 import io.f12.notionlinkedblog.user.api.response.UserSearchDto;
 import io.f12.notionlinkedblog.user.domain.dto.request.UserBasicInfoEditDto;
 import io.f12.notionlinkedblog.user.domain.dto.request.UserBlogTitleEditDto;
@@ -512,9 +513,13 @@ class UserApiControllerTests {
 			File file = new ClassPathResource("static/images/test.jpg").getFile();
 			UrlResource urlResource = new UrlResource("file:" + file.getPath());
 			final String url = Endpoint.Api.USER + "/profile/" + testUser.getId();
+			final String awsUrl = "awsUrl";
+			ProfileImageLinkDto awsUrlDto = ProfileImageLinkDto.builder()
+				.imageUrl(awsUrl)
+				.build();
 
 			//stub
-			given(userService.readImageFile(testUser.getId())).willReturn(new File(""));
+			given(userService.getProfileImageUrl(testUser.getId())).willReturn(awsUrlDto);
 			//when
 			ResultActions resultActions = mockMvc.perform(get(url));
 

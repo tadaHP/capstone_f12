@@ -1,14 +1,13 @@
 package io.f12.notionlinkedblog.post.api.port;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
 import io.f12.notionlinkedblog.post.api.response.PostSearchDto;
 import io.f12.notionlinkedblog.post.api.response.PostSearchResponseDto;
+import io.f12.notionlinkedblog.post.api.response.PostThumbnailDto;
 import io.f12.notionlinkedblog.post.domain.dto.PostEditDto;
 import io.f12.notionlinkedblog.post.domain.dto.SearchRequestDto;
 
@@ -27,13 +26,12 @@ public interface PostService {
 	PostSearchResponseDto getPopularityPosts(Integer pageNumber);
 
 	void removePost(Long postId, Long userId);
-
-	//TODO: 추후 EditThumbnail 을 따로 만들어야 함
+	
 	PostSearchDto editPost(Long postId, Long userId, PostEditDto postEditDto);
 
 	void likeStatusChange(Long postId, Long userId);
 
-	File readImageFile(String imageName) throws MalformedURLException;
+	PostThumbnailDto editThumbnail(Long postId, Long userId, MultipartFile multipartFile) throws IOException;
 
 	PostSearchResponseDto getByHashtagOrderByTrend(String hashtagName, Integer pageNumber);
 

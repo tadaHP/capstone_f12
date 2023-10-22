@@ -10,7 +10,7 @@ public interface PostRepository {
 
 	List<PostEntity> findByPostIdForTrend();
 
-	String findThumbnailPathWithName(String name);
+	String findThumbnailWithName(String name);
 
 	PostEntity save(PostEntity post);
 

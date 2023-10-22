@@ -8,7 +8,6 @@ import static org.mockito.BDDMockito.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +23,13 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+
+import io.f12.notionlinkedblog.common.domain.AwsBucket;
 import io.f12.notionlinkedblog.hashtag.infrastructure.HashtagEntity;
 import io.f12.notionlinkedblog.like.domain.dto.LikeSearchDto;
 import io.f12.notionlinkedblog.like.service.port.LikeRepository;
@@ -62,6 +66,10 @@ class PostServiceTest {
 	UserRepository userRepository;
 	@Mock
 	LikeRepository likeRepository;
+	@Mock
+	AwsBucket awsBucket;
+	@Mock
+	AmazonS3Client amazonS3Client;
 
 	@Mock
 	private PasswordEncoder passwordEncoder;
@@ -97,8 +105,10 @@ class PostServiceTest {
 				String path = "path";
 				String description = "description";
 				Boolean isPublic = true;
+				long postId = 1L;
 
 				PostEntity returnPost = PostEntity.builder()
+					.id(postId)
 					.user(user)
 					.title(title)
 					.content(content)
@@ -108,15 +118,23 @@ class PostServiceTest {
 					.build();
 
 				File file = new ClassPathResource("static/images/test.jpg").getFile();
+				MultipartFile mockMultipartFile = new MockMultipartFile(file.getName(), new FileInputStream(file));
+				ObjectMetadata metadata = new ObjectMetadata();
+				metadata.setContentType(mockMultipartFile.getContentType());
+				metadata.setContentLength(mockMultipartFile.getSize());
+
+				String fileName = "thumbnail/" + postId + "." + StringUtils
+					.getFilenameExtension(mockMultipartFile.getOriginalFilename());
 
 				//Mock
-				MultipartFile mockMultipartFile = new MockMultipartFile(file.getName(), new FileInputStream(file));
 				given(userRepository.findById(fakeId))
 					.willReturn(Optional.of(user));
 				given(postRepository.save(any(PostEntity.class)))
 					.willReturn(returnPost);
 				given(hashtagService.addHashtags(null, returnPost))
 					.willReturn(returnPost);
+				given(awsBucket.makeFileUrl(fileName))
+					.willReturn("userImage");
 
 				//when
 				PostSearchDto createdPost = postService.createPost(fakeId, title, content, description, isPublic,
@@ -927,62 +945,6 @@ class PostServiceTest {
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessageContaining(POST_NOT_EXIST);
 
-			}
-		}
-
-	}
-
-	@DisplayName("썸네일 조회")
-	@Nested
-	class ThumbnailLookup {
-
-		@DisplayName("성공 케이스")
-		@Nested
-		class SuccessCase {
-			@DisplayName("썸네일 존재 케이스")
-			@Test
-			void thumbnailExist() throws MalformedURLException {
-				//given
-				String imageName = "thumbName";
-				UserEntity user = UserEntity.builder()
-					.username("tester")
-					.email("test@gmail.com")
-					.password("1234")
-					.build();
-				//mock
-				given(postRepository.findThumbnailPathWithName(imageName))
-					.willReturn("testImage.png");
-				//when
-				File file = postService.readImageFile(imageName);
-
-				//then
-				assertThat(file).exists();
-			}
-		}
-
-		@DisplayName("실패 케이스")
-		@Nested
-		class FailureCase {
-			@DisplayName("썸네일 존재 케이스")
-			@Test
-			void thumbnailExist() {
-				//given
-				String imageName = "thumbName";
-				UserEntity user = UserEntity.builder()
-					.username("tester")
-					.email("test@gmail.com")
-					.password("1234")
-					.build();
-				PostEntity post = PostEntity.builder()
-					.user(user)
-					.title("testTitle")
-					.content("testContent")
-					.build();
-				//when
-				//then
-				assertThatThrownBy(() -> {
-					postService.readImageFile(imageName);
-				}).isInstanceOf(IllegalArgumentException.class);
 			}
 		}
 

@@ -2,16 +2,11 @@ package io.f12.notionlinkedblog.post.api;
 
 import static org.springframework.http.MediaType.*;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +26,7 @@ import io.f12.notionlinkedblog.common.domain.CommonErrorResponse;
 import io.f12.notionlinkedblog.post.api.port.PostService;
 import io.f12.notionlinkedblog.post.api.response.PostSearchDto;
 import io.f12.notionlinkedblog.post.api.response.PostSearchResponseDto;
+import io.f12.notionlinkedblog.post.api.response.PostThumbnailDto;
 import io.f12.notionlinkedblog.post.domain.dto.HashtagSearchDto;
 import io.f12.notionlinkedblog.post.domain.dto.PostEditDto;
 import io.f12.notionlinkedblog.post.domain.dto.SearchRequestDto;
@@ -192,6 +188,20 @@ public class PostApiController {
 		return postSearchDto;
 	}
 
+	@PutMapping("/thumbnail/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	@Operation(summary = "썸네일 수정", description = "id 에 해당하는 포스트 썸네일 수정")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "포스트 수정 성공",
+			content = @Content(mediaType = APPLICATION_JSON_VALUE,
+				schema = @Schema(implementation = PostThumbnailDto.class)))
+	})
+	public PostThumbnailDto editPost(@PathVariable("id") Long postId,
+		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser,
+		@RequestPart(value = "thumbnail") MultipartFile file) throws IOException {
+		return postService.editThumbnail(postId, loginUser.getUser().getId(), file);
+	}
+
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@Operation(summary = "포스트 삭제", description = "id에 해당하는 포스트 삭제")
@@ -212,30 +222,6 @@ public class PostApiController {
 	public void addLikeToPost(@PathVariable Long postId,
 		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser) {
 		postService.likeStatusChange(postId, loginUser.getUser().getId());
-	}
-
-	@GetMapping("/thumbnail/{imageName}")
-	@Operation(summary = "imageName 에 해당하는 이미지를 가져옵니다")
-	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "이미지 가져오기 성공",
-			content = @Content(mediaType = "image/*")),
-		@ApiResponse(responseCode = "401", description = "DB에 이미지 이름 저장 오류, 문의 요망",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE,
-				schema = @Schema(implementation = CommonErrorResponse.class)))
-	})
-	public ResponseEntity<byte[]> getThumbnail(@PathVariable String imageName) throws IOException {
-		File imageFile = postService.readImageFile(imageName);
-		ResponseEntity<byte[]> result = null;
-
-		try {
-			HttpHeaders header = new HttpHeaders();
-			header.add("Content-type", Files.probeContentType(imageFile.toPath()));
-			result = new ResponseEntity<>(FileCopyUtils.copyToByteArray(imageFile), header, HttpStatus.OK);
-		} catch (IOException e) {
-			log.error(e.getMessage());
-		}
-
-		return result;
 	}
 
 	private void validateIsPublic(String isPublic) {

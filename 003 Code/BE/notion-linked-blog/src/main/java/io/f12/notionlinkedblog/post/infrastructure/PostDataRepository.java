@@ -25,8 +25,8 @@ public interface PostDataRepository extends JpaRepository<PostEntity, Long>, Pos
 	List<PostEntity> findByPostIdForTrend();
 
 	@Override
-	@Query("SELECT DISTINCT p.storedThumbnailPath FROM PostEntity p WHERE p.thumbnailName  = :thumbnailName")
-	String findThumbnailPathWithName(@Param("thumbnailName") String name);
+	@Query("SELECT DISTINCT p.thumbnailName FROM PostEntity p WHERE p.thumbnailName  = :thumbnailName")
+	String findThumbnailWithName(@Param("thumbnailName") String name);
 
 	@Override
 	@Query("SELECT p FROM PostEntity p LEFT JOIN FETCH p.hashtag WHERE p.id = :postId")

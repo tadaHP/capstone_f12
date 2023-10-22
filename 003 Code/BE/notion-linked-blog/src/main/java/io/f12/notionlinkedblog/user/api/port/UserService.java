@@ -1,10 +1,10 @@
 package io.f12.notionlinkedblog.user.api.port;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import io.f12.notionlinkedblog.user.api.response.ProfileImageLinkDto;
 import io.f12.notionlinkedblog.user.api.response.ProfileSuccessEditDto;
 import io.f12.notionlinkedblog.user.api.response.UserSearchDto;
 import io.f12.notionlinkedblog.user.domain.dto.request.UserBasicInfoEditDto;
@@ -30,5 +30,5 @@ public interface UserService {
 
 	public void removeUser(Long id);
 
-	public File readImageFile(Long userId);
+	public ProfileImageLinkDto getProfileImageUrl(Long id);
 }

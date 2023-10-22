@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -19,12 +18,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+
+import io.f12.notionlinkedblog.common.domain.AwsBucket;
 import io.f12.notionlinkedblog.medium.dummy.DummyObject;
+import io.f12.notionlinkedblog.user.api.response.ProfileImageLinkDto;
 import io.f12.notionlinkedblog.user.api.response.UserSearchDto;
 import io.f12.notionlinkedblog.user.domain.dto.request.UserBasicInfoEditDto;
 import io.f12.notionlinkedblog.user.domain.dto.request.UserBlogTitleEditDto;
@@ -43,6 +43,10 @@ class UserServiceTests extends DummyObject {
 	private UserRepository userRepository;
 	@Mock
 	private PasswordEncoder passwordEncoder;
+	@Mock
+	private AwsBucket awsBucket;
+	@Mock
+	private AmazonS3Client amazonS3Client;
 
 	@DisplayName("유저 이메일 기반 회원가입")
 	@Nested
@@ -277,29 +281,6 @@ class UserServiceTests extends DummyObject {
 			@DisplayName("프로파일 이미지 수정 테스트")
 			@Nested
 			class ProfileEditTest {
-				@DisplayName("프로파일 생성")
-				@Test
-				void createProfileImage() throws IOException {
-					//given
-					UserEntity userA = UserEntity.builder()
-						.id(1L)
-						.email("test1@gmail.com")
-						.username("username1")
-						.password("password1")
-						.build();
-
-					File file = new ClassPathResource("static/images/test.jpg").getFile();
-					MultipartFile mockMultipartFile = new MockMultipartFile(file.getName(), new FileInputStream(file));
-					//stub
-					given(userRepository.findById(1L))
-						.willReturn(Optional.of(userA));
-					//when
-					userService.editUserProfileImage(1L, mockMultipartFile);
-					//then
-					assertThat(userA.getProfile()).isNotEmpty();
-					File file1 = new File(userA.getProfile());
-					assertThat(file1).isNotEmpty();
-				}
 
 				@DisplayName("프로파일 삭제")
 				@Test
@@ -331,9 +312,8 @@ class UserServiceTests extends DummyObject {
 					given(userRepository.findById(1L))
 						.willReturn(Optional.of(userA));
 					//when
-					userService.removeUserProfileImage(1L);
 					//then
-					assertThat(userA.getProfile()).isNull();
+					userService.removeUserProfileImage(1L);
 				}
 
 			}
@@ -392,22 +372,25 @@ class UserServiceTests extends DummyObject {
 			@Test
 			void getProfile() {
 				//given
-				String profilePath = "testImage.png";
+				String profileImage = "test";
 				UserEntity userA = UserEntity.builder()
 					.id(1L)
 					.email("test1@gmail.com")
 					.username("username1")
 					.password("password1")
-					.profile(profilePath)
+					.profile("aws")
+					.profile(profileImage)
 					.build();
-
+				String testSuccess = "testSuccess";
 				//stub
 				given(userRepository.findById(1L))
 					.willReturn(Optional.of(userA));
+				given(awsBucket.makeFileUrl(profileImage))
+					.willReturn(testSuccess);
 				//when
-				File file = userService.readImageFile(1L);
+				ProfileImageLinkDto profileImageUrl = userService.getProfileImageUrl(1L);
 				//then
-				assertThat(file).exists();
+				assertThat(profileImageUrl.getImageUrl()).isEqualTo(testSuccess);
 			}
 
 			@DisplayName("기본 프로파일 조회")
@@ -420,14 +403,16 @@ class UserServiceTests extends DummyObject {
 					.username("username1")
 					.password("password1")
 					.build();
+				String testSuccess = "testSuccess";
 				//stub
 				given(userRepository.findById(1L))
 					.willReturn(Optional.of(userA));
+				given(awsBucket.makeFileUrl("profile/DefaultProfile.png"))
+					.willReturn(testSuccess);
 				//when
-				File file = userService.readImageFile(1L);
+				ProfileImageLinkDto profileImageUrl = userService.getProfileImageUrl(1L);
 				//then
-				assertThat(file).isNull();
-
+				assertThat(profileImageUrl.getImageUrl()).isEqualTo(testSuccess);
 			}
 
 		}

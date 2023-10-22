@@ -148,6 +148,10 @@ public class PostEntity extends PostTimeEntity {
 		}
 	}
 
+	public void editThumbnailName(String name) {
+		this.thumbnailName = name;
+	}
+
 	public void addViewCount() {
 		viewCount++;
 	}

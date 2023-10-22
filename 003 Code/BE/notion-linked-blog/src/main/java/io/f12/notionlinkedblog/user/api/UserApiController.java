@@ -4,19 +4,15 @@ import static io.f12.notionlinkedblog.common.exceptions.message.ExceptionMessage
 import static io.f12.notionlinkedblog.email.api.EmailApiController.*;
 import static org.springframework.http.MediaType.*;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Objects;
 
 import javax.servlet.http.HttpSession;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,10 +30,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.f12.notionlinkedblog.common.Endpoint;
 import io.f12.notionlinkedblog.common.domain.CommonErrorResponse;
-import io.f12.notionlinkedblog.common.exceptions.exception.NoProfileImageException;
 import io.f12.notionlinkedblog.security.login.ajax.dto.LoginUser;
 import io.f12.notionlinkedblog.user.api.port.UserService;
 import io.f12.notionlinkedblog.user.api.response.NoUserProfileDto;
+import io.f12.notionlinkedblog.user.api.response.ProfileImageLinkDto;
 import io.f12.notionlinkedblog.user.api.response.ProfileSuccessEditDto;
 import io.f12.notionlinkedblog.user.api.response.UserSearchDto;
 import io.f12.notionlinkedblog.user.domain.dto.request.UserBasicInfoEditDto;
@@ -180,7 +176,8 @@ public class UserApiController {
 	@GetMapping("/profile/{userId}")
 	@Operation(summary = "userId 에 해당하는 회원의 프로파일 이미지 가져오기", description = "userId에 해당하는 사용자의 프로파일 이미지를 가져옵니다")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "이미지 조회 성공", content = @Content(mediaType = "image/*")),
+		@ApiResponse(responseCode = "200", description = "이미지 조회 성공", content = @Content(mediaType = "application/json",
+			schema = @Schema(implementation = ProfileImageLinkDto.class))),
 		@ApiResponse(responseCode = "204", description = "이미지 미 존재, 미존재시 \"프로필 이미지가 존재하지 않습니다.\" 라는 Json 리턴",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE,
 				schema = @Schema(implementation = NoUserProfileDto.class))),
@@ -188,21 +185,9 @@ public class UserApiController {
 			content = @Content(mediaType = APPLICATION_JSON_VALUE,
 				schema = @Schema(implementation = CommonErrorResponse.class)))
 	})
-	public ResponseEntity<byte[]> getProfile(@PathVariable Long userId) throws NoProfileImageException {
-		File imageFile = userService.readImageFile(userId);
-		if (imageFile == null) {
-			throw new NoProfileImageException();
-		}
-		ResponseEntity<byte[]> result = null;
+	public ProfileImageLinkDto getProfile(@PathVariable Long userId) {
 
-		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.add("Content-type", Files.probeContentType(imageFile.toPath()));
-			result = new ResponseEntity<>(FileCopyUtils.copyToByteArray(imageFile), headers, HttpStatus.OK);
-		} catch (IOException e) {
-			log.error(e.getMessage());
-		}
-		return result;
+		return userService.getProfileImageUrl(userId);
 	}
 
 	private void checkSameUser(Long id, LoginUser loginUser) {

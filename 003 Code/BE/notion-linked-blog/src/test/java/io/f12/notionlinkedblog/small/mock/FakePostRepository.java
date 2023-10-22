@@ -25,7 +25,7 @@ public class FakePostRepository implements PostRepository {
 	}
 
 	@Override
-	public String findThumbnailPathWithName(String name) {
+	public String findThumbnailWithName(String name) {
 		return null;
 	}
 

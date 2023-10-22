@@ -510,9 +510,9 @@ class PostDataRepositoryTest {
 				//given
 
 				//when
-				String thumbnailPathWithName = postRepository.findThumbnailPathWithName(thumbnail);
+				String thumbnailPathWithName = postRepository.findThumbnailWithName(thumbnail);
 				//then
-				assertThat(thumbnailPathWithName).isEqualTo(path);
+				assertThat(thumbnailPathWithName).isEqualTo(thumbnail);
 
 			}
 		}
