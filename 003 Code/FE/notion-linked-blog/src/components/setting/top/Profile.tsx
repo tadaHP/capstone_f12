@@ -1,4 +1,4 @@
-import {Avatar, Button, Space, Typography, Upload, UploadProps} from "antd";
+import {Avatar, Button, Image, Space, Typography, Upload, UploadProps} from "antd";
 import styled from "styled-components";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "@/redux/store";
@@ -36,9 +36,9 @@ export default function Profile() {
 
 	useEffect(() => {
 		const fetchProfileImage = async () => {
-			const binaryImg = await getProfileImageAPI(id);
+			const data = await getProfileImageAPI(id);
 
-			setProfileImage(URL.createObjectURL(binaryImg));
+			setProfileImage(data.imageUrl);
 		};
 
 		if (id) {
@@ -55,12 +55,10 @@ export default function Profile() {
 		try {
 			setError(false);
 			setLoading(true);
-			await modifyProfileImageAPI(formData, id);
-			const userProfile = await getProfileImageAPI(id);
-			const url = URL.createObjectURL(userProfile);
+			const {requestLink} = await modifyProfileImageAPI(formData, id);
 
-			setProfileImage(url);
-			dispatch(modifyProfileImage(url));
+			setProfileImage(requestLink);
+			dispatch(modifyProfileImage(requestLink));
 		} catch (e) {
 			setError(true);
 		} finally {
@@ -80,13 +78,10 @@ export default function Profile() {
 		try {
 			setErrorForDeleting(false);
 			setLoadingForDeleting(true);
-			await deleteProfileImageAPI(id);
-			await getProfileImageAPI(id);
-			const userProfile = await getProfileImageAPI(id);
-			const url = URL.createObjectURL(userProfile);
+			const {requestLink} = await deleteProfileImageAPI(id);
 
-			setProfileImage(url);
-			dispatch(modifyProfileImage(url));
+			setProfileImage(requestLink);
+			dispatch(modifyProfileImage(requestLink));
 		} catch (e) {
 			setErrorForDeleting(true);
 		} finally {
@@ -96,9 +91,7 @@ export default function Profile() {
 
 	return (
 		<StyledSpace direction="vertical" align="center">
-			<StyledAvatar
-				src={profileImage}
-			/>
+			<Image src={profileImage} width={128} height={128}/>
 
 			<Upload {...props}>
 				<ImageButton type="primary" loading={loading}>이미지 업로드</ImageButton>

@@ -11,21 +11,15 @@ module.exports = nextConfig({
 		remotePatterns: [
 			{
 				protocol: "https",
-				hostname: "cloudflare-ipfs.com",
-				port: "",
-				pathname: "/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/**",
-			},
-			{
-				protocol: "https",
-				hostname: "avatars.githubusercontent.com",
-				port: "",
-				pathname: "/u/**",
-			},
-			{
-				protocol: "https",
 				hostname: "upload.wikimedia.org",
 				port: "",
 				pathname: "/wikipedia/commons/4/45/Notion_app_logo.png",
+			},
+			{
+				protocol: "https",
+				hostname: "notionlinkedblog.s3.ap-northeast-2.amazonaws.com",
+				port: "",
+				pathname: "/**",
 			},
 		],
 	},

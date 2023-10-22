@@ -1,14 +1,11 @@
 import Image from "next/image";
 import {Button, Form, Input, Space, Typography} from "antd";
-import {MinusSquareOutlined, PlusSquareOutlined} from "@ant-design/icons";
 import styled from "styled-components";
 import {useSelector} from "react-redux";
 import {UserState} from "@/redux/userSlice";
 import {RootState} from "@/redux/store";
 import {CSSProperties, useMemo, useState} from "react";
-import {requestDeleteCommentAPI, requestEditingCommentAPI} from "@/apis/comment";
 import ReplyForm from "./ReplyForm";
-import Reply from "./Reply";
 
 const {TextArea} = Input;
 
@@ -26,18 +23,6 @@ const StyledParagraph = styled(Typography.Paragraph)`
 
   @media screen and (max-width: 768px) {
     font-size: 1rem;
-  }
-`;
-
-const StyledText = styled(Typography.Text)`
-  font-size: 1rem;
-
-  @media screen and (max-width: 768px) {
-    font-size: 0.875rem;
-  }
-
-  :hover {
-    cursor: pointer;
   }
 `;
 
@@ -88,19 +73,13 @@ const FlexEndBtnSpace = styled(Space)`
 	justify-content: flex-end;
 `;
 
-const MarginLeftBtn = styled(Button)`
-	margin-left: 24px;
-	width: 100%;
-`;
-
-export default function Comment({values, postId, handleDeleting, handleEditing}) {
-	const {comment, commentId, createdAt, author, authorId, authorProfileLink, children} = values;
+export default function Reply({values, postId, handleDeleting, handleEditing}) {
+	const {comment, commentId, createdAt, author, authorId, authorProfileLink} = values;
 	const {user} = useSelector<RootState, UserState>(state => state.user);
-	const [replies, setReplies] = useState(children || []);
 	const [isOpenEditForm, setIsOpenEditForm] = useState(false);
 	const [isOpenReplyForm, setIsOpenReplyForm] = useState(false);
-	const [isOpenSecondReplyForm, setIsOpenSecondReplyForm] = useState(false);
-	const [isOpenReplyList, setIsOpenReplyList] = useState(false);
+
+	console.log(authorProfileLink);
 
 	const textAreaStyle: CSSProperties = useMemo(() => ({
 		fontSize: "1rem",
@@ -112,27 +91,13 @@ export default function Comment({values, postId, handleDeleting, handleEditing})
 		setIsOpenEditForm(false);
 	};
 
-	const handleReplyEditing = async (replyCommentId: number, value: string) => {
-		await requestEditingCommentAPI(replyCommentId, value);
-		setReplies(prev =>
-			prev.map(reply => (reply.commentId === replyCommentId ? {...reply, comment: value} : reply)),
-		);
-	};
-
-	const handleReplyDeleting = async (replyId: number) => {
-		await requestDeleteCommentAPI(replyId);
-		setReplies(prev => prev.filter(reply => reply.commentId !== replyId));
-	};
-
 	return (
 		<Container>
 			<CommentWriterDetail>
 				<Image
 					src={authorProfileLink}
-					width={54}
-					height={54}
 					alt="CommentWriterAvatar"
-				/>
+					width={54} height={54} />
 				<CommentWritingInfo>
 					<CommentWriter>{author}</CommentWriter>
 					<Typography.Text>{createdAt}</Typography.Text>
@@ -165,64 +130,11 @@ export default function Comment({values, postId, handleDeleting, handleEditing})
 					</Form.Item>
 				</Form>
 			}
-			{replies && replies.length > 0 &&
-				<StyledText strong onClick={() => {
-					if (isOpenReplyList) {
-						setIsOpenReplyList(false);
-					} else {
-						setIsOpenReplyList(true);
-					}
-				}}>{!isOpenReplyList ?
-						<>
-							<PlusSquareOutlined /> {replies.length}개의 답글
-						</> :
-						<>
-							<MinusSquareOutlined /> 숨기기
-						</>}
-				</StyledText>
-			}
-			{(!replies || replies.length === 0) &&
-				<StyledText strong onClick={() => {
-					if (isOpenReplyForm) {
-						setIsOpenReplyForm(false);
-					} else {
-						setIsOpenReplyForm(true);
-					}
-				}}>{!isOpenReplyForm ?
-						<>
-							<PlusSquareOutlined /> 답글 달기
-						</> :
-						<>
-							<MinusSquareOutlined /> 숨기기
-						</>}
-				</StyledText>
-			}
-			{replies && replies.length > 0 && isOpenReplyList &&
-				<>
-					{replies.map(reply => (
-						<Reply
-							key={reply.commentId}
-							values={reply}
-							postId={postId}
-							handleDeleting={handleReplyDeleting}
-							handleEditing={handleReplyEditing} />
-					))}
-					{!isOpenSecondReplyForm &&
-						<MarginLeftBtn type="primary" onClick={() => setIsOpenSecondReplyForm(true)}>답글 달기</MarginLeftBtn>}
-					{isOpenSecondReplyForm &&
-						<ReplyForm
-							postId={postId}
-							parentCommentId={commentId}
-							setIsOpenReplyForm={setIsOpenSecondReplyForm}
-							setReplies={setReplies} />}
-				</>
-			}
 			{isOpenReplyForm &&
 				<ReplyForm
 					postId={postId}
 					parentCommentId={commentId}
-					setIsOpenReplyForm={setIsOpenReplyForm}
-					setReplies={setReplies} />
+					setIsOpenReplyForm={setIsOpenReplyForm} />
 			}
 		</Container>
 	);

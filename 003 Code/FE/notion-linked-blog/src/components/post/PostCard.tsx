@@ -2,8 +2,6 @@ import {Card, Typography} from "antd";
 import styled from "styled-components";
 import {HeartFilled} from "@ant-design/icons";
 import convertKRTimeStyle from "@/utils/time";
-import {useEffect, useState} from "react";
-import {getThumbnailAPI} from "@/apis/post";
 import Image from "next/image";
 
 const {Meta} = Card;
@@ -33,27 +31,13 @@ const StyledMeta = styled(Meta)`
 `;
 
 export default function PostCard({post}) {
-	const [thumbnail, setThumbnail] = useState("");
-
-	useEffect(() => {
-		async function getThumbnail() {
-			if (post.requestThumbnailLink) {
-				const resp = await getThumbnailAPI(post.requestThumbnailLink);
-
-				setThumbnail(URL.createObjectURL(resp.data));
-			}
-		}
-
-		getThumbnail();
-	}, []);
-
 	return (
 		<StyledCard
 			hoverable
 			bordered={false}
 			cover={
 				<Image
-					src={thumbnail}
+					src={post.requestThumbnailLink}
 					alt="CardCover"
 					width={170}
 					height={170}

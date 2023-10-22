@@ -1,7 +1,7 @@
-import {Button, Form, Input} from "antd";
+import {Button, Form, Input, Space} from "antd";
 import {CSSProperties, useMemo, useState} from "react";
 import styled from "styled-components";
-import {CommentGetResponse, CommentPost, requestAddCommentAPI} from "@/apis/comment";
+import {CommentPost, requestAddCommentAPI} from "@/apis/comment";
 
 const {TextArea} = Input;
 
@@ -9,12 +9,20 @@ const StyledFormItem = styled(Form.Item)`
   text-align: right;
 `;
 
-interface CommentFormProps {
+const FlexEndBtnSpace = styled(Space)`
+	width: 100%;
+	justify-content: flex-end;
+`;
+
+interface ReplyFormProps {
 	postId: number;
-	handleComments: (value: CommentGetResponse) => void;
+	parentCommentId: number;
+	setIsOpenReplyForm: (value: boolean) => void;
+	setReplies?: any;
 }
 
-export default function CommentForm({postId, handleComments}: CommentFormProps) {
+export default function ReplyForm(
+	{postId, parentCommentId, setIsOpenReplyForm, setReplies}: ReplyFormProps) {
 	const [loading, setLoading] = useState(false);
 	const [form] = Form.useForm();
 
@@ -27,15 +35,17 @@ export default function CommentForm({postId, handleComments}: CommentFormProps) 
 	const handleFinish = async (values: any) => {
 		const reqBody: CommentPost = {
 			comment: values.comment,
-			depth: 0,
+			depth: 1,
+			parentCommentId,
 		};
 
 		try {
 			setLoading(true);
 			const comment = await requestAddCommentAPI(reqBody, postId);
 
-			handleComments(comment);
 			form.resetFields();
+			setIsOpenReplyForm(false);
+			setReplies(prev => prev.concat(comment));
 		} catch (e) {
 			if (e?.response?.status !== undefined) {
 				if (e.response.status === 401) {
@@ -52,6 +62,10 @@ export default function CommentForm({postId, handleComments}: CommentFormProps) 
 		}
 	};
 
+	const handleReplyCancel = () => {
+		setIsOpenReplyForm(false);
+	};
+
 	return (
 		<Form
 			form={form}
@@ -62,9 +76,10 @@ export default function CommentForm({postId, handleComments}: CommentFormProps) 
 				<TextArea style={textAreaStyle} rows={3} placeholder="댓글을 작성하세요" />
 			</Form.Item>
 			<StyledFormItem>
-				<Button type="primary" htmlType="submit" loading={loading}>
-					댓글 작성
-				</Button>
+				<FlexEndBtnSpace>
+					<Button onClick={handleReplyCancel}>취소</Button>
+					<Button type="primary" htmlType="submit" loading={loading}>댓글 작성</Button>
+				</FlexEndBtnSpace>
 			</StyledFormItem>
 		</Form>
 	);

@@ -118,19 +118,19 @@ export const modifyProfileImageAPI = async (profile: FormData, id: number) => {
 
 export const getProfileImageAPI = async (id: number) => {
 	try {
-		const resp = await apiClient.get(`/api/users/profile/${id}`, {
-			responseType: "blob",
-		});
+		const resp = await apiClient.get(`/api/users/profile/${id}`);
 
 		return resp.data;
 	} catch (e) {
-		throw new Error(e);
+		throw e;
 	}
 };
 
 export const deleteProfileImageAPI = async (id: number) => {
 	try {
-		await apiClient.delete(`/api/users/profileImage/${id}`);
+		const resp = await apiClient.delete(`/api/users/profileImage/${id}`);
+
+		return resp.data;
 	} catch (e) {
 		throw new Error(e);
 	}
