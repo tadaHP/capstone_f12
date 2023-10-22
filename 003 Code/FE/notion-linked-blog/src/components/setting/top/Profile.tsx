@@ -1,4 +1,4 @@
-import {Avatar, Button, Image, Space, Typography, Upload, UploadProps} from "antd";
+import {Avatar, Button, Space, Typography, Upload, UploadProps} from "antd";
 import styled from "styled-components";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "@/redux/store";
@@ -91,7 +91,7 @@ export default function Profile() {
 
 	return (
 		<StyledSpace direction="vertical" align="center">
-			<Image src={profileImage} width={128} height={128}/>
+			<StyledAvatar src={profileImage} />
 
 			<Upload {...props}>
 				<ImageButton type="primary" loading={loading}>이미지 업로드</ImageButton>

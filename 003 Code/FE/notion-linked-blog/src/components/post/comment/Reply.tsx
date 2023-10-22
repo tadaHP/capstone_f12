@@ -79,8 +79,6 @@ export default function Reply({values, postId, handleDeleting, handleEditing}) {
 	const [isOpenEditForm, setIsOpenEditForm] = useState(false);
 	const [isOpenReplyForm, setIsOpenReplyForm] = useState(false);
 
-	console.log(authorProfileLink);
-
 	const textAreaStyle: CSSProperties = useMemo(() => ({
 		fontSize: "1rem",
 		resize: "none",
@@ -94,7 +92,7 @@ export default function Reply({values, postId, handleDeleting, handleEditing}) {
 	return (
 		<Container>
 			<CommentWriterDetail>
-				<Image
+				<CommentWriterAvatar
 					src={authorProfileLink}
 					alt="CommentWriterAvatar"
 					width={54} height={54} />

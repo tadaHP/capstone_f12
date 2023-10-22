@@ -127,7 +127,7 @@ export default function Comment({values, postId, handleDeleting, handleEditing})
 	return (
 		<Container>
 			<CommentWriterDetail>
-				<Image
+				<CommentWriterAvatar
 					src={authorProfileLink}
 					width={54}
 					height={54}
