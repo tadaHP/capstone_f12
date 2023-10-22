@@ -26,7 +26,7 @@ public interface UserService {
 
 	public ProfileSuccessEditDto editUserProfileImage(Long id, MultipartFile imageFile) throws IOException;
 
-	public void removeUserProfileImage(Long id);
+	public ProfileSuccessEditDto removeUserProfileImage(Long id);
 
 	public void removeUser(Long id);
 

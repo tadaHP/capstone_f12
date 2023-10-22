@@ -444,7 +444,7 @@ class UserApiControllerTests {
 					//when
 					ResultActions perform = mockMvc.perform(delete(url));
 					//then
-					perform.andExpectAll(status().isNoContent());
+					perform.andExpectAll(status().isOk());
 
 				}
 			}

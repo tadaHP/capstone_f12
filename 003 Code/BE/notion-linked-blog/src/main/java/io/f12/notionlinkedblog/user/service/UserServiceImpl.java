@@ -115,12 +115,13 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void removeUserProfileImage(Long id) {
+	public ProfileSuccessEditDto removeUserProfileImage(Long id) {
 		UserEntity findUser = userRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
-		if (findUser.getProfile().isEmpty()) {
-			findUser.setProfile(null);
-		}
+		findUser.setProfile(null);
+		return ProfileSuccessEditDto.builder()
+			.requestLink(awsBucket.makeFileUrl("profile/DefaultProfile.png"))
+			.build();
 	}
 
 	@Override

@@ -160,17 +160,18 @@ public class UserApiController {
 	}
 
 	@DeleteMapping(value = "/profileImage/{id}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@Operation(summary = "profileImage 삭제", description = "profileImage 를 삭제합니다.")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "204", description = "이미지 삭제 성공"),
+		@ApiResponse(responseCode = "200", description = "이미지 삭제 성공",
+			content = @Content(mediaType = APPLICATION_JSON_VALUE,
+				schema = @Schema(implementation = ProfileSuccessEditDto.class))),
 		@ApiResponse(responseCode = "401", description = "미존재"),
 		@ApiResponse(responseCode = "500", description = "기존 썸네일 삭제 실패")
 	})
-	public void removeUserProfile(
+	public ProfileSuccessEditDto removeUserProfile(
 		@PathVariable Long id, @Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser) {
 		checkSameUser(id, loginUser);
-		userService.removeUserProfileImage(id);
+		return userService.removeUserProfileImage(id);
 	}
 
 	@GetMapping("/profile/{userId}")
