@@ -19,18 +19,6 @@ public interface UserRepository {
 
 	Optional<UserEntity> findByOauthId(String id);
 
-	// Optional<User> findUserById(Long id);
-	//
-	// Optional<User> findUserByIdForNotionAuthToken(Long id);
-	//
-	// Optional<User> findByEmail(final String email);
-	//
-	// Optional<User> findSeriesByUserId(Long userId);
-	//
-	// User save(User user);
-	//
-	// Optional<User> findById(Long id);
-
 	void deleteById(Long id);
 
 	void deleteAll();

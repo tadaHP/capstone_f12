@@ -30,6 +30,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 
 import io.f12.notionlinkedblog.common.domain.AwsBucket;
+import io.f12.notionlinkedblog.common.domain.EntityConverter;
 import io.f12.notionlinkedblog.hashtag.infrastructure.HashtagEntity;
 import io.f12.notionlinkedblog.like.domain.dto.LikeSearchDto;
 import io.f12.notionlinkedblog.like.service.port.LikeRepository;
@@ -70,6 +71,8 @@ class PostServiceTest {
 	AwsBucket awsBucket;
 	@Mock
 	AmazonS3Client amazonS3Client;
+	@Mock
+	EntityConverter entityConverter;
 
 	@Mock
 	private PasswordEncoder passwordEncoder;
@@ -273,11 +276,18 @@ class PostServiceTest {
 					.pageNumber(0)
 					.build();
 				PageRequest paging = PageRequest.of(requestDto.getPageNumber(), 20);
+				List<PostSearchDto> list = new ArrayList<>();
+				list.add(PostSearchDto.builder()
+					.title(title).author(username).build());
+				list.add(new PostSearchDto());
+
 				//Mock
 				given(querydslPostRepository.findPostIdsByTitle(requestDto.getParam(), paging))
 					.willReturn(ids);
 				given(querydslPostRepository.findByPostIdsJoinWithUserAndLikeOrderByTrend(ids))
 					.willReturn(postList);
+				given(entityConverter.convertPostToPostDto(postList))
+					.willReturn(list);
 				//when
 				PostSearchResponseDto posts = postService.getPostsByTitle(requestDto);
 				PostSearchDto postSearchDto = posts.getPosts().get(0);
@@ -339,6 +349,10 @@ class PostServiceTest {
 				List<PostEntity> postList = new ArrayList<>();
 				postList.add(post1);
 				postList.add(post2);
+				List<PostSearchDto> list = new ArrayList<>();
+				list.add(PostSearchDto.builder()
+					.title(title).author(username).build());
+				list.add(new PostSearchDto());
 
 				PageRequest paging = PageRequest.of(requestDto.getPageNumber(), 20);
 
@@ -347,6 +361,8 @@ class PostServiceTest {
 					.willReturn(ids);
 				given(querydslPostRepository.findByPostIdsJoinWithUserAndLikeOrderByTrend(ids))
 					.willReturn(postList);
+				given(entityConverter.convertPostToPostDto(postList))
+					.willReturn(list);
 				//when
 				PostSearchResponseDto posts = postService.getPostByContent(requestDto);
 				PostSearchDto postSearchDto = posts.getPosts().get(0);
@@ -561,12 +577,18 @@ class PostServiceTest {
 				List<PostEntity> postList = new ArrayList<>();
 				postList.add(postA);
 				postList.add(postB);
+				List<PostSearchDto> list = new ArrayList<>();
+				list.add(PostSearchDto.builder()
+					.title(postA.getTitle()).author(postA.getUser().getUsername()).build());
+				list.add(new PostSearchDto());
 
 				//Mock
 				given(querydslPostRepository.findLatestPostIdsByCreatedAtDesc(paging))
 					.willReturn(postIds);
 				given(querydslPostRepository.findByPostIdsJoinWithUserAndLikeOrderByLatest(postIds))
 					.willReturn(postList);
+				given(entityConverter.convertPostToPostDto(postList))
+					.willReturn(list);
 
 				//when
 				PostSearchResponseDto latestPosts = postService.getLatestPosts(requestPageNumber);
@@ -619,12 +641,17 @@ class PostServiceTest {
 				List<PostEntity> postList = new ArrayList<>();
 				postList.add(postA);
 				postList.add(postB);
+				List<PostSearchDto> list = new ArrayList<>();
+				list.add(new PostSearchDto());
+				list.add(new PostSearchDto());
 
 				//Mock
 				given(querydslPostRepository.findPopularityPostIdsByViewCountAtDesc(paging))
 					.willReturn(postIds);
 				given(querydslPostRepository.findByPostIdsJoinWithUserAndLikeOrderByTrend(postIds))
 					.willReturn(postList);
+				given(entityConverter.convertPostToPostDto(postList))
+					.willReturn(list);
 
 				//when
 				PostSearchResponseDto latestPosts = postService.getPopularityPosts(requestPageNumber);

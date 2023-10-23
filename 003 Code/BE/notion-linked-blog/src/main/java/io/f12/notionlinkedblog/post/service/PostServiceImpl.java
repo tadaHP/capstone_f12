@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -20,8 +19,8 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 
 import io.f12.notionlinkedblog.common.domain.AwsBucket;
+import io.f12.notionlinkedblog.common.domain.EntityConverter;
 import io.f12.notionlinkedblog.hashtag.exception.NoHashtagException;
-import io.f12.notionlinkedblog.hashtag.infrastructure.HashtagEntity;
 import io.f12.notionlinkedblog.like.domain.dto.LikeSearchDto;
 import io.f12.notionlinkedblog.like.infrastructure.LikeEntity;
 import io.f12.notionlinkedblog.like.service.port.LikeRepository;
@@ -52,6 +51,7 @@ public class PostServiceImpl implements PostService {
 	private final LikeRepository likeRepository;
 	private final HashtagService hashtagService;
 	private final AmazonS3Client amazonS3Client;
+	private final EntityConverter entityConverter;
 	private final AwsBucket awsBucket;
 	@Value("${application.bucket.name}")
 	private String bucket;
@@ -75,7 +75,7 @@ public class PostServiceImpl implements PostService {
 			.build();
 
 		PostEntity savedPost = hashtagService.addHashtags(hashtags, postRepository.save(post));
-		List<String> hashtagList = getHashtagsFromPost(savedPost);
+		List<String> hashtagList = entityConverter.getHashtagsFromPost(savedPost);
 		String url = null;
 
 		if (multipartFile != null) {
@@ -89,7 +89,7 @@ public class PostServiceImpl implements PostService {
 
 			savedPost.editThumbnailName(fileName);
 		} else {
-			url = getDefaultThumbnail();
+			url = entityConverter.getDefaultThumbnail();
 		}
 
 		return PostSearchDto.builder()
@@ -115,7 +115,7 @@ public class PostServiceImpl implements PostService {
 		List<Long> ids = querydslPostRepository.findPostIdsByTitle(dto.getParam(), paging);
 		List<PostEntity> posts = querydslPostRepository.findByPostIdsJoinWithUserAndLikeOrderByTrend(ids);
 
-		List<PostSearchDto> postSearchDtos = convertPostToPostDto(posts);
+		List<PostSearchDto> postSearchDtos = entityConverter.convertPostToPostDto(posts);
 
 		return buildPostSearchResponseDto(paging, postSearchDtos, ids.size());
 	}
@@ -127,7 +127,7 @@ public class PostServiceImpl implements PostService {
 		List<Long> ids = querydslPostRepository.findPostIdsByContent(dto.getParam(), paging);
 		List<PostEntity> posts = querydslPostRepository.findByPostIdsJoinWithUserAndLikeOrderByTrend(ids);
 
-		List<PostSearchDto> postSearchDtos = convertPostToPostDto(posts);
+		List<PostSearchDto> postSearchDtos = entityConverter.convertPostToPostDto(posts);
 
 		return buildPostSearchResponseDto(paging, postSearchDtos, ids.size());
 	}
@@ -146,7 +146,7 @@ public class PostServiceImpl implements PostService {
 		if (post.getThumbnailName() != null) {
 			thumbnailLink = awsBucket.makeFileUrl(post.getThumbnailName());
 		} else {
-			thumbnailLink = getDefaultThumbnail();
+			thumbnailLink = entityConverter.getDefaultThumbnail();
 		}
 		if (post.getLikes() != null) {
 			likeSize = post.getLikes().size();
@@ -159,7 +159,7 @@ public class PostServiceImpl implements PostService {
 				.orElse(null);
 		}
 
-		List<String> hashtagList = getHashtagsFromPost(post);
+		List<String> hashtagList = entityConverter.getHashtagsFromPost(post);
 
 		return PostSearchDto.builder()
 			.isLiked(likeInfo != null)
@@ -184,7 +184,7 @@ public class PostServiceImpl implements PostService {
 		List<Long> ids = querydslPostRepository.findLatestPostIdsByCreatedAtDesc(paging);
 		List<PostEntity> posts = querydslPostRepository.findByPostIdsJoinWithUserAndLikeOrderByLatest(ids);
 
-		List<PostSearchDto> postSearchDtos = convertPostToPostDto(posts);
+		List<PostSearchDto> postSearchDtos = entityConverter.convertPostToPostDto(posts);
 		return buildPostSearchResponseDto(paging, postSearchDtos, ids.size());
 	}
 
@@ -194,7 +194,7 @@ public class PostServiceImpl implements PostService {
 		List<Long> ids = querydslPostRepository.findPopularityPostIdsByViewCountAtDesc(paging);
 		List<PostEntity> posts = querydslPostRepository.findByPostIdsJoinWithUserAndLikeOrderByTrend(ids);
 
-		List<PostSearchDto> postSearchDtos = convertPostToPostDto(posts);
+		List<PostSearchDto> postSearchDtos = entityConverter.convertPostToPostDto(posts);
 		return buildPostSearchResponseDto(paging, postSearchDtos, ids.size());
 	}
 
@@ -225,7 +225,7 @@ public class PostServiceImpl implements PostService {
 
 		List<PostEntity> posts = querydslPostRepository.findByPostIdsJoinWithUserAndLikeOrderByTrend(postIds);
 
-		List<PostSearchDto> postSearchDtos = convertPostToPostDto(posts);
+		List<PostSearchDto> postSearchDtos = entityConverter.convertPostToPostDto(posts);
 		PageRequest paging = PageRequest.of(pageNumber, pageSize);
 
 		return buildPostSearchResponseDto(paging, postSearchDtos, posts.size());
@@ -246,12 +246,13 @@ public class PostServiceImpl implements PostService {
 		}
 		List<PostEntity> posts = querydslPostRepository.findByPostIdsJoinWithUserAndLikeOrderByLatest(postIds);
 
-		List<PostSearchDto> postSearchDtos = convertPostToPostDto(posts);
+		List<PostSearchDto> postSearchDtos = entityConverter.convertPostToPostDto(posts);
 		PageRequest paging = PageRequest.of(pageNumber, pageSize);
 
 		return buildPostSearchResponseDto(paging, postSearchDtos, posts.size());
 	}
 
+	@Override
 	public PostSearchDto editPost(Long postId, Long userId, PostEditDto postEditDto) {
 		PostEntity changedPost = postRepository.findById(postId)
 			.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
@@ -260,7 +261,7 @@ public class PostServiceImpl implements PostService {
 		}
 		changedPost.editPost(postEditDto.getTitle(), postEditDto.getContent());
 		PostEntity savedPost = hashtagService.editHashtags(postEditDto.getHashtags(), changedPost);
-		List<String> savedHashtagList = getHashtagsFromPost(savedPost);
+		List<String> savedHashtagList = entityConverter.getHashtagsFromPost(savedPost);
 
 		return PostSearchDto.builder()
 			.isLiked(false)
@@ -278,6 +279,7 @@ public class PostServiceImpl implements PostService {
 			.build();
 	}
 
+	@Override
 	public PostThumbnailDto editThumbnail(Long postId, Long userId, MultipartFile multipartFile) throws IOException {
 		PostEntity changedPost = postRepository.findById(postId)
 			.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
@@ -300,6 +302,7 @@ public class PostServiceImpl implements PostService {
 			.build();
 	}
 
+	@Override
 	public void likeStatusChange(Long postId, Long userId) {
 		PostEntity post = postRepository.findById(postId)
 			.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
@@ -319,53 +322,6 @@ public class PostServiceImpl implements PostService {
 	}
 
 	// 내부 사용 매서드
-	private List<String> getHashtagsFromPost(PostEntity savedPost) {
-		List<HashtagEntity> hashtags = savedPost.getHashtag();
-		if (hashtags == null) {
-			return new ArrayList<>();
-		}
-		return hashtags.stream()
-			.map(HashtagEntity::getName)
-			.collect(Collectors.toList());
-	}
-
-	private List<PostSearchDto> convertPostToPostDto(List<PostEntity> posts) {
-		return posts.stream().map(p -> {
-			String thumbnailLink = null;
-			Integer commentsSize = null;
-			Integer likeSize = null;
-
-			if (p.getThumbnailName() != null) {
-				thumbnailLink = awsBucket.makeFileUrl(p.getThumbnailName());
-			} else {
-				thumbnailLink = getDefaultThumbnail();
-			}
-
-			if (p.getLikes() != null) {
-				likeSize = p.getLikes().size();
-			}
-			if (p.getComments() != null) {
-				commentsSize = p.getComments().size();
-			}
-
-			List<String> hashtagList = getHashtagsFromPost(p);
-
-			return PostSearchDto.builder()
-				.postId(p.getId())
-				.title(p.getTitle())
-				.content(p.getContent())
-				.viewCount(p.getViewCount())
-				.likes(likeSize)
-				.requestThumbnailLink(thumbnailLink)
-				.description(p.getDescription())
-				.createdAt(p.getCreatedAt())
-				.countOfComments(commentsSize)
-				.author(p.getUser().getUsername())
-				.avatar(awsBucket.makeFileUrl(p.getUser().getProfile()))
-				.hashtags(hashtagList)
-				.build();
-		}).collect(Collectors.toList());
-	}
 
 	private PostSearchResponseDto buildPostSearchResponseDto(PageRequest paging, List<PostSearchDto> dto, int size) {
 		return PostSearchResponseDto.builder()
@@ -382,9 +338,5 @@ public class PostServiceImpl implements PostService {
 
 	private String makeThumbnailName(MultipartFile imageFile, PostEntity post) {
 		return "thumbnail/" + post.getId() + "." + StringUtils.getFilenameExtension(imageFile.getOriginalFilename());
-	}
-
-	private String getDefaultThumbnail() {
-		return awsBucket.makeFileUrl("thumbnail/DefaultThumbnail.jpg");
 	}
 }

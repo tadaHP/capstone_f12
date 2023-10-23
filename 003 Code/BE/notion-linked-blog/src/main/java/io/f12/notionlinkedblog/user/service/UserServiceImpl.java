@@ -3,6 +3,7 @@ package io.f12.notionlinkedblog.user.service;
 import static io.f12.notionlinkedblog.common.exceptions.message.ExceptionMessages.UserExceptionsMessages.*;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,16 +16,25 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 
 import io.f12.notionlinkedblog.common.domain.AwsBucket;
+import io.f12.notionlinkedblog.common.domain.EntityConverter;
+import io.f12.notionlinkedblog.post.api.response.PostSearchDto;
+import io.f12.notionlinkedblog.post.infrastructure.PostEntity;
+import io.f12.notionlinkedblog.series.infrastructure.SeriesEntity;
 import io.f12.notionlinkedblog.user.api.port.UserService;
 import io.f12.notionlinkedblog.user.api.response.ProfileImageLinkDto;
 import io.f12.notionlinkedblog.user.api.response.ProfileSuccessEditDto;
+import io.f12.notionlinkedblog.user.api.response.UserPostsDto;
 import io.f12.notionlinkedblog.user.api.response.UserSearchDto;
+import io.f12.notionlinkedblog.user.api.response.UserSeriesDto;
+import io.f12.notionlinkedblog.user.domain.dto.UserSeriesInfoDto;
 import io.f12.notionlinkedblog.user.domain.dto.request.UserBasicInfoEditDto;
 import io.f12.notionlinkedblog.user.domain.dto.request.UserBlogTitleEditDto;
 import io.f12.notionlinkedblog.user.domain.dto.request.UserSocialInfoEditDto;
 import io.f12.notionlinkedblog.user.domain.dto.signup.UserSignupRequestDto;
 import io.f12.notionlinkedblog.user.infrastructure.UserEntity;
+import io.f12.notionlinkedblog.user.service.port.UserPostQuerydslRepository;
 import io.f12.notionlinkedblog.user.service.port.UserRepository;
+import io.f12.notionlinkedblog.user.service.port.UserSeriesQuerydslRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,8 +45,11 @@ import lombok.extern.slf4j.Slf4j;
 public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
+	private final UserPostQuerydslRepository userPostQuerydslRepository;
+	private final EntityConverter entityConverter;
 	private final PasswordEncoder passwordEncoder;
 	private final AmazonS3Client amazonS3Client;
+	private final UserSeriesQuerydslRepository userSeriesQuerydslRepository;
 	private final AwsBucket awsBucket;
 	@Value("${application.bucket.name}")
 	private String bucket;
@@ -143,6 +156,31 @@ public class UserServiceImpl implements UserService {
 
 		return ProfileImageLinkDto.builder()
 			.imageUrl(awsBucket.makeFileUrl(user.getProfile()))
+			.build();
+	}
+
+	@Override
+	public UserPostsDto getPostById(Long userId) {
+		List<PostEntity> userPost = userPostQuerydslRepository
+			.findPostsByIdsForUserPost(userPostQuerydslRepository.findPostIdsByUserId(userId));
+
+		List<PostSearchDto> userPostDtos = entityConverter.convertPostToPostDto(userPost);
+
+		return UserPostsDto.builder()
+			.postsSize(userPostDtos.size())
+			.data(userPostDtos)
+			.build();
+	}
+
+	@Override
+	public UserSeriesDto getSeriesById(Long userId) {
+		List<SeriesEntity> seriesData = userSeriesQuerydslRepository.findByUserIds(
+			userSeriesQuerydslRepository.findIdByUserId(userId));
+		List<UserSeriesInfoDto> convertData = entityConverter.convertSeriesToSeriesDto(seriesData);
+
+		return UserSeriesDto.builder()
+			.seriesSize(convertData.size())
+			.data(convertData)
 			.build();
 	}
 

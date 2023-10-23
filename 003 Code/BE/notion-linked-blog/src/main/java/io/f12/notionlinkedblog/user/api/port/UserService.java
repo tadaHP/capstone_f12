@@ -6,7 +6,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.f12.notionlinkedblog.user.api.response.ProfileImageLinkDto;
 import io.f12.notionlinkedblog.user.api.response.ProfileSuccessEditDto;
+import io.f12.notionlinkedblog.user.api.response.UserPostsDto;
 import io.f12.notionlinkedblog.user.api.response.UserSearchDto;
+import io.f12.notionlinkedblog.user.api.response.UserSeriesDto;
 import io.f12.notionlinkedblog.user.domain.dto.request.UserBasicInfoEditDto;
 import io.f12.notionlinkedblog.user.domain.dto.request.UserBlogTitleEditDto;
 import io.f12.notionlinkedblog.user.domain.dto.request.UserSocialInfoEditDto;
@@ -31,4 +33,8 @@ public interface UserService {
 	public void removeUser(Long id);
 
 	public ProfileImageLinkDto getProfileImageUrl(Long id);
+
+	UserPostsDto getPostById(Long userId);
+
+	UserSeriesDto getSeriesById(Long userId);
 }

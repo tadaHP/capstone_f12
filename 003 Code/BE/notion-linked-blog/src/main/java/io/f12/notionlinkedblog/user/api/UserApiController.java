@@ -35,7 +35,9 @@ import io.f12.notionlinkedblog.user.api.port.UserService;
 import io.f12.notionlinkedblog.user.api.response.NoUserProfileDto;
 import io.f12.notionlinkedblog.user.api.response.ProfileImageLinkDto;
 import io.f12.notionlinkedblog.user.api.response.ProfileSuccessEditDto;
+import io.f12.notionlinkedblog.user.api.response.UserPostsDto;
 import io.f12.notionlinkedblog.user.api.response.UserSearchDto;
+import io.f12.notionlinkedblog.user.api.response.UserSeriesDto;
 import io.f12.notionlinkedblog.user.domain.dto.request.UserBasicInfoEditDto;
 import io.f12.notionlinkedblog.user.domain.dto.request.UserBlogTitleEditDto;
 import io.f12.notionlinkedblog.user.domain.dto.request.UserSocialInfoEditDto;
@@ -177,7 +179,7 @@ public class UserApiController {
 	@GetMapping("/profile/{userId}")
 	@Operation(summary = "userId 에 해당하는 회원의 프로파일 이미지 가져오기", description = "userId에 해당하는 사용자의 프로파일 이미지를 가져옵니다")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "이미지 조회 성공", content = @Content(mediaType = "application/json",
+		@ApiResponse(responseCode = "200", description = "이미지 조회 성공", content = @Content(mediaType = APPLICATION_JSON_VALUE,
 			schema = @Schema(implementation = ProfileImageLinkDto.class))),
 		@ApiResponse(responseCode = "204", description = "이미지 미 존재, 미존재시 \"프로필 이미지가 존재하지 않습니다.\" 라는 Json 리턴",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE,
@@ -187,8 +189,27 @@ public class UserApiController {
 				schema = @Schema(implementation = CommonErrorResponse.class)))
 	})
 	public ProfileImageLinkDto getProfile(@PathVariable Long userId) {
-
 		return userService.getProfileImageUrl(userId);
+	}
+
+	@GetMapping("/posts/{userId}")
+	@Operation(summary = "userId 에 해당하는 회원의 포스트 가져오기", description = "userId에 해당하는 사용자의 포스트 가져옵니다")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "포스트 조회 성공", content = @Content(mediaType = APPLICATION_JSON_VALUE,
+			schema = @Schema(implementation = UserPostsDto.class)))
+	})
+	public UserPostsDto getPostsByUserId(@PathVariable Long userId) {
+		return userService.getPostById(userId);
+	}
+
+	@GetMapping("/series/{userId}")
+	@Operation(summary = "userId 에 해당하는 회원의 시리즈 가져오기", description = "userId에 해당하는 사용자의 시리즈 가져옵니다")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "시리즈 조회 성공", content = @Content(mediaType = APPLICATION_JSON_VALUE,
+			schema = @Schema(implementation = UserSeriesDto.class)))
+	})
+	public UserSeriesDto getSeriesByUserId(@PathVariable Long userId) {
+		return userService.getSeriesById(userId);
 	}
 
 	private void checkSameUser(Long id, LoginUser loginUser) {
