@@ -1,5 +1,5 @@
 {
-	"내 블로그": "/{username}",
+	"내 블로그": "/myblog",
 	"설정": "/setting",
 	"글쓰기": "/write",
 	"로그아웃": "/logout"

@@ -143,3 +143,13 @@ export const getUser = async (id: number) => {
 		throw e;
 	}
 };
+
+export const getMyPosts = async (id: number) => {
+	try {
+		const resp = await apiClient.get(`/api/users/posts/${id}`);
+
+		return resp.data;
+	} catch (e) {
+		throw e;
+	}
+};
