@@ -179,8 +179,9 @@ public class UserApiController {
 	@GetMapping("/profile/{userId}")
 	@Operation(summary = "userId 에 해당하는 회원의 프로파일 이미지 가져오기", description = "userId에 해당하는 사용자의 프로파일 이미지를 가져옵니다")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "이미지 조회 성공", content = @Content(mediaType = APPLICATION_JSON_VALUE,
-			schema = @Schema(implementation = ProfileImageLinkDto.class))),
+		@ApiResponse(responseCode = "200", description = "이미지 조회 성공",
+			content = @Content(mediaType = APPLICATION_JSON_VALUE,
+				schema = @Schema(implementation = ProfileImageLinkDto.class))),
 		@ApiResponse(responseCode = "204", description = "이미지 미 존재, 미존재시 \"프로필 이미지가 존재하지 않습니다.\" 라는 Json 리턴",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE,
 				schema = @Schema(implementation = NoUserProfileDto.class))),
@@ -195,8 +196,9 @@ public class UserApiController {
 	@GetMapping("/posts/{userId}")
 	@Operation(summary = "userId 에 해당하는 회원의 포스트 가져오기", description = "userId에 해당하는 사용자의 포스트 가져옵니다")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "포스트 조회 성공", content = @Content(mediaType = APPLICATION_JSON_VALUE,
-			schema = @Schema(implementation = UserPostsDto.class)))
+		@ApiResponse(responseCode = "200", description = "포스트 조회 성공",
+			content = @Content(mediaType = APPLICATION_JSON_VALUE,
+				schema = @Schema(implementation = UserPostsDto.class)))
 	})
 	public UserPostsDto getPostsByUserId(@PathVariable Long userId) {
 		return userService.getPostById(userId);
@@ -205,8 +207,17 @@ public class UserApiController {
 	@GetMapping("/series/{userId}")
 	@Operation(summary = "userId 에 해당하는 회원의 시리즈 가져오기", description = "userId에 해당하는 사용자의 시리즈 가져옵니다")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "시리즈 조회 성공", content = @Content(mediaType = APPLICATION_JSON_VALUE,
-			schema = @Schema(implementation = UserSeriesDto.class)))
+		@ApiResponse(responseCode = "200", description = "series 조회 성공",
+			content = @Content(mediaType = APPLICATION_JSON_VALUE,
+				schema = @Schema(example = "{\n"
+					+ "    \"seriesSize\": 1,\n"
+					+ "    \"data\": [\n"
+					+ "        {\n"
+					+ "            \"seriesId\": 999999,\n"
+					+ "            \"title\": \"testSeries\"\n"
+					+ "        }\n"
+					+ "    ]\n"
+					+ "}")))
 	})
 	public UserSeriesDto getSeriesByUserId(@PathVariable Long userId) {
 		return userService.getSeriesById(userId);
