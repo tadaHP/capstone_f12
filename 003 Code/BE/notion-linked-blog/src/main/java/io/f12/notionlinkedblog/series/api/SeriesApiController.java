@@ -2,8 +2,6 @@ package io.f12.notionlinkedblog.series.api;
 
 import static io.f12.notionlinkedblog.common.exceptions.message.ExceptionMessages.UserExceptionsMessages.*;
 
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,6 +23,7 @@ import io.f12.notionlinkedblog.series.api.response.SeriesCreateResponseDto;
 import io.f12.notionlinkedblog.series.api.response.SeriesDetailSearchDto;
 import io.f12.notionlinkedblog.series.api.response.SeriesSimpleSearchDto;
 import io.f12.notionlinkedblog.series.api.response.UserSeriesDto;
+import io.f12.notionlinkedblog.series.api.response.UserSeriesResponseDto;
 import io.f12.notionlinkedblog.series.domain.dto.request.SeriesCreateDto;
 import io.f12.notionlinkedblog.series.domain.dto.request.SeriesPostRemoveDto;
 import io.f12.notionlinkedblog.series.domain.dto.request.SeriesRemoveDto;
@@ -84,7 +83,7 @@ public class SeriesApiController {
 			content = @Content(mediaType = "application/json",
 				schema = @Schema(implementation = CommonErrorResponse.class)))
 	})
-	public List<UserSeriesDto> getSeriesByUserId(@PathVariable("userId") Long userId) {
+	public UserSeriesResponseDto getSeriesByUserId(@PathVariable("userId") Long userId) {
 		return seriesService.getSeriesByUserId(userId);
 	}
 

@@ -17,8 +17,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 
+import io.f12.notionlinkedblog.common.domain.EntityConverter;
+import io.f12.notionlinkedblog.common.domain.PagingInfo;
 import io.f12.notionlinkedblog.post.infrastructure.PostEntity;
 import io.f12.notionlinkedblog.post.service.port.QuerydslPostRepository;
+import io.f12.notionlinkedblog.series.api.response.PostForDetailSeries;
 import io.f12.notionlinkedblog.series.api.response.SeriesDetailSearchDto;
 import io.f12.notionlinkedblog.series.api.response.SeriesSimpleSearchDto;
 import io.f12.notionlinkedblog.series.infrastructure.SeriesEntity;
@@ -37,6 +40,8 @@ class SeriesServiceTest {
 
 	@Mock
 	SeriesRepository seriesRepository;
+	@Mock
+	EntityConverter entityConverter;
 
 	@DisplayName("시리즈 정보 간단 조회")
 	@Nested
@@ -61,6 +66,7 @@ class SeriesServiceTest {
 				.id(fakeId)
 				.title("testSeries")
 				.post(new ArrayList<>())
+				.user(user)
 				.build();
 
 			PostEntity postA = PostEntity.builder()
@@ -134,6 +140,7 @@ class SeriesServiceTest {
 					.id(fakeId)
 					.title("testSeries")
 					.post(new ArrayList<>())
+					.user(user)
 					.build();
 
 				PostEntity postA = PostEntity.builder()
@@ -162,6 +169,16 @@ class SeriesServiceTest {
 					.storedThumbnailPath("pathC")
 					.series(series)
 					.build();
+				List<PostForDetailSeries> convertPosts = new ArrayList<>();
+				convertPosts.add(PostForDetailSeries.builder()
+					.postTitle("titleA")
+					.build());
+				convertPosts.add(PostForDetailSeries.builder()
+					.postTitle("titleB")
+					.build());
+				convertPosts.add(PostForDetailSeries.builder()
+					.postTitle("titleC")
+					.build());
 
 				series.addPost(postA);
 				series.addPost(postB);
@@ -177,11 +194,25 @@ class SeriesServiceTest {
 				posts.add(postC);
 
 				PageRequest pageRequest = PageRequest.of(0, 10);
+
+				SeriesDetailSearchDto convert = SeriesDetailSearchDto.builder()
+					.authorId(user.getId())
+					.author(user.getUsername())
+					.seriesId(series.getId())
+					.seriesName(series.getTitle())
+					.pagingInfo(PagingInfo.builder()
+						.pageNow(0)
+						.elementSize(3)
+						.build())
+					.postsInfo(convertPosts)
+					.build();
 				//mock
 				given(querydslPostRepository.findIdsBySeriesIdAsc(fakeId, pageRequest))
 					.willReturn(ids);
 				given(querydslPostRepository.findByIdsJoinWithSeries(ids))
 					.willReturn(posts);
+				given(entityConverter.convertPostToSeriesDetailSearchDto(posts, 0, series))
+					.willReturn(convert);
 				//when
 				SeriesDetailSearchDto seriesDetailSearchDto
 					= seriesService.getDetailSeriesInfoOrderByAsc(series.getId(), 0);
@@ -244,6 +275,16 @@ class SeriesServiceTest {
 					.storedThumbnailPath("pathC")
 					.series(series)
 					.build();
+				List<PostForDetailSeries> convertPosts = new ArrayList<>();
+				convertPosts.add(PostForDetailSeries.builder()
+					.postTitle("titleA")
+					.build());
+				convertPosts.add(PostForDetailSeries.builder()
+					.postTitle("titleB")
+					.build());
+				convertPosts.add(PostForDetailSeries.builder()
+					.postTitle("titleC")
+					.build());
 
 				series.addPost(postA);
 				series.addPost(postB);
@@ -259,11 +300,25 @@ class SeriesServiceTest {
 				posts.add(postC);
 
 				PageRequest pageRequest = PageRequest.of(0, 10);
+
+				SeriesDetailSearchDto convert = SeriesDetailSearchDto.builder()
+					.authorId(user.getId())
+					.author(user.getUsername())
+					.seriesId(series.getId())
+					.seriesName(series.getTitle())
+					.pagingInfo(PagingInfo.builder()
+						.pageNow(0)
+						.elementSize(3)
+						.build())
+					.postsInfo(convertPosts)
+					.build();
 				//mock
 				given(querydslPostRepository.findIdsBySeriesIdDesc(fakeId, pageRequest))
 					.willReturn(ids);
 				given(querydslPostRepository.findByIdsJoinWithSeries(ids))
 					.willReturn(posts);
+				given(entityConverter.convertPostToSeriesDetailSearchDto(posts, 0, series))
+					.willReturn(convert);
 				//when
 				SeriesDetailSearchDto seriesDetailSearchDto
 					= seriesService.getDetailSeriesInfoOrderByDesc(series.getId(), 0);

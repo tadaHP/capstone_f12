@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 public class SeriesDetailSearchDto {
+	private Long authorId;
+	private String author;
 	private Long seriesId;
 	private String seriesName;
 	private PagingInfo pagingInfo;

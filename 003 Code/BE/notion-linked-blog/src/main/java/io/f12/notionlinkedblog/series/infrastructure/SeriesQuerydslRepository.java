@@ -30,7 +30,7 @@ public class SeriesQuerydslRepository implements UserSeriesQuerydslRepository {
 	public List<SeriesEntity> findByUserIds(List<Long> ids) {
 		return queryFactory.selectFrom(seriesEntity)
 			.where(seriesEntity.id.in(ids))
+			.leftJoin(seriesEntity.user, userEntity)
 			.fetch();
 	}
-
 }
