@@ -1,34 +1,104 @@
-import {Avatar, Button, Space} from "antd";
+import {Avatar, Button, Space, Typography, Upload, UploadProps} from "antd";
 import styled from "styled-components";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "@/redux/store";
+import {modifyProfileImage} from "@/redux/userSlice";
+import {deleteProfileImageAPI, getProfileImageAPI, modifyProfileImageAPI} from "@/apis/user";
+import {useEffect, useState} from "react";
 
 const StyledSpace = styled(Space)`
-	padding-right: 24px;
+  padding-right: 24px;
 `;
 
 const ImageButton = styled(Button)`
-	width: 130px;
-	padding: 0 20px;
+  width: 130px;
+  padding: 0 20px;
 `;
 
 const StyledAvatar = styled(Avatar)`
-	width: 128px;
-	height: 128px;
+  width: 128px;
+  height: 128px;
 
-	@media screen and (max-width: 768px){
-		width: 96px;
-		height: 96px;
-	}
+  @media screen and (max-width: 768px) {
+    width: 96px;
+    height: 96px;
+  }
 `;
 
 export default function Profile() {
+	const id = useSelector<RootState, number>(state => state.user.user?.id);
+	const [profileImage, setProfileImage] = useState("");
+	const [error, setError] = useState(false);
+	const [loading, setLoading] = useState(false);
+	const [errorForDeleting, setErrorForDeleting] = useState(false);
+	const [loadingForDeleting, setLoadingForDeleting] = useState(false);
+	const dispatch = useDispatch();
+
+	useEffect(() => {
+		const fetchProfileImage = async () => {
+			const data = await getProfileImageAPI(id);
+
+			setProfileImage(data.imageUrl);
+		};
+
+		if (id) {
+			fetchProfileImage();
+		}
+	}, [id]);
+
+	const uploadImage = async options => {
+		const {file} = options;
+		const formData = new FormData();
+
+		formData.append("profile", file);
+
+		try {
+			setError(false);
+			setLoading(true);
+			const {requestLink} = await modifyProfileImageAPI(formData, id);
+
+			setProfileImage(requestLink);
+			dispatch(modifyProfileImage(requestLink));
+		} catch (e) {
+			setError(true);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const props: UploadProps = {
+		name: "profile",
+		customRequest: uploadImage,
+		accept: "image/*",
+		maxCount: 1,
+		showUploadList: false,
+	};
+
+	const handleRemoveProfileImage = async () => {
+		try {
+			setErrorForDeleting(false);
+			setLoadingForDeleting(true);
+			const {requestLink} = await deleteProfileImageAPI(id);
+
+			setProfileImage(requestLink);
+			dispatch(modifyProfileImage(requestLink));
+		} catch (e) {
+			setErrorForDeleting(true);
+		} finally {
+			setLoadingForDeleting(false);
+		}
+	};
+
 	return (
-		// TODO: 프로파일 이미지 처리
 		<StyledSpace direction="vertical" align="center">
-			<StyledAvatar
-				src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAASbSURBVHgB7Z0tTytBFIYP914BDiQ4cIADB0EhwYFE8ifq7g/hJ2CRSCQ4kOCobF3ruHk3maS5aSnbdnfPOe/7JE0oCTvTnmc+dvbMsNbr9b5M0PLLBDUSgBwJQI4EIEcCkCMByJEA5EgAciQAORKAHAlAjgQgRwKQIwHIkQDkSAByJAA5EoAcCUCOBCBHApAjAciRAORIAHIkADkSgBwJQI4EIEcCkCMByJEA5EgAciQAOX+MhPX1dTs+Prbt7W3b3d21jY2N6ndgPB7bYDCw4XBor6+v9vHxUb1nIL0Ae3t7dn5+XgV9FhABYuC1v79f/Q4SPD8/28vLi2UmrQA/Cfx34O/wwjXu7u7S9gi/z87O/loyELTr62vb2tqyZcFQcXp6Wv2MXiEb6SaBCDwEWDVFqmykEgABOjo6sqbAtbNJkEaAi4uLRoNfQBmXl5eWhRQCIChlnG6Dk5OTVstrkvACYKLXxJg/D5RZ1hEiE14ABGIVs/26IPgZeoHQAiDwbYz7s4AA0XuB0AIsusizKsrycmRCC+Dhyz84OLDIhBUAra/rHgCgDpGHgbAC7OzsmBc81aUuYQXY3Nw0L3iqS13CCtDFrd8sPNWlLsoIIkcCkBNWAE8JGpGTRcIKgPw9L3iqS13CCvD5+Wle8FSXuoQVAJm8HlK0UAfUJSqhJ4Fvb2/WNcgcjkxoAfDld936oieKhhYAwX96erKuwJ6B6Oni4dcBIEAXvQAC//j4aNEJLwCC30UgUGaGzSIpVgLRC7Q5FKCsLFvG0iwFPzw8tBIUlIGyspDqWcD9/X2jEuDaKCMT6R4GIUBNzAlwzWzBByl3ByNYaK23t7dLP6vHfT6u9/7+bhlZ6/V6X5YYpI0jebRu/mD2wBfSHxCBngAv9ASQ4PDwsErhwvvJE0JGo1EV9H6/72KFsS1SCDAZyFngnh2vVUwSUV4WQUILULZnlR06aMGYqDW1QDN56khZho6+Ghh2DoBgXF1dTZ3koZWvcqWubECdtg0NZUQ+QiakAGjxOA9gHhABj4wXeWyMHgX5/j85Zwi9AXoeD4+n6xJOAASk7nbwkjyCGT0meXg/mcWDYOMsIJwShtaO3mWRHT/odaINCaHmAIsEHyCQOP6tHAHXFKVukSQIsxK4aPDbBnWMdG5ACAHwhUYIfgHzEwwjEXAvQFdHwCzLzc1NiC1jrgXA2I31/Ijbr1HnCEfKuRagq/N/VgXuJLzPB9wKgMBnOITJu8RuBUDXnwHvQ4FLAbDkGrnr/x8MBV7vClwKEHHWPw+vn8mdANlaf8FrL+BOgIytv+Dxs7kSAC0kY+sveOwFXAnQ5bGvbdH0A6m6uBLAw8GPTePtaFk3AmTv/gtYF/A0DLgRgKH1Fzx9VjcCIBuHBU89nRsBkKrFgqfNJm5SwpBGVc7fz/CvWKZRUsk9bS1PvzVMfI+OiiVHApAjAciRAORIAHIkADkSgBwJQI4EIEcCkCMByJEA5EgAciQAORKAHAlAjgQgRwKQIwHIkQDkSAByJAA5EoAcCUCOBCBHApAjAciRAORIAHIkADkSgBwJQI4EIOcfGjV2tEfztqEAAAAASUVORK5CYII="
-			/>
-			<ImageButton type="primary">이미지 업로드</ImageButton>
-			<ImageButton>이미지 제거</ImageButton>
+			<StyledAvatar src={profileImage} />
+
+			<Upload {...props}>
+				<ImageButton type="primary" loading={loading}>이미지 업로드</ImageButton>
+			</Upload>
+			<ImageButton onClick={handleRemoveProfileImage} loading={loadingForDeleting}>이미지 제거</ImageButton>
+			{error && <Typography.Text type="danger">업로드 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.</Typography.Text>}
+			{errorForDeleting && <Typography.Text type="danger">이미지 제거 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.</Typography.Text>}
 		</StyledSpace>
 	);
 }

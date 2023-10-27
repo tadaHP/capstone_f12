@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import styled from "styled-components";
-import {Button, Modal} from "antd";
+import {Button, Modal, Space} from "antd";
 import {useState} from "react";
 import {requestDeletePostAPI} from "@/apis/post";
 import {useRouter} from "next/router";
@@ -11,6 +11,7 @@ import {useSelector} from "react-redux";
 import Link from "next/link";
 import {RootState} from "@/redux/store";
 import {UserState} from "@/redux/userSlice";
+import CommentContainer from "./comment/CommentContainer";
 
 const MDPreview = dynamic(
 	() => import("@uiw/react-markdown-preview").then(mod => mod.default),
@@ -18,37 +19,37 @@ const MDPreview = dynamic(
 );
 
 const StyledMDPreview = styled(MDPreview)`
-	background-color: transparent !important;
-	margin-top: 80px;
+  background-color: transparent !important;
+  margin-top: 80px;
+  width: 100%;
+  height: 100%;
 `;
 
 const StyledContainer = styled.div`
-	width: 768px;
+  width: 768px;
 
-	@media screen and (max-width: 768px) {
-		width: 100vw;
-		padding: 0 16px;
-	}
+  @media screen and (max-width: 768px) {
+    width: 100vw;
+    padding: 0 16px;
+  }
 
-	margin: 0 567.5px;
-	margin-top: 88px;
-	margin-bottom: 64px;
+  margin: 88px 567.5px 64px;
 `;
 
 const StyledTop = styled.div`
 `;
 
 const StyledTitle = styled.div`
-	font-size: 3rem;
+  font-size: 3rem;
 `;
 
 const StyledSubTitle = styled.div`
 `;
 
 const StyledButtonDiv = styled.div`
-	& > Button {
-		margin: 10px;
-	}
+  & > Button {
+    margin: 10px;
+  }
 `;
 
 export default function PostViewer({post}) {
@@ -74,37 +75,39 @@ export default function PostViewer({post}) {
 	};
 
 	return (
-		<StyledContainer data-color-mode="light">
-			<StyledTop>
-				<StyledTitle>{post.title}</StyledTitle>
-				<StyledSubTitle>{post.author} · {post.createdAt}</StyledSubTitle>
-			</StyledTop>
-			<div className="wmde-markdown-var" />
-			<StyledMDPreview source={post.content} height="100%" />
-			{user?.username === post.author &&
-				<StyledButtonDiv>
-					<Link href={{
-						pathname: `/write/${post.postId}`,
-						query: {
-							postId: post.postId,
-							title: post.title,
-							content: post.content,
-							author: post.author,
-						},
-					}}
-					as={`/write/${post.postId}`}>
-						<Button type="primary">
-							수정하기
+		<Space direction="vertical" align="center">
+			<StyledContainer data-color-mode="light">
+				<StyledTop>
+					<StyledTitle>{post.title}</StyledTitle>
+					<StyledSubTitle>{post.author} · {post.createdAt}</StyledSubTitle>
+				</StyledTop>
+				<div className="wmde-markdown-var" />
+				<StyledMDPreview source={post.content} />
+				{user?.username === post.author &&
+					<StyledButtonDiv>
+						<Link href={{
+							pathname: `/write/${post.postId}`,
+							query: {
+								postId: post.postId,
+								title: post.title,
+								content: post.content,
+								author: post.author,
+							},
+						}} as={`/write/${post.postId}`}>
+							<Button type="primary">
+								수정하기
+							</Button>
+						</Link>
+						<Button type="primary" onClick={showModal}>
+							삭제하기
 						</Button>
-					</Link>
-					<Button type="primary" onClick={showModal}>
-						삭제하기
-					</Button>
-					<Modal title="포스트 삭제" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okText="확인" cancelText="취소">
-						<p>포스트를 정말 삭제하시겠습니까?</p>
-					</Modal>
-				</StyledButtonDiv>
-			}
-		</StyledContainer>
+						<Modal title="포스트 삭제" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okText="확인" cancelText="취소">
+							<p>포스트를 정말 삭제하시겠습니까?</p>
+						</Modal>
+					</StyledButtonDiv>
+				}
+			</StyledContainer>
+			<CommentContainer postId={post.postId} />
+		</Space >
 	);
 }

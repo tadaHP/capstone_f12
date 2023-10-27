@@ -1,14 +1,9 @@
-import {Space} from "antd";
 import styled from "styled-components";
 import Profile from "./top/Profile";
 import Introduction from "./top/Introduction";
 
-const StyledSpace = styled(Space)`
-	width: 100%;
-
-	& .ant-space-item {
-		height: 100%;
-	}
+const Container = styled.section`
+	display: flex;
 
 	@media screen and (max-width: 768px){
 		flex-direction: column;
@@ -17,9 +12,9 @@ const StyledSpace = styled(Space)`
 
 export default function TopInfo() {
 	return (
-		<StyledSpace>
+		<Container>
 			<Profile />
 			<Introduction />
-		</StyledSpace>
+		</Container>
 	);
 }

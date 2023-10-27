@@ -1,10 +1,8 @@
 import {useState, useEffect} from "react";
 import {useRouter} from "next/router";
-import {Space} from "antd";
 import {getPostByIdAPI} from "@/apis/post";
 import AppLayout from "@/components/common/AppLayout";
 import PostViewer from "@/components/post/PostViewer";
-import CommentContainer from "@/components/post/comment/CommentContainer";
 import convertKRTimeStyle from "@/utils/time";
 
 export default function Page() {
@@ -27,10 +25,7 @@ export default function Page() {
 
 	return (
 		<AppLayout>
-			<Space direction="vertical" align="center">
-				<PostViewer post={post} />
-				<CommentContainer />
-			</Space>
+			<PostViewer post={post} />
 		</AppLayout>
 	);
 }

@@ -1,21 +1,11 @@
 spring:
-  h2:
-    console:
-      enabled: true
-  sql:
-    init:
-      mode: embedded #data.sql(초기화) 실행(memory, embedded 모드에서만)
-  jpa:
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: true
-        use_sql_comments: true
-    defer-datasource-initialization: true # data initial, 메모리모드에서 사용
   config:
     import:
       - classpath:application-mail.yml
       - classpath:application-redis.yml
+      - classpath:application-notion.yml
+      - classpath:application-oauth2.yml
+      - classpath:application-s3.yml
 
 logging:
   level:
@@ -24,3 +14,5 @@ logging:
         type:
           descriptor:
             sql: trace
+server:
+  url: "localhost:8080"

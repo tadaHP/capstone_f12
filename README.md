@@ -4,7 +4,7 @@
 
 - 20197121 정지용
 - 20181605 홍현표
-- 20177123 김태언
+- ~~20177123 김태언~~ (개인 사정으로 인해 중도 하차)
 
 ## Teamate Project Background
 
@@ -18,34 +18,75 @@
 1. 노션에 개인적으로 작성한 내용을 블로그에 옮기기 위해서는 여러가지 방법이 있다.
    1. 노션 자체에 내장되어있는 내보내기 기능을 사용하는데 변경되는 부분이 생겨 일일이 수정을 해주어야 하며 매우 불안정하다.
    2. 노션 자체를 페이지로 웹에서 공유하는 방법이 있다. 하지만 이 방법은 URL이 매우 복잡해지고 SEO도 좋지않아 결과 노출이 어렵다.
-   3. 마지막 방법은 프로그램을 사용하는 방법이다. [노션 - 티스토리 프로젝트]("https://github.com/jmjeon94/N2T") 현재는 버그가 많아 사용이 어렵다고 한다. 항상 프로그램을 실행시켜야 하고 어느정도 개발지식도 필요해 접근성도 떨어진다.
+   3. 마지막 방법은 프로그램을 사용하는 방법이다. [노션 - 티스토리 프로젝트]("https://github.com/jmjeon94/N2T")는 현재는 버그가 많아 사용이 어렵다고 한다. 항상 프로그램을 실행시켜야 하고 어느정도 개발지식도 필요해 접근성도 떨어진다.
 
 ## System Design
 
-- ### System Requirements
+### Tech Skill
+
+#### Frontend
+
+<img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=React&logoColor=white"/>
+<img src="https://img.shields.io/badge/Redux-764ABC?style=flat-square&logo=Redux&logoColor=white"/>
+<img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=TypeScript&logoColor=white"/>
+<img src="https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=Next.js&logoColor=white"/>
+<img src="https://img.shields.io/badge/StyledComponents-DB7093?style=flat-square&logo=styledcomponents&logoColor=white"/>
+<img src="https://img.shields.io/badge/axios-5A29E4?style=flat-square&logo=axios&logoColor=white"/>
+<img src="https://img.shields.io/badge/ESLint-4B32C3?style=flat-square&logo=eslint&logoColor=white"/>
+
+#### Backend
+
+<img src="https://img.shields.io/badge/SpringBoot-6DB33F?style=flat-square&logo=SpringBoot&logoColor=white"/>
+<img src="https://img.shields.io/badge/SpringSecurity-6DB33F?style=flat-square&logo=springsecurity&logoColor=white"/>
+<img src="https://img.shields.io/badge/Hibernate-59666C?style=flat-square&logo=Hibernate&logoColor=white"/>
+<img src="https://img.shields.io/badge/MariaDB-003545?style=flat-square&logo=MariaDB&logoColor=white"/>
+<img src="https://img.shields.io/badge/redis-DC382D?style=flat-square&logo=Redis&logoColor=white"/>
+
+#### Devops
+
+<img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=Docker&logoColor=white"/>
+<img src="https://img.shields.io/badge/Kubernetes-326CE5?style=flat-square&logo=kubernetes&logoColor=white"/>
+<img src="https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=AmazonAWS&logoColor=white"/>
+
+#### Promgramming Tool
+
+<img src="https://img.shields.io/badge/VSCode-007ACC?style=flat-square&logo=Visual Studio Code&logoColor=white"/>
+<img src="https://img.shields.io/badge/Intellij-000000?style=flat-square&logo=IntelliJ IDEA&logoColor=white"/>
+
+### Communication Tool
+
+<img src="https://img.shields.io/badge/Slack-4A154B?style=flat-square&logo=slack&logoColor=white"/>
+<img src="https://img.shields.io/badge/Jira-0052CC?style=flat-square&logo=jira&logoColor=white"/>
+
+### System Architecture
+
+#### 운영
+
+![prod](./img/F12_ProductArchitecture.jpg)
+
+#### 개발
+
+![dev](./img/F12_DevArchitecture.jpg)
+
+### System Requirements
+
+![SystemRequirements](./img/F12_System_Requirements.jpg)
 
 #### 주요 기능
 
 1. 노션 연동
-   가. 자신이 작성한 노션 글 중에서 원하는 글을 선택하면 가져와서 자동으로 글을 작성.
+   1. 자신이 작성한 노션 글 중에서 원하는 글을 선택하면 가져와서 자동으로 글을 작성.
 2. 포스팅
-   나. 마크다운으로 입력하면 이를 뷰로 바꿔준다(다시 쓰기)
-   다. 마크다운의 # 문법을 미리보기로 보여준다.
-   라. 텍스트, 이미지 업로드
-   마. 해쉬태그 기능
-   바. 썸네일 기능
-   사. 좋아요 기능
-   아. 댓글 기능
-   자. 시리즈 기능
-   차. 시리즈에 등록된 글들을 모아서 볼 수 있다
-   카. 포스트에서 포스트로 넘어갈 때 시리즈에 있는 글들끼리 모아서 쉽게 넘어갈 수 있게 한다.
-3. 트렌딩
-   타. 특정 기간동안(한달, 한주, 일년)의 포스트중 사람들이 많이 읽은 글들을 보여주기
-   파. 최신 올라온 글들을 보여주기
-4. 구독 및 피드 기능
-   하. 특정 사용자의 글을 구독하여 알람을 받을 수 있음
-5. 방문 통계 기능
-6. 관리자 기능
+   1. 마크다운으로 입력하면 이를 뷰로 바꿔준다(다시 쓰기)
+   2. 마크다운의 # 문법을 미리보기로 보여준다.
+   3. 텍스트, 이미지 업로드
+   4. 해쉬태그 기능
+   5. 썸네일 기능
+   6. 좋아요 기능
+   7. 댓글 기능
+   8. 시리즈 기능
+   9. 시리즈에 등록된 글들을 모아서 볼 수 있다
+   10. 포스트에서 포스트로 넘어갈 때 시리즈에 있는 글들끼리 모아서 쉽게 넘어갈 수 있게 한다.
 
 #### 비기능적 요구사항
 
@@ -53,31 +94,25 @@
 - 보안성: 악의적인 사용자를 방지하기 위해 이메일 기반 인증 및 Oauth2 회원가입을 통해 스팸 계정을 제한한다.
 - 이식성: 웹 기반 서비스이기 때문에 PC, 모바일, 태블릿 등 기종에 상관없이 웹 브라우저만 있다면 이용할 수 있도록 최대한의 이식성을 제공한다.
 
-## Case Study
-
-- ### Description
-
 ## Conclusion
 
-- ### OOO
+- 현재 많은 개발자들이 개인적으로 기록하거나 공유할 만한 내용들은 블로그를 통해 보여지고 있고 협업과 같이 많은 사람들과 일을 진행할 때는 노션을 사용하고 있다.
 
-## Project Outcome
-
-- ### 2023 년 OO학술대회
+- 노션에 있는 글을 개인 혹은 회사 홍보, 공유 목적으로 블로그에 올리는 사람들은 더 쉽고 빠르게 블로그에 글을 공유함으로써 원하는 목적에 달성할 수 있다.
 
 ## ERD
-updatedAt 2023.05.31
+
 ![erd](./img/F12-ERD.png)
 
 ## Class Diagram
 
-![class_diagram](./img/F12.png)
+![ClassDiagram](./img/class-diagram.png)
 
 ## Commit Rule
 
 ### Commit Message Structure
 
-```
+```plain
 type: subject
 
 body

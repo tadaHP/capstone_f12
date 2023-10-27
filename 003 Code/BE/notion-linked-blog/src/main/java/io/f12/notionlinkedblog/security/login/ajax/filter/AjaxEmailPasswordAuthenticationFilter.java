@@ -17,9 +17,9 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.f12.notionlinkedblog.api.common.Endpoint;
-import io.f12.notionlinkedblog.domain.user.dto.login.email.EmailLoginUserRequestDto;
+import io.f12.notionlinkedblog.common.Endpoint;
 import io.f12.notionlinkedblog.security.login.ajax.token.AjaxEmailPasswordAuthenticationToken;
+import io.f12.notionlinkedblog.user.domain.dto.login.email.EmailLoginUserRequestDto;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

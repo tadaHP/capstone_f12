@@ -9,11 +9,12 @@ export interface User {
 	blogTitle: string;
 	githubLink: string;
 	instagramLink: string;
+	notionCertificate: boolean;
 }
 
 export const checkLoginStatus = async () => {
 	try {
-		return await apiClient.get("/users/login-status");
+		return await apiClient.get("/api/users/login-status");
 	} catch (e) {
 		throw e;
 	}
@@ -21,7 +22,7 @@ export const checkLoginStatus = async () => {
 
 export const loginByEmailAPI = async userDetails => {
 	try {
-		return await apiClient.post("/login/email", userDetails, {
+		return await apiClient.post("/api/login/email", userDetails, {
 			headers: {
 				"Content-Type": "application/json",
 			},
@@ -33,7 +34,7 @@ export const loginByEmailAPI = async userDetails => {
 
 export const logoutAPI = async () => {
 	try {
-		await apiClient.post("/logout");
+		await apiClient.post("/api/logout");
 	} catch (e) {
 		throw e;
 	}
@@ -43,7 +44,7 @@ export const signoutAPI = async (id: number) => {
 	let errorMsg;
 
 	try {
-		await apiClient.delete(`/users/${id}`);
+		await apiClient.delete(`/api/users/${id}`);
 	} catch (e) {
 		switch (e.response.status) {
 			case 401:
@@ -60,5 +61,105 @@ export const signoutAPI = async (id: number) => {
 				break;
 		}
 		throw new Error(errorMsg);
+	}
+};
+
+export const modifyBlogTitleAPI = async (blogTitle: string, id: number) => {
+	try {
+		await apiClient.put(`/api/users/blogTitle/${id}`, {blogTitle});
+	} catch (e) {
+		throw new Error(e);
+	}
+};
+
+export interface ModifyingSocialInfo {
+	githubLink: string;
+	instagramLink: string;
+}
+
+export const modifySocialInfoAPI = async (
+	{githubLink, instagramLink}: ModifyingSocialInfo, id: number,
+) => {
+	try {
+		await apiClient.put(`/api/users/social/${id}`, {githubLink, instagramLink});
+	} catch (e) {
+		throw new Error(e);
+	}
+};
+
+export interface ModifyingBasicInfo {
+	username: string;
+	introduction: string;
+}
+
+export const modifyBasicInfoAPI = async (
+	{username, introduction}: ModifyingBasicInfo, id: number,
+) => {
+	try {
+		await apiClient.put(`/api/users/basic/${id}`, {username, introduction});
+	} catch (e) {
+		throw new Error(e);
+	}
+};
+
+export const modifyProfileImageAPI = async (profile: FormData, id: number) => {
+	try {
+		const resp = await apiClient.put(`/api/users/profileImage/${id}`, profile, {
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+		});
+
+		return resp.data;
+	} catch (e) {
+		throw new Error(e);
+	}
+};
+
+export const getProfileImageAPI = async (id: number) => {
+	try {
+		const resp = await apiClient.get(`/api/users/profile/${id}`);
+
+		return resp.data;
+	} catch (e) {
+		throw e;
+	}
+};
+
+export const deleteProfileImageAPI = async (id: number) => {
+	try {
+		const resp = await apiClient.delete(`/api/users/profileImage/${id}`);
+
+		return resp.data;
+	} catch (e) {
+		throw new Error(e);
+	}
+};
+
+export const getUser = async (id: number) => {
+	try {
+		return (await apiClient.get(`/api/users/${id}`)).data;
+	} catch (e) {
+		throw e;
+	}
+};
+
+export const getMyPosts = async (id: number) => {
+	try {
+		const resp = await apiClient.get(`/api/users/posts/${id}`);
+
+		return resp.data;
+	} catch (e) {
+		throw e;
+	}
+};
+
+export const getMySeries = async (id: number) => {
+	try {
+		const resp = await apiClient.get(`/api/users/series/${id}`);
+
+		return resp.data;
+	} catch (e) {
+		throw e;
 	}
 };

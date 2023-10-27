@@ -1,5 +1,6 @@
 # 콘솔에 한글 깨짐 방지
 server:
+  url: "localhost:8080"
   servlet:
     encoding:
       force-response: true
@@ -18,6 +19,9 @@ spring:
     import:
       - classpath:application-mail.yml
       - classpath:application-redis.yml
+      - classpath:application-notion.yml
+      - classpath:application-oauth2.yml
+      - classpath:application-s3.yml
 
 logging:
   level:

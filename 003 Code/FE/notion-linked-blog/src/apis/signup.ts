@@ -12,7 +12,7 @@ export interface SignupUser {
 
 export const requestVerificationCodeAPI = async (email: string) => {
 	try {
-		await apiClient.post("/email", email, {
+		await apiClient.post("/api/email", email, {
 			headers: {
 				"Content-Type": "text/plain",
 			},
@@ -25,7 +25,7 @@ export const requestVerificationCodeAPI = async (email: string) => {
 
 export const requestVerifyCodeAPI = async (code: string) => {
 	try {
-		await apiClient.post("/email/code", code, {
+		await apiClient.post("/api/email/code", code, {
 			headers: {
 				"Content-Type": "text/plain",
 			},
@@ -38,7 +38,7 @@ export const requestVerifyCodeAPI = async (code: string) => {
 
 export const requestSignupAPI = async (user: SignupUser) => {
 	try {
-		await apiClient.post("/users/email/signup", user, {
+		await apiClient.post("/api/users/email/signup", user, {
 			headers: {
 				"Content-Type": "application/json",
 			},

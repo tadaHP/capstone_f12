@@ -1,6 +1,7 @@
 package io.f12.notionlinkedblog.security.login.ajax.handler;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,7 +31,7 @@ public class AjaxAuthenticationFailureHandler implements AuthenticationFailureHa
 		log.info("AjaxAuthenticationFailureHandler.onAuthenticationFailure() 시작");
 		String errorMessage = "이메일 또는 비밀번호를 잘못 입력하셨습니다.";
 		AjaxLoginFailureDto loginFailureDto = AjaxLoginFailureDto.from(errorMessage);
-
+		response.setCharacterEncoding(String.valueOf(StandardCharsets.UTF_8));
 		response.setStatus(HttpStatus.BAD_REQUEST.value());
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 

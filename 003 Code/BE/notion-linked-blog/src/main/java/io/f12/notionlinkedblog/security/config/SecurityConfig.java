@@ -1,6 +1,6 @@
 package io.f12.notionlinkedblog.security.config;
 
-import static io.f12.notionlinkedblog.api.common.Endpoint.Api.*;
+import static io.f12.notionlinkedblog.common.Endpoint.Api.*;
 import static org.springframework.http.MediaType.*;
 
 import java.nio.charset.StandardCharsets;
@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.token.SecureRandomFactoryBean;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
@@ -24,10 +23,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.f12.notionlinkedblog.api.common.Endpoint;
+import io.f12.notionlinkedblog.common.Endpoint;
+import io.f12.notionlinkedblog.common.handler.CommonAuthenticationSuccessHandler;
+import io.f12.notionlinkedblog.oauth.common.domain.handler.OAuth2AuthenticationFailureHandler;
+import io.f12.notionlinkedblog.oauth.common.service.CustomOAuth2UserDetailsService;
 import io.f12.notionlinkedblog.security.common.dto.AuthenticationFailureDto;
 import io.f12.notionlinkedblog.security.login.ajax.configure.AjaxLoginConfigurer;
 import io.f12.notionlinkedblog.security.login.check.filter.LoginStatusCheckingFilter;
+import io.f12.notionlinkedblog.user.service.port.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,6 +40,10 @@ import lombok.extern.slf4j.Slf4j;
 public class SecurityConfig {
 
 	private final UserDetailsService userDetailsService;
+	private final UserRepository userRepository;
+	private final CustomOAuth2UserDetailsService customOAuth2UserDetailsService;
+	private final PasswordEncoder passwordEncoder;
+	private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -44,14 +51,23 @@ public class SecurityConfig {
 			.authorizeRequests()
 			.antMatchers(Endpoint.Api.EMAIL + "/**").permitAll()
 			.antMatchers(Endpoint.Api.USER + "/email/signup").permitAll()
-			.antMatchers(HttpMethod.GET, Endpoint.Api.USER + "/{id}").permitAll()
-			.antMatchers(HttpMethod.GET, Endpoint.Api.POST + "/**").permitAll()
+			.antMatchers(USER + "/posts/**").permitAll()
+			.antMatchers(USER + "/series/**").permitAll()
 			.antMatchers(Endpoint.Api.USER + "/**").hasRole("USER")
+			//TODO: 추후 GET 메소드에 대해 처리 필요
+			.antMatchers(HttpMethod.GET).permitAll()
 			// swagger 문서 접근 허용
 			.antMatchers("/swagger-ui/**").permitAll()
 			.antMatchers("/v3/api-docs/**").permitAll()
 			.antMatchers("/h2-console/**").permitAll()
 			.anyRequest().authenticated();
+
+		http.oauth2Login()
+			.userInfoEndpoint()
+			.userService(customOAuth2UserDetailsService)
+			.and()
+			.successHandler(CommonAuthenticationSuccessHandler.create())
+			.failureHandler(oAuth2AuthenticationFailureHandler);
 
 		http
 			.headers().frameOptions().disable()
@@ -83,7 +99,7 @@ public class SecurityConfig {
 			.apply(ajaxLoginConfigurer());
 
 		http
-			.addFilterBefore(new LoginStatusCheckingFilter(), LogoutFilter.class);
+			.addFilterBefore(new LoginStatusCheckingFilter(userRepository), LogoutFilter.class);
 
 		return http.build();
 	}
@@ -122,7 +138,7 @@ public class SecurityConfig {
 
 	public AjaxLoginConfigurer<HttpSecurity> ajaxLoginConfigurer() {
 		AjaxLoginConfigurer<HttpSecurity> ajaxLoginConfigurer = AjaxLoginConfigurer.create();
-		ajaxLoginConfigurer.setPasswordEncoder(passwordEncoder());
+		ajaxLoginConfigurer.setPasswordEncoder(passwordEncoder);
 		ajaxLoginConfigurer.setUserDetailsService(userDetailsService);
 		return ajaxLoginConfigurer;
 	}
@@ -132,8 +148,4 @@ public class SecurityConfig {
 		return new SecureRandomFactoryBean();
 	}
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
 }

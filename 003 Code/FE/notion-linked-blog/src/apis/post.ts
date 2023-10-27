@@ -11,14 +11,14 @@ export interface Post {
 	createdAt: string;
 	countOfComments: number;
 	author: string;
-	avater: string;
+	avatar: string;
 }
 
-export async function getThumbnail(url: string) {
+export async function getThumbnailAPI(url: string) {
 	try {
-		const resp = await apiClient.get(url);
-
-		console.log(resp.data);
+		const resp = await apiClient.get(url, {
+			responseType: "blob",
+		});
 
 		return resp;
 	} catch (e) {
@@ -27,7 +27,7 @@ export async function getThumbnail(url: string) {
 
 export async function getPostByIdAPI(postId: string): Promise<Post> {
 	try {
-		const resp = await apiClient.get(`/posts/${postId}`);
+		const resp = await apiClient.get(`/api/posts/${postId}`);
 
 		return resp.data;
 	} catch (e) {
@@ -36,7 +36,7 @@ export async function getPostByIdAPI(postId: string): Promise<Post> {
 
 export async function loadPostAPI(pageNumber: number): Promise<Post[]> {
 	try {
-		const resp = await apiClient.get(`/posts/newest/${pageNumber}`);
+		const resp = await apiClient.get(`/api/posts/newest/${pageNumber}`);
 
 		return resp.data.posts;
 	} catch (e) {
@@ -60,7 +60,7 @@ export async function loadPostAPI(pageNumber: number): Promise<Post[]> {
 
 export const requestSubmitPostAPI = async post => {
 	try {
-		await apiClient.post("/posts", post, {
+		await apiClient.post("/api/posts", post, {
 			headers: {
 				"Content-Type": "multipart/form-data",
 			},
@@ -74,7 +74,7 @@ export const requestSubmitPostAPI = async post => {
 
 export const requestDeletePostAPI = async postId => {
 	try {
-		await apiClient.delete(`/posts/${postId}`);
+		await apiClient.delete(`/api/posts/${postId}`);
 	} catch (e) {
 		// 400 : Bad Request
 		// 401 : 작성자와 삭제시도자 불일치
@@ -91,7 +91,7 @@ export const requestUpdatePostAPI = async post => {
 	};
 
 	try {
-		await apiClient.put(`/posts/${post.postId}`, data, {
+		await apiClient.put(`/api/posts/${post.postId}`, data, {
 			headers: {
 				"Content-Type": "application/json",
 			},

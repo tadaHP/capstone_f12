@@ -29,28 +29,27 @@ export default function MainPosts() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [errorMsg, setErrorMsg] = useState("");
 	const target = useRef(null);
-
-	const {count} = useInfiniteScroll({
+	const [count] = useInfiniteScroll({
 		target,
 		targetArray: mainPosts,
 		threshold: 0.2,
 		endPoint: 3,
 	});
 
-	const fetchPosts = async () => {
-		setIsLoading(true);
-		try {
-			const posts = await loadPostAPI(count);
-
-			setMainPosts([...mainPosts, ...posts]);
-		} catch (e) {
-			setErrorMsg(e.message);
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
 	useEffect(() => {
+		const fetchPosts = async () => {
+			setIsLoading(true);
+			try {
+				const posts = await loadPostAPI(count);
+
+				setMainPosts([...mainPosts, ...posts]);
+			} catch (e) {
+				setErrorMsg(e.message);
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
 		fetchPosts();
 	}, [count]);
 
