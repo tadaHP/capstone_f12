@@ -15,6 +15,7 @@ import io.f12.notionlinkedblog.common.Endpoint;
 import io.f12.notionlinkedblog.common.exceptions.exception.AuthFailureException;
 import io.f12.notionlinkedblog.common.exceptions.exception.NotionAuthenticationException;
 import io.f12.notionlinkedblog.notion.api.port.NotionService;
+import io.f12.notionlinkedblog.notion.exception.NoTitleException;
 import io.f12.notionlinkedblog.notion.service.UpdateNotionSchedule;
 import io.f12.notionlinkedblog.oauth.notion.api.port.NotionOauthService;
 import io.f12.notionlinkedblog.oauth.notion.domain.OAuthLinkDto;
@@ -75,7 +76,7 @@ public class OAuthApiController {
 
 	@GetMapping("/test")
 	@Operation(summary = "일정시간 마다 동기화 확인 매서드, Test용", description = "노션 연동된 Post들 내용 업데이트")
-	public void test() throws NotionAuthenticationException {
+	public void test() throws NotionAuthenticationException, NoTitleException {
 		test.updatePostData();
 	}
 

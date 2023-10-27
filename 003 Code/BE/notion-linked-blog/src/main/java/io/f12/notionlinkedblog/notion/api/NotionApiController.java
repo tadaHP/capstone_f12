@@ -4,7 +4,6 @@ import static org.springframework.util.MimeTypeUtils.*;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +18,8 @@ import io.f12.notionlinkedblog.common.domain.CommonErrorResponse;
 import io.f12.notionlinkedblog.common.exceptions.exception.NotionAuthenticationException;
 import io.f12.notionlinkedblog.notion.api.port.NotionService;
 import io.f12.notionlinkedblog.notion.domain.dto.CreateNotionPageToBlogDto;
+import io.f12.notionlinkedblog.notion.exception.NoAccessTokenException;
+import io.f12.notionlinkedblog.notion.exception.NoTitleException;
 import io.f12.notionlinkedblog.post.api.response.PostSearchDto;
 import io.f12.notionlinkedblog.security.login.ajax.dto.LoginUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -52,8 +53,9 @@ public class NotionApiController {
 	})
 	public PostSearchDto getSingleNotionPageToBlog(
 		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser,
-		@RequestBody @Validated CreateNotionPageToBlogDto notionToBlogDto) throws NotionAuthenticationException {
-		notionAccessAvailable(loginUser);
+		@RequestBody @Validated CreateNotionPageToBlogDto notionToBlogDto)
+		throws NotionAuthenticationException, NoTitleException, NoAccessTokenException {
+		notionService.notionAccessAvailable(loginUser);
 		return notionService.saveSingleNotionPage(notionToBlogDto.getPath(), loginUser.getUser().getId());
 	}
 
@@ -72,8 +74,9 @@ public class NotionApiController {
 	})
 	public void getMultipleNotionPageToBlog(
 		@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser,
-		@RequestBody @Validated CreateNotionPageToBlogDto notionToBlogDto) throws NotionAuthenticationException {
-		notionAccessAvailable(loginUser);
+		@RequestBody @Validated CreateNotionPageToBlogDto notionToBlogDto)
+		throws NotionAuthenticationException, NoTitleException, NoAccessTokenException {
+		notionService.notionAccessAvailable(loginUser);
 		notionService.saveMultipleNotionPage(notionToBlogDto.getPath(), loginUser.getUser().getId());
 	}
 
@@ -88,12 +91,8 @@ public class NotionApiController {
 				schema = @Schema(implementation = CommonErrorResponse.class)))
 	})
 	public void requestUpdatePost(@Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser,
-		@PathVariable Long postId) throws NotionAuthenticationException {
+		@PathVariable Long postId) throws NotionAuthenticationException, NoTitleException {
 		notionService.updatePostRequest(loginUser.getUser().getId(), postId);
-	}
-
-	private void notionAccessAvailable(LoginUser loginUser) {
-		Assert.notNull(loginUser.getUser().getNotionOauth().getAccessToken(), "AuthenticationNeed");
 	}
 
 }

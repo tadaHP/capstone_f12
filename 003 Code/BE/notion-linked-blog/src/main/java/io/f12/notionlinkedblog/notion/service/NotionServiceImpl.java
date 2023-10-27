@@ -21,7 +21,9 @@ import io.f12.notionlinkedblog.common.exceptions.exception.NotionAuthenticationE
 import io.f12.notionlinkedblog.component.oauth.NotionOAuthComponent;
 import io.f12.notionlinkedblog.notion.api.port.NotionService;
 import io.f12.notionlinkedblog.notion.domain.converter.NotionBlockConverter;
+import io.f12.notionlinkedblog.notion.exception.NoAccessTokenException;
 import io.f12.notionlinkedblog.notion.exception.NoContentException;
+import io.f12.notionlinkedblog.notion.exception.NoTitleException;
 import io.f12.notionlinkedblog.notion.infrastructure.multi.SyncedSeriesEntity;
 import io.f12.notionlinkedblog.notion.infrastructure.single.SyncedPagesEntity;
 import io.f12.notionlinkedblog.notion.service.port.SyncedPagesRepository;
@@ -29,6 +31,7 @@ import io.f12.notionlinkedblog.notion.service.port.SyncedSeriesRepository;
 import io.f12.notionlinkedblog.post.api.response.PostSearchDto;
 import io.f12.notionlinkedblog.post.infrastructure.PostEntity;
 import io.f12.notionlinkedblog.post.service.port.PostRepository;
+import io.f12.notionlinkedblog.security.login.ajax.dto.LoginUser;
 import io.f12.notionlinkedblog.series.infrastructure.SeriesEntity;
 import io.f12.notionlinkedblog.series.service.port.SeriesRepository;
 import io.f12.notionlinkedblog.user.infrastructure.UserEntity;
@@ -56,7 +59,8 @@ public class NotionServiceImpl implements NotionService {
 	private final SyncedSeriesRepository syncedSeriesRepository;
 
 	@Override
-	public PostSearchDto saveSingleNotionPage(String path, Long userId) throws NotionAuthenticationException {
+	public PostSearchDto saveSingleNotionPage(String path, Long userId)
+		throws NotionAuthenticationException, NoTitleException {
 
 		String convertPath = convertPathToId(path);
 
@@ -90,7 +94,8 @@ public class NotionServiceImpl implements NotionService {
 
 	@Override
 	@Transactional
-	public void saveMultipleNotionPage(String path, Long userId) throws NotionAuthenticationException {
+	public void saveMultipleNotionPage(String path, Long userId)
+		throws NotionAuthenticationException, NoTitleException {
 		String convertPath = convertPathToId(path);
 
 		if (syncedSeriesRepository.findByPageId(convertPath).isPresent()) {
@@ -131,7 +136,8 @@ public class NotionServiceImpl implements NotionService {
 	}
 
 	@Override
-	public void editNotionPageToBlog(Long userId, PostEntity post) throws NotionAuthenticationException {
+	public void editNotionPageToBlog(Long userId, PostEntity post) throws
+		NotionAuthenticationException, NoTitleException {
 		Long postUserId = post.getUser().getId();
 		checkSameUser(postUserId, userId);
 
@@ -159,7 +165,8 @@ public class NotionServiceImpl implements NotionService {
 	}
 
 	@Override
-	public void updateSeriesRequest(Long userId, String seriesId) throws NotionAuthenticationException {
+	public void updateSeriesRequest(Long userId, String seriesId) throws NotionAuthenticationException,
+		NoTitleException {
 		SyncedSeriesEntity existSeries = syncedSeriesRepository.findByPageId(seriesId)
 			.orElseThrow(() -> new IllegalArgumentException(SERIES_NOT_EXIST));
 		checkSameUser(userId, existSeries.getUser().getId());
@@ -169,7 +176,7 @@ public class NotionServiceImpl implements NotionService {
 	}
 
 	@Override
-	public void updatePostRequest(Long userId, Long postId) throws NotionAuthenticationException {
+	public void updatePostRequest(Long userId, Long postId) throws NotionAuthenticationException, NoTitleException {
 		PostEntity existPost = postRepository.findById(postId)
 			.orElseThrow(() -> new IllegalArgumentException(POST_NOT_EXIST));
 		checkSameUser(userId, existPost.getUser().getId());
@@ -178,8 +185,17 @@ public class NotionServiceImpl implements NotionService {
 		existPost.editPost(newPost);
 	}
 
+	@Override
+	public void notionAccessAvailable(LoginUser loginUser) throws NoAccessTokenException {
+		UserEntity user = userRepository.findById(loginUser.getUser().getId())
+			.orElseThrow(() -> new IllegalArgumentException(USER_NOT_EXIST));
+		if (user.getNotionOauth() == null) {
+			throw new NoAccessTokenException();
+		}
+	}
+
 	// private 매소드
-	private PostEntity createPost(String path, Long userId) throws NotionAuthenticationException {
+	private PostEntity createPost(String path, Long userId) throws NotionAuthenticationException, NoTitleException {
 		String title = getTitle(path, userId);
 		String content = getContent(path, userId);
 
@@ -196,15 +212,18 @@ public class NotionServiceImpl implements NotionService {
 			.build();
 	}
 
-	private String getTitle(String fullPath, Long userId) throws NotionAuthenticationException {
+	private String getTitle(String fullPath, Long userId) throws NotionAuthenticationException, NoTitleException {
 		Block block;
 		NotionClient client = createClient(userId);
 		RetrieveBlockRequest retrieveBlockRequest = new RetrieveBlockRequest(fullPath);
 		try (client) {
 			block = client.retrieveBlock(retrieveBlockRequest);
 		}
-
-		return block.asChildPage().getChildPage().getTitle();
+		String title = block.asChildPage().getChildPage().getTitle();
+		if (title.isBlank()) {
+			throw new NoTitleException();
+		}
+		return title;
 	}
 
 	private String getContent(String fullPath, Long userId) throws NotionAuthenticationException {
@@ -270,10 +289,12 @@ public class NotionServiceImpl implements NotionService {
 	}
 
 	private String convertPathToId(String path) {
-		String[] splitDomain = path.split("-");
+    String[] splitDomain = path.split("/");
 		String exceptDomain = splitDomain[splitDomain.length - 1];
 		String[] splitQueryParameter = exceptDomain.split("\\?");
-		String rawId = splitQueryParameter[0];
+		String splitQuery = splitQueryParameter[0];
+		String[] splitTitle = splitQuery.split("-");
+		String rawId = splitTitle[splitTitle.length - 1];
 
 		return rawId.substring(0, 8) + "-" + rawId.substring(8, 12) + "-" + rawId.substring(12, 16) + "-"
 			+ rawId.substring(16, 20) + "-" + rawId.substring(20);

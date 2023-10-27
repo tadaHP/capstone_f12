@@ -78,7 +78,6 @@ public class PostEntity extends PostTimeEntity {
 
 	@NotBlank
 	private String title;
-	@NotBlank
 	@Column(columnDefinition = "TEXT")
 	private String content;
 	@Column(unique = true)

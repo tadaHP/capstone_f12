@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import io.f12.notionlinkedblog.common.exceptions.exception.NotionAuthenticationException;
 import io.f12.notionlinkedblog.notion.api.port.NotionService;
+import io.f12.notionlinkedblog.notion.exception.NoTitleException;
 import io.f12.notionlinkedblog.notion.infrastructure.multi.SyncedSeriesEntity;
 import io.f12.notionlinkedblog.notion.infrastructure.single.SyncedPagesEntity;
 import io.f12.notionlinkedblog.notion.service.port.SyncedPagesRepository;
@@ -26,7 +27,7 @@ public class UpdateNotionSchedule {
 	private final NotionService notionService;
 
 	@Scheduled(fixedDelay = 3600000) // 1시간 (임시 설정)
-	public void updatePostData() throws NotionAuthenticationException {
+	public void updatePostData() throws NotionAuthenticationException, NoTitleException {
 		List<SyncedPagesEntity> everyData = syncedPagesRepository.findAll();
 
 		for (SyncedPagesEntity data : everyData) {
@@ -41,7 +42,7 @@ public class UpdateNotionSchedule {
 	}
 
 	@Scheduled(fixedDelay = 3600000) // 1시간 (임시 설정)
-	public void updateSeriesData() throws NotionAuthenticationException {
+	public void updateSeriesData() throws NotionAuthenticationException, NoTitleException {
 		List<SyncedSeriesEntity> everyData
 			= syncedSeriesRepository.findAll();
 
