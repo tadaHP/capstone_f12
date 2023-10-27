@@ -153,3 +153,13 @@ export const getMyPosts = async (id: number) => {
 		throw e;
 	}
 };
+
+export const getMySeries = async (id: number) => {
+	try {
+		const resp = await apiClient.get(`/api/users/series/${id}`);
+
+		return resp.data;
+	} catch (e) {
+		throw e;
+	}
+};

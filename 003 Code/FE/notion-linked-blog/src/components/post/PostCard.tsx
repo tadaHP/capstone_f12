@@ -45,16 +45,14 @@ export default function PostCard({post}) {
 			actions={
 				[
 					<StyledDiv key="left">
-						{post.avater && <StyledAvatar
+						<StyledAvatar
 							src={post.avatar}
 							alt="PostAuthorAvatar"
 							width={15}
 							height={15}
-						/>}
+						/>
 						&nbsp;by
 						<Typography.Text strong={true}>&nbsp;{post.author}</Typography.Text>
-						{/* eslint-disable-next-line array-element-newline */
-						}
 					</StyledDiv>,
 					<Typography.Text key="right">
 						<HeartFilled />

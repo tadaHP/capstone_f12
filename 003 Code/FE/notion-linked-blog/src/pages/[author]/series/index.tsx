@@ -1,17 +1,14 @@
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import Image from "next/image";
-import {useRouter} from "next/router";
 import Link from "next/link";
 import {Avatar, List, Space, Typography} from "antd";
-import {LikeOutlined, MessageOutlined} from "@ant-design/icons";
 import styled from "styled-components";
 import {RootState} from "@/redux/store";
-import {getMyPosts, getProfileImageAPI} from "@/apis/user";
+import {getMySeries, getProfileImageAPI} from "@/apis/user";
 import AppLayout from "@/components/common/AppLayout";
 import {modifyProfileImage} from "@/redux/userSlice";
 import convertKRTimeStyle from "@/utils/time";
-import Navigation from "./navigation";
+import Navigation from "../navigation";
 
 const MyInfoSpace = styled(Space)`
 	width: 768px;
@@ -71,21 +68,13 @@ const StyledIntroduction = styled(Typography.Text)`
   }
 `;
 
-const IconText = ({icon, text}: {icon: React.FC; text: string;}) => (
-	<Space>
-		{React.createElement(icon)}
-		{text}
-	</Space>
-);
-
-export default function MyPage() {
+export default function Series() {
 	const id = useSelector<RootState, number>(state => state.user.user?.id);
 	const profile = useSelector<RootState, string>(state => state.user.user?.profile);
 	const username = useSelector<RootState, string>(state => state.user.user?.username);
 	const introduction = useSelector<RootState, string>(state => state.user.user?.introduction);
-	const [posts, setPosts] = useState([]);
+	const [series, setSeries] = useState([]);
 	const dispatch = useDispatch();
-	const router = useRouter();
 
 	useEffect(() => {
 		const fetchProfileImage = async () => {
@@ -94,18 +83,18 @@ export default function MyPage() {
 			dispatch(modifyProfileImage(imageUrl));
 		};
 
-		const fetchMyPosts = async () => {
-			const myPosts = await getMyPosts(id);
+		const fetchMySeries = async () => {
+			const mySeries = await getMySeries(id);
 
-			myPosts.data.forEach(post => {
-				post.createdAt = convertKRTimeStyle(post.createdAt);
+			mySeries.data.forEach(item => {
+				item.createdAt = convertKRTimeStyle(item.createdAt);
 			});
-			setPosts(myPosts.data);
+			setSeries(mySeries.data);
 		};
 
 		if (id) {
 			fetchProfileImage();
-			fetchMyPosts();
+			fetchMySeries();
 		}
 	}, [id]);
 
@@ -123,38 +112,16 @@ export default function MyPage() {
 						</StyledIntroduction>
 					</Space>
 				</MyInfoSpace>
-				<Navigation username={username} selected="글" />
+				<Navigation username={username} selected="시리즈" />
 				<PostSpace>
 					<List
 						itemLayout="vertical"
 						size="large"
-						dataSource={posts}
+						dataSource={series}
 						renderItem={item => (
-							<List.Item
-								key={item.id}
-								actions={[
-									<Space>{item.createdAt}</Space>,
-									<IconText icon={LikeOutlined} text={item.likes} key="list-vertical-like-o" />,
-									<IconText icon={MessageOutlined} text={item.countOfComments} key="list-vertical-message" />,
-								]}
-							>
-								<div style={{
-									position: "relative",
-									width: "100%",
-									maxWidth: "702px",
-									aspectRatio: "16/10",
-								}}>
-									<Image
-										src={item.requestThumbnailLink}
-										fill
-										priority
-										alt="logo"
-										onClick={() => router.replace(`${item.author}/${item.postId}`)}
-										style={{cursor: "pointer"}} />
-								</div>
+							<List.Item key={item.seriesId}>
 								<List.Item.Meta
-									title={<Link href={`${item.author}/${item.postId}`}>{item.title}</Link>}
-									description={item.description}
+									title={<Link href={`/${username}/series/${item.seriesId}`}>{item.title}</Link>}
 								/>
 							</List.Item>
 						)}

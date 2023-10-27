@@ -14,6 +14,7 @@ const ButtonDiv = styled.div`
 
   & > Button {
     width: 100%;
+		margin-top: 5px;
   }
 `;
 
@@ -67,7 +68,7 @@ const Uploader = props => {
 				ref={refParam => (inputRef = refParam)}
 				style={{display: "none"}}
 			/>
-			<Image src={image.preview_URL} alt="Preview of thumbnail" width={200} height={200} />
+			<Image src={image.preview_URL} alt="Preview of thumbnail" width={350} height={200} />
 
 			<ButtonDiv>
 				<Button type="primary" onClick={() => inputRef.click()}>

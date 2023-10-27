@@ -3,9 +3,9 @@ import {Button, Input, Space} from "antd";
 
 export const CoverDiv = styled.div`
   display: flex;
-  height: 100vh;
+  height: 425px;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
 `;
 
 export const UploaderDiv = styled.div`
