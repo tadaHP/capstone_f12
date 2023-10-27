@@ -33,3 +33,19 @@ export const removeAccessToken = async () => {
 		throw e;
 	}
 };
+
+export const addSingleNotionPost = async (path: string) => {
+	try {
+		await apiClient.post(`/api/notion/single`, {path});
+	} catch (e) {
+		throw e;
+	}
+};
+
+export const addMultiNotionPost = async (path: string) => {
+	try {
+		await apiClient.post(`/api/notion/multi`, {path});
+	} catch (e) {
+		throw e;
+	}
+};

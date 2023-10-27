@@ -63,7 +63,8 @@ export default function NotionLinking() {
 				</RowContainer>
 				<div>
 					<Text type="secondary">
-						노션 연동 여부를 나타냅니다.
+						노션 연동 여부를 나타냅니다. 개인 노션에 접근하기 위한 권한을 얻는 절차입니다. <br />
+						페이지 선택은 이용에 아무런 영향이 없으므로 액세스 허용만 하시면 됩니다.
 					</Text>
 				</div>
 			</Container>

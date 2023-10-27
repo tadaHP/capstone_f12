@@ -114,7 +114,7 @@ export default function Series() {
 							<Modal title="시리즈 삭제" open={isOpenDeletingModal}
 								footer={[
 									<Button onClick={handleCancel}>취소</Button>,
-									<Button key="submit" type="primary" danger onClick={handleOk}>삭제</Button>
+									<Button key="submit" type="primary" danger onClick={handleOk}>삭제</Button>,
 								]}>
 								<Typography.Paragraph>시리즈를 삭제해도 포스트는 삭제되지 않습니다</Typography.Paragraph>
 							</Modal>

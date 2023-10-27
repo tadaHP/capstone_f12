@@ -25,7 +25,7 @@ export default function MenuItemsDropdown() {
 	const username = useSelector<RootState, string>(state => state.user.user.username);
 
 	const items = Object.entries(data).map(([text, href]) => ({
-		label: <Link href={href === "/myblog" ? `/${username}` : `/${href}`}><Text>{text}</Text></Link>,
+		label: <Link href={href === "/myblog" ? `/${username}` : `${href}`}><Text>{text}</Text></Link>,
 		key: href,
 	}));
 
