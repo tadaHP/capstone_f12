@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 public class PostForDetailSeries {
+	private Long postId;
 	private String postTitle;
 	private String postInfo;
 	private String thumbnailRequestUrl;

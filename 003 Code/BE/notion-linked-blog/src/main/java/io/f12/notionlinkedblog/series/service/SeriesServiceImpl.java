@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import io.f12.notionlinkedblog.common.domain.EntityConverter;
 import io.f12.notionlinkedblog.post.infrastructure.PostEntity;
@@ -24,6 +25,7 @@ import io.f12.notionlinkedblog.series.api.response.UserSeriesDto;
 import io.f12.notionlinkedblog.series.api.response.UserSeriesResponseDto;
 import io.f12.notionlinkedblog.series.domain.dto.request.SeriesCreateDto;
 import io.f12.notionlinkedblog.series.domain.dto.request.SeriesRemoveDto;
+import io.f12.notionlinkedblog.series.exception.SeriesNotExistException;
 import io.f12.notionlinkedblog.series.infrastructure.SeriesEntity;
 import io.f12.notionlinkedblog.series.service.port.SeriesRepository;
 import io.f12.notionlinkedblog.user.infrastructure.UserEntity;
@@ -108,28 +110,34 @@ public class SeriesServiceImpl implements SeriesService {
 	}
 
 	@Override
-	public SeriesDetailSearchDto getDetailSeriesInfoOrderByDesc(Long seriesId, Integer page) {
+	public SeriesDetailSearchDto getDetailSeriesInfoOrderByDesc(Long seriesId, Integer page) throws
+		SeriesNotExistException {
 		PageRequest pageRequest = PageRequest.of(page, pagingSize);
 
+		SeriesEntity findSeries = seriesRepository.findSeriesById(seriesId).orElseThrow(SeriesNotExistException::new);
 		List<Long> postIds = querydslPostRepository.findIdsBySeriesIdDesc(seriesId, pageRequest);
 		List<PostEntity> posts = querydslPostRepository.findByIdsJoinWithSeries(postIds);
-		SeriesEntity series = posts.get(0).getSeries();
 
-		return entityConverter.convertPostToSeriesDetailSearchDto(posts, page, series);
+		return entityConverter.convertPostToSeriesDetailSearchDto(posts, page, findSeries);
 	}
 
 	@Override
-	public SeriesDetailSearchDto getDetailSeriesInfoOrderByAsc(Long seriesId, Integer page) {
+	public SeriesDetailSearchDto getDetailSeriesInfoOrderByAsc(Long seriesId, Integer page)
+		throws SeriesNotExistException {
 		PageRequest pageRequest = PageRequest.of(page, pagingSize);
 
+		SeriesEntity findSeries = seriesRepository.findSeriesById(seriesId).orElseThrow(SeriesNotExistException::new);
 		List<Long> postIds = querydslPostRepository.findIdsBySeriesIdAsc(seriesId, pageRequest);
-		List<PostEntity> posts = querydslPostRepository.findByIdsJoinWithSeries(postIds);
-		SeriesEntity series = posts.get(0).getSeries();
+		if (postIds.isEmpty()) {
 
-		return entityConverter.convertPostToSeriesDetailSearchDto(posts, page, series);
+		}
+		List<PostEntity> posts = querydslPostRepository.findByIdsJoinWithSeries(postIds);
+
+		return entityConverter.convertPostToSeriesDetailSearchDto(posts, page, findSeries);
 	}
 
 	@Override
+	@Transactional
 	public void addPostTo(Long seriesId, Long postId) {
 		SeriesEntity series = seriesRepository.findSeriesById(seriesId)
 			.orElseThrow(() -> new IllegalArgumentException(SERIES_NOT_EXIST));

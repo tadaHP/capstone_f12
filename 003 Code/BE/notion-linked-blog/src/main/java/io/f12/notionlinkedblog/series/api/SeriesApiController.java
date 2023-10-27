@@ -28,6 +28,7 @@ import io.f12.notionlinkedblog.series.domain.dto.request.SeriesCreateDto;
 import io.f12.notionlinkedblog.series.domain.dto.request.SeriesPostRemoveDto;
 import io.f12.notionlinkedblog.series.domain.dto.request.SeriesRemoveDto;
 import io.f12.notionlinkedblog.series.domain.dto.request.TitleEditDto;
+import io.f12.notionlinkedblog.series.exception.SeriesNotExistException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -112,7 +113,7 @@ public class SeriesApiController {
 				schema = @Schema(implementation = CommonErrorResponse.class)))
 	})
 	public SeriesDetailSearchDto seriesDetailSearchOrderByDesc(
-		@PathVariable("id") Long id, @PathVariable("page") Integer page) {
+		@PathVariable("id") Long id, @PathVariable("page") Integer page) throws SeriesNotExistException {
 		return seriesService.getDetailSeriesInfoOrderByDesc(id, page);
 	}
 
@@ -122,12 +123,15 @@ public class SeriesApiController {
 		@ApiResponse(responseCode = "200", description = "조회성공",
 			content = @Content(mediaType = "application/json",
 				schema = @Schema(implementation = SeriesDetailSearchDto.class))),
+		@ApiResponse(responseCode = "400", description = "조회실패 - 시리즈 미존재",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = CommonErrorResponse.class))),
 		@ApiResponse(responseCode = "404", description = "조회실패",
 			content = @Content(mediaType = "application/json",
 				schema = @Schema(implementation = CommonErrorResponse.class)))
 	})
 	public SeriesDetailSearchDto seriesDetailSearchOrderByAsc(
-		@PathVariable("id") Long id, @PathVariable("page") Integer page) {
+		@PathVariable("id") Long id, @PathVariable("page") Integer page) throws SeriesNotExistException {
 		return seriesService.getDetailSeriesInfoOrderByAsc(id, page);
 	}
 

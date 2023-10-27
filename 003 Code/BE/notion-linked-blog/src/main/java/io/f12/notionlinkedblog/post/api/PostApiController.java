@@ -78,7 +78,7 @@ public class PostApiController {
 		PostSearchDto post = postService.createPost(loginUser.getUser().getId(), title, content, description,
 			isPublic(isPublic), file, hashtags);
 		if (seriesId != null) {
-			seriesService.addPostTo(Long.parseLong(seriesId), post.getPostId());
+			seriesService.addPostTo(Long.valueOf(seriesId), post.getPostId());
 		}
 		return post;
 	}

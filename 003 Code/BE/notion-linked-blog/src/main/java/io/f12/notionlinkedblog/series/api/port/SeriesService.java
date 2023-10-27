@@ -6,6 +6,7 @@ import io.f12.notionlinkedblog.series.api.response.SeriesSimpleSearchDto;
 import io.f12.notionlinkedblog.series.api.response.UserSeriesResponseDto;
 import io.f12.notionlinkedblog.series.domain.dto.request.SeriesCreateDto;
 import io.f12.notionlinkedblog.series.domain.dto.request.SeriesRemoveDto;
+import io.f12.notionlinkedblog.series.exception.SeriesNotExistException;
 
 public interface SeriesService {
 
@@ -17,9 +18,11 @@ public interface SeriesService {
 
 	public SeriesSimpleSearchDto getSimpleSeriesInfo(Long seriesId);
 
-	public SeriesDetailSearchDto getDetailSeriesInfoOrderByDesc(Long seriesId, Integer page);
+	public SeriesDetailSearchDto getDetailSeriesInfoOrderByDesc(Long seriesId, Integer page) throws
+		SeriesNotExistException;
 
-	public SeriesDetailSearchDto getDetailSeriesInfoOrderByAsc(Long seriesId, Integer page);
+	public SeriesDetailSearchDto getDetailSeriesInfoOrderByAsc(Long seriesId, Integer page) throws
+		SeriesNotExistException;
 
 	public void addPostTo(Long seriesId, Long postId);
 

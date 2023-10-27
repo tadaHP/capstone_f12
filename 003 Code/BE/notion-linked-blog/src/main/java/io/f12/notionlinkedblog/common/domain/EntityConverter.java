@@ -91,6 +91,7 @@ public class EntityConverter {
 
 		List<PostForDetailSeries> convertDto = posts.stream().map(p -> {
 			return PostForDetailSeries.builder()
+				.postId(p.getId())
 				.postTitle(p.getTitle())
 				.postInfo(p.getDescription())
 				.thumbnailRequestUrl(convertPostToThumbnailLink(p))

@@ -24,6 +24,7 @@ import io.f12.notionlinkedblog.post.service.port.QuerydslPostRepository;
 import io.f12.notionlinkedblog.series.api.response.PostForDetailSeries;
 import io.f12.notionlinkedblog.series.api.response.SeriesDetailSearchDto;
 import io.f12.notionlinkedblog.series.api.response.SeriesSimpleSearchDto;
+import io.f12.notionlinkedblog.series.exception.SeriesNotExistException;
 import io.f12.notionlinkedblog.series.infrastructure.SeriesEntity;
 import io.f12.notionlinkedblog.series.service.SeriesServiceImpl;
 import io.f12.notionlinkedblog.series.service.port.SeriesRepository;
@@ -122,7 +123,7 @@ class SeriesServiceTest {
 
 			@DisplayName("성공케이스")
 			@Test
-			void successfulCase() {
+			void successfulCase() throws SeriesNotExistException {
 				//given
 				Long fakeId = 1L;
 				Long fakePostAId = 1L;
@@ -213,6 +214,8 @@ class SeriesServiceTest {
 					.willReturn(posts);
 				given(entityConverter.convertPostToSeriesDetailSearchDto(posts, 0, series))
 					.willReturn(convert);
+				given(seriesRepository.findSeriesById(series.getId()))
+					.willReturn(Optional.of(series));
 				//when
 				SeriesDetailSearchDto seriesDetailSearchDto
 					= seriesService.getDetailSeriesInfoOrderByAsc(series.getId(), 0);
@@ -229,7 +232,7 @@ class SeriesServiceTest {
 		class LookUpPostsByDesc {
 			@DisplayName("성공케이스")
 			@Test
-			void successfulCase() {
+			void successfulCase() throws SeriesNotExistException {
 				//given
 				Long fakeId = 1L;
 				Long fakePostAId = 1L;
@@ -319,6 +322,8 @@ class SeriesServiceTest {
 					.willReturn(posts);
 				given(entityConverter.convertPostToSeriesDetailSearchDto(posts, 0, series))
 					.willReturn(convert);
+				given(seriesRepository.findSeriesById(series.getId()))
+					.willReturn(Optional.of(series));
 				//when
 				SeriesDetailSearchDto seriesDetailSearchDto
 					= seriesService.getDetailSeriesInfoOrderByDesc(series.getId(), 0);
