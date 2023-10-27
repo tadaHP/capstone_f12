@@ -270,11 +270,13 @@ public class NotionServiceImpl implements NotionService {
 	}
 
 	private String convertPathToId(String path) {
-		String[] split = path.split("-");
-		String rawId = split[split.length - 1];
+		String[] splitDomain = path.split("-");
+		String exceptDomain = splitDomain[splitDomain.length - 1];
+		String[] splitQueryParameter = exceptDomain.split("\\?");
+		String rawId = splitQueryParameter[0];
+
 		return rawId.substring(0, 8) + "-" + rawId.substring(8, 12) + "-" + rawId.substring(12, 16) + "-"
 			+ rawId.substring(16, 20) + "-" + rawId.substring(20);
-
 	}
 
 	private void checkSameUser(Long id1, Long id2) {
