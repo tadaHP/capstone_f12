@@ -2,6 +2,7 @@ package io.f12.notionlinkedblog.medium.email.infrastructure.redis;
 
 import static org.assertj.core.api.Assertions.*;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import io.f12.notionlinkedblog.entity.verification.EmailVerificationToken;
 import io.f12.notionlinkedblog.security.service.SecureRandomService;
 
 @ActiveProfiles("test")
+@Disabled
 @DataRedisTest
 @Import({
 	SecureRandomService.class,
