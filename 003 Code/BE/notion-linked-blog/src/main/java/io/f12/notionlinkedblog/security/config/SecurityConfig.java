@@ -49,13 +49,22 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			.authorizeRequests()
+			.antMatchers(HttpMethod.GET).permitAll()
+			.antMatchers(Endpoint.Api.USER + "/email/**").permitAll()
+			.antMatchers(Endpoint.Api.USER + "/**").hasRole("USER")
+			.antMatchers(Endpoint.Api.POST + "/**").hasRole("USER")
+			.antMatchers(Endpoint.Api.COMMENTS + "/**").hasRole("USER")
+			.antMatchers(Endpoint.Api.SERIES + "/**").hasRole("USER")
+			.antMatchers(Endpoint.Api.NOTION + "/**").hasRole("USER")
+			//로그인
+			.antMatchers("/oauth2/**").permitAll()
+			.antMatchers("/login/**").permitAll()
+			.antMatchers("/api/login/**").permitAll()
+
 			.antMatchers(Endpoint.Api.EMAIL + "/**").permitAll()
 			.antMatchers(Endpoint.Api.USER + "/email/signup").permitAll()
 			.antMatchers(USER + "/posts/**").permitAll()
 			.antMatchers(USER + "/series/**").permitAll()
-			.antMatchers(Endpoint.Api.USER + "/**").hasRole("USER")
-			//TODO: 추후 GET 메소드에 대해 처리 필요
-			.antMatchers(HttpMethod.GET).permitAll()
 			// swagger 문서 접근 허용
 			.antMatchers("/swagger-ui/**").permitAll()
 			.antMatchers("/v3/api-docs/**").permitAll()
